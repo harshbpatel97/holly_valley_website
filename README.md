@@ -1,8 +1,8 @@
-<center><h1> OM EXPRESS </h1></center>
+<center><h1> HOLLY VALLEY </h1></center>
 <p>
   
 
-Om Express is a gas station-cum-retail convenience store which has been providing excellent customer service for the past ten years. It offers variety of products and services ranging from gas to drinks.
+Holly Valley is a gas station-cum-retail convenience store which has been providing excellent customer service for the past ten years. It offers variety of products and services ranging from gas to drinks.
 The store is located in North Wilkesboro town of North Carolina on 268 Elkin Highway.
 
 </p>
