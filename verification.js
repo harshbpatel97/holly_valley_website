@@ -9,7 +9,7 @@ jQuery(document).ready(function($){
     $('#refresh-page').on('click',function(){
         $('.box').hide();
         sessionStorage.setItem('advertOnce','true');
-        window.location.href = "index.html";
+        window.location.href = "home.html";
 
     });
 
