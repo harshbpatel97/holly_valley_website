@@ -23,7 +23,7 @@ The store is located in North Wilkesboro town of North Carolina on 268 Elkin Hig
     <ul>
       <li>The <i>box_slider</i> plugin is used on the home (index) page to serve the purpose of displaying the images of the store with different views i.e. front, side, and inside, 
 which can be scrolled to next/previous one by clicking on the respective icon.</li>
-      <li>The <i>image-zoom</i> plugin is incorporated on the products page under the groceries, tobacco, cigarettes, alcohols, and soft-drinks sections which can be easily seen by 
+      <li>The <i>image-zoom</i> plugin is incorporated on the products page under the groceries, tobacco, cigarettes, coldbeers, and soft-drinks sections which can be easily seen by 
 hovering on the images under those sections. This assists the user in zooming the 
 image to clearly recognize the brand or the product. </li>
       <li>The <i>accordion</i> widget is enabled on the services, products, and deals pages where all the subsection contents are wrapped around this plugin. It aids in displaying 
@@ -58,7 +58,7 @@ address, and hours of operation.</li>
 forms of payments, ATM, and NC Lottery. </li>
   <li>The products page consists of the description of all the products offered at the store 
 which is divided and displayed under different categories such as groceries, tobacco, 
-cigarettes, alcohols, and soft-drinks. </li>
+cigarettes, cold beers, and soft-drinks. </li>
   <li>The deals page focuses on the weekly deals as well as the clearance section of the items 
 currently at the store. Moreover, there is a subscription form where the user can signup to 
 get alerts of the weekly deals and clearance items.</li>
