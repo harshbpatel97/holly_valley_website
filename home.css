@@ -210,6 +210,9 @@ span.active, .dot:hover {
     position: relative;
     font-size: large;
 }
+#subheader-content {
+    text-align: justify;
+}
 
 /* styling for the google-map plugin*/
 .google-map {
@@ -334,7 +337,7 @@ footer {
         margin-top: -36px;
     }
     .subsection-content p {
-        font-size: 10px;
+        font-size: x-small;
     }
 }
 
