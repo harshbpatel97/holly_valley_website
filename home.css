@@ -30,6 +30,7 @@ nav ul {
 /* adding floating attributes to the navigation icon */
 nav li {
     float: left;
+    float: left;
 }
 
 /* adding styling to the navigation bar and dropdown button */
@@ -216,7 +217,14 @@ span.active, .dot:hover {
     position: relative;
     bottom: 4px;
     left: -20px;
+    margin-left: 98px;
 }
+@media screen and (min-width: 1200px) {
+    .google-map {
+        margin-left: 263px;
+    }
+}
+
 
 /* styling for the frame*/
 iframe {
@@ -238,6 +246,7 @@ iframe {
 address {
     position: relative;
     font-style: inherit;
+    padding-bottom: 10px;
 }
 
 /* styling for the hours font*/
@@ -257,11 +266,17 @@ address {
     float: right;
     height: 190px;
     margin-top: -225px;
+    margin-right: -21px;
 }
 
 /* styling for the footer*/
 footer {
-    height: 40vh;
+    height: 8vh;
+}
+@media screen and (min-width: 1200px) {
+    footer {
+        height: 16vh;
+    }
 }
 
 /* styling for the quick links section */
@@ -313,6 +328,14 @@ footer {
     float: right;
     position: relative;
     bottom: 63px;
+}
+@media screen and (max-width: 1200px) {
+    .services-logo img {
+        margin-top: -36px;
+    }
+    .subsection-content p {
+        font-size: 10px;
+    }
 }
 
 /* Style the buttons that are used to open and close the accordion panel */
