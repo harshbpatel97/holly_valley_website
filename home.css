@@ -184,6 +184,7 @@ span.active, .dot:hover {
     border-radius: 35px;
     background-color: antiquewhite;
     position: relative;
+    padding-bottom: 30px;
 }
 
 /* styling for the border*/
@@ -388,6 +389,7 @@ footer {
 /* styling for the table */
 .table-design {
     background: white;
+    border-radius: 30px;
 }
 
 /* styling for the table-caption */
