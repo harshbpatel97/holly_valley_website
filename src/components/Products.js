@@ -1,54 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { getAllProductCategories } from '../config/productImages';
 import './Products.css';
 
 const Products = () => {
   const [activeAccordion, setActiveAccordion] = useState(null);
   const [zoomedImage, setZoomedImage] = useState(null);
 
-  const products = [
-    {
-      id: 'groceries',
-      title: 'Groceries',
-      description: 'All the grocery items are available in single or combo pack depending on the type. Moreover, we do carry different brands of the items. For more information, visit the local store.',
-      items: [
-        { src: '/images/groceries/bread.jpg', alt: 'bread', caption: 'Bread' },
-        { src: '/images/groceries/cheetos.jpg', alt: 'cheetos', caption: 'Cheetos' },
-        { src: '/images/groceries/chocolates.jpg', alt: 'chocolates', caption: 'Chocolates' },
-        { src: '/images/groceries/chewing-gum.jpg', alt: 'chewing-gum', caption: 'Chewing-Gums' },
-        { src: '/images/groceries/skittles.jpg', alt: 'skittles', caption: 'Skittles' },
-        { src: '/images/groceries/rice-crispy.jpg', alt: 'rice-crispy', caption: 'Rice Krispies Treats' },
-        { src: '/images/groceries/cleaners.jpg', alt: 'cleaners', caption: 'Cleaning Sprays' },
-        { src: '/images/groceries/dawn.jpg', alt: 'dawn', caption: 'Dawn Liquid Wash' },
-        { src: '/images/groceries/lays.jpg', alt: 'lays', caption: 'Lays' },
-        { src: '/images/groceries/dial.jpg', alt: 'dial', caption: 'Dial Handwash' },
-        { src: '/images/groceries/dog-products.jpg', alt: 'dog-products', caption: 'Dog Products' },
-        { src: '/images/groceries/doritos.jpg', alt: 'doritos', caption: 'Doritos' },
-        { src: '/images/groceries/dove.jpg', alt: 'dove', caption: 'Dove Products' },
-        { src: '/images/groceries/eggs.jpg', alt: 'eggs', caption: 'Eggs' },
-        { src: '/images/groceries/milk.jpg', alt: 'milk', caption: 'Dairy Products' },
-        { src: '/images/groceries/funyuns.jpg', alt: 'funyuns', caption: 'Funyuns' }
-      ]
-    },
-    {
-      id: 'softdrinks',
-      title: 'Soft Drinks',
-      description: 'We offer a wide variety of soft drinks, sodas, and beverages from popular brands. All beverages are available in different sizes and flavors.',
-      items: [
-        { src: '/images/soft-drinks/coca-cola.jpg', alt: 'coca-cola', caption: 'Coca Cola' },
-        { src: '/images/soft-drinks/pepsi.jpg', alt: 'pepsi', caption: 'Pepsi' },
-        { src: '/images/soft-drinks/sprite.jpg', alt: 'sprite', caption: 'Sprite' },
-        { src: '/images/soft-drinks/fanta.jpg', alt: 'fanta', caption: 'Fanta' },
-        { src: '/images/soft-drinks/7up.jpg', alt: '7up', caption: '7UP' },
-        { src: '/images/soft-drinks/drpepper.jpg', alt: 'dr-pepper', caption: 'Dr Pepper' },
-        { src: '/images/soft-drinks/sunkist.jpg', alt: 'sunkist', caption: 'Sunkist' },
-        { src: '/images/soft-drinks/a&w.jpg', alt: 'a&w', caption: 'A&W' },
-        { src: '/images/soft-drinks/canada-dry.jpg', alt: 'canada-dry', caption: 'Canada Dry' },
-        { src: '/images/soft-drinks/tea.jpg', alt: 'tea', caption: 'Tea' },
-        { src: '/images/soft-drinks/brisk-tea.jpg', alt: 'brisk-tea', caption: 'Brisk Tea' },
-        { src: '/images/soft-drinks/starbucks.jpg', alt: 'starbucks', caption: 'Starbucks' }
-      ]
-    }
-  ];
+  const products = getAllProductCategories();
 
   const toggleAccordion = (id) => {
     setActiveAccordion(activeAccordion === id ? null : id);
@@ -103,11 +61,11 @@ const Products = () => {
                   <th colSpan="4" className="table-heading">{product.description}</th>
                 </tr>
                 {product.items.map((item, index) => (
-                  <React.Fragment key={index}>
+                  <React.Fragment key={item.id}>
                     {index % 4 === 0 && (
                       <tr>
                         {product.items.slice(index, index + 4).map((subItem, subIndex) => (
-                          <td key={subIndex}>
+                          <td key={subItem.id}>
                             <img 
                               src={subItem.src} 
                               alt={subItem.alt} 
@@ -124,7 +82,7 @@ const Products = () => {
                     {index % 4 === 0 && (
                       <tr>
                         {product.items.slice(index, index + 4).map((subItem, subIndex) => (
-                          <td key={subIndex} className="table-caption">{subItem.caption}</td>
+                          <td key={subItem.id} className="table-caption">{subItem.caption}</td>
                         ))}
                         {Array.from({ length: 4 - (product.items.length - index) }, (_, i) => (
                           <td key={`empty-caption-${i}`}></td>
