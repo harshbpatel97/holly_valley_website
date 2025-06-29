@@ -8,16 +8,30 @@ header {
   background-color: inherit;
   margin-top: -7px;
   display: inline-block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .logo img {
-  height: 60px;
+  height: 80px;
   width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: transform 0.2s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.logo img:hover {
+  transform: scale(1.05);
 }
 
 nav {
-  margin-top: -76px;
-  margin-left: 220px;
+  margin-top: -96px;
+  margin-left: 240px;
   display: inline-block;
 }
 
@@ -91,6 +105,18 @@ nav {
 }
 
 @media screen and (max-width: 768px) {
+  .logo {
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+    margin-top: 0;
+  }
+  
+  .logo img {
+    height: 60px;
+    max-width: 150px;
+  }
+  
   nav {
     margin-left: 0;
     margin-top: 10px;

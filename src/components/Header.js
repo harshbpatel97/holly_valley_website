@@ -18,7 +18,7 @@ const Header = () => {
     <header>
       <div className="logo">
         <Link to="/">
-          <img src="/images/holly_valley_logo.png" alt="Holly Valley Logo" />
+          <img src="/images/holly_valley_logo.png?v=1" alt="Holly Valley Logo" />
         </Link>
       </div>
       <nav>
