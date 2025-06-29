@@ -13,7 +13,7 @@ const Home = () => {
     }, sliderConfig.autoPlayInterval);
 
     return () => clearInterval(interval);
-  }, [storeImages.length]);
+  }, []);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % storeImages.length);

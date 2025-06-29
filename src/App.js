@@ -10,7 +10,6 @@ import Contact from './components/Contact';
 import './App.css';
 
 function App() {
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
 
   useEffect(() => {
@@ -18,21 +17,17 @@ function App() {
     const verified = sessionStorage.getItem('advertOnce') === 'true';
     if (!verified) {
       setShowVerification(true);
-    } else {
-      setIsAgeVerified(true);
     }
   }, []);
 
   const handleAgeVerification = () => {
     sessionStorage.setItem('advertOnce', 'true');
-    setIsAgeVerified(true);
     setShowVerification(false);
   };
 
   const handleExit = () => {
     sessionStorage.setItem('advertOnce', '');
     setShowVerification(true);
-    setIsAgeVerified(false);
   };
 
   if (showVerification) {
