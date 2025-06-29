@@ -28,6 +28,25 @@ const Products = () => {
         { src: '/images/groceries/milk.jpg', alt: 'milk', caption: 'Dairy Products' },
         { src: '/images/groceries/funyuns.jpg', alt: 'funyuns', caption: 'Funyuns' }
       ]
+    },
+    {
+      id: 'softdrinks',
+      title: 'Soft Drinks',
+      description: 'We offer a wide variety of soft drinks, sodas, and beverages from popular brands. All beverages are available in different sizes and flavors.',
+      items: [
+        { src: '/images/soft-drinks/coca-cola.jpg', alt: 'coca-cola', caption: 'Coca Cola' },
+        { src: '/images/soft-drinks/pepsi.jpg', alt: 'pepsi', caption: 'Pepsi' },
+        { src: '/images/soft-drinks/sprite.jpg', alt: 'sprite', caption: 'Sprite' },
+        { src: '/images/soft-drinks/fanta.jpg', alt: 'fanta', caption: 'Fanta' },
+        { src: '/images/soft-drinks/7up.jpg', alt: '7up', caption: '7UP' },
+        { src: '/images/soft-drinks/drpepper.jpg', alt: 'dr-pepper', caption: 'Dr Pepper' },
+        { src: '/images/soft-drinks/sunkist.jpg', alt: 'sunkist', caption: 'Sunkist' },
+        { src: '/images/soft-drinks/a&w.jpg', alt: 'a&w', caption: 'A&W' },
+        { src: '/images/soft-drinks/canada-dry.jpg', alt: 'canada-dry', caption: 'Canada Dry' },
+        { src: '/images/soft-drinks/tea.jpg', alt: 'tea', caption: 'Tea' },
+        { src: '/images/soft-drinks/brisk-tea.jpg', alt: 'brisk-tea', caption: 'Brisk Tea' },
+        { src: '/images/soft-drinks/starbucks.jpg', alt: 'starbucks', caption: 'Starbucks' }
+      ]
     }
   ];
 

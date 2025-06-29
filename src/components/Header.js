@@ -61,9 +61,6 @@ const Header = () => {
             </Link>
             <div className={`dropdown-content ${activeDropdown === 'products' ? 'show' : ''}`}>
               <a href="/products#groceries">Groceries</a>
-              <a href="/products#tobacco">Tobacco</a>
-              <a href="/products#cigarettes">Cigarettes</a>
-              <a href="/products#coldbeers">Cold Beers</a>
               <a href="/products#softdrinks">Soft Drinks</a>
             </div>
           </li>
