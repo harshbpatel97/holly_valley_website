@@ -1,0 +1,217 @@
+.products {
+  background-color: floralwhite;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.subsection {
+  margin-right: 11%;
+  margin-left: 11%;
+  border: 3px solid #41A698;
+  padding-left: 25px;
+  padding-right: 25px;
+  margin-top: 42px;
+  border-radius: 35px;
+  background-color: antiquewhite;
+  position: relative;
+  padding-bottom: 30px;
+}
+
+.products-subsection {
+  margin-top: 42px;
+}
+
+.subsection-heading {
+  text-align: center;
+  color: #333;
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.subsection-heading::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 250px;
+  background-color: #41A699;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+
+.subsection-content {
+  text-align: center;
+  line-height: 1.6;
+}
+
+#subheader-content {
+  text-align: center;
+}
+
+.services-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.services-logo img {
+  width: 80px;
+  height: auto;
+}
+
+.accordion {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.accordion-header {
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  padding: 15px 20px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.accordion-header:hover {
+  background-color: #41A699;
+  color: white;
+}
+
+.accordion-header.active {
+  background-color: #41A699;
+  color: white;
+}
+
+.panel-products {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  background-color: white;
+}
+
+.panel-products.active {
+  max-height: 2000px;
+  padding: 20px;
+}
+
+.table-design {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table-heading {
+  background-color: #41A699;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 1.1em;
+  line-height: 1.5;
+}
+
+.table-caption {
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  color: #333;
+  background-color: #f9f9f9;
+}
+
+.img-design {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.img-design:hover {
+  transform: scale(1.05);
+  border-color: #41A699;
+}
+
+.image-zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  cursor: pointer;
+}
+
+.image-zoom-container {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.image-zoom-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.close-zoom {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.close-zoom:hover {
+  color: #41A699;
+}
+
+@media screen and (max-width: 768px) {
+  .subsection {
+    margin-left: 5%;
+    margin-right: 5%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .services-logo img {
+    width: 60px;
+  }
+  
+  .accordion-header {
+    font-size: 1em;
+    padding: 12px 15px;
+  }
+  
+  .panel-products.active {
+    padding: 15px;
+  }
+  
+  .img-design {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .table-heading {
+    font-size: 1em;
+    padding: 10px;
+  }
+} 

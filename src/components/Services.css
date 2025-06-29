@@ -1,0 +1,146 @@
+.services {
+  background-color: floralwhite;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.subsection {
+  margin-right: 11%;
+  margin-left: 11%;
+  border: 3px solid #41A698;
+  padding-left: 25px;
+  padding-right: 25px;
+  margin-top: 42px;
+  border-radius: 35px;
+  background-color: antiquewhite;
+  position: relative;
+  padding-bottom: 30px;
+}
+
+.subsection-heading {
+  text-align: center;
+  color: #333;
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.subsection-heading::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 250px;
+  background-color: #41A699;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+
+.subsection-content {
+  text-align: center;
+  line-height: 1.6;
+}
+
+#subheader-content {
+  text-align: center;
+}
+
+.services-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.services-logo img {
+  width: 80px;
+  height: auto;
+}
+
+.accordion {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.accordion-header {
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  padding: 15px 20px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.accordion-header:hover {
+  background-color: #41A699;
+  color: white;
+}
+
+.accordion-header.active {
+  background-color: #41A699;
+  color: white;
+}
+
+.panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  background-color: white;
+}
+
+.panel.active {
+  max-height: 1000px;
+  padding: 20px;
+}
+
+.textAlignLeft {
+  text-align: left;
+}
+
+.img-services {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.img-services img {
+  max-width: 200px;
+  height: auto;
+}
+
+.list-elements {
+  list-style-type: disc;
+  margin-left: 20px;
+  line-height: 1.8;
+}
+
+.list-elements li {
+  margin-bottom: 5px;
+}
+
+@media screen and (max-width: 768px) {
+  .subsection {
+    margin-left: 5%;
+    margin-right: 5%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .services-logo img {
+    width: 60px;
+  }
+  
+  .accordion-header {
+    font-size: 1em;
+    padding: 12px 15px;
+  }
+  
+  .panel.active {
+    padding: 15px;
+  }
+} 
