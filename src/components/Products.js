@@ -80,6 +80,12 @@ const Products = () => {
 
   return (
     <div className="products">
+      <div className="legal-disclaimer">
+        <p><strong>LEGAL NOTICE:</strong> This website displays tobacco and alcohol products for informational purposes only. 
+        All products are subject to age verification and compliance with federal and state regulations. 
+        Tobacco and alcohol products are for adults 21+ only.</p>
+      </div>
+      
       <div className="subsection products-subsection">
         <h2 className="subsection-heading" id="products">PRODUCTS</h2>
         <div className="subsection-content" id="subheader-content">
@@ -89,6 +95,7 @@ const Products = () => {
           <p>Holly Valley offers a variety of products ranging from groceries to soft-drinks.
             A detailed overview of each department is mentioned along with the brands and options
             available in each category.</p>
+          <p className="age-notice"><strong>Age Restricted Products:</strong> Tobacco and alcohol products require valid ID and are for adults 21+ only.</p>
         </div>
       </div>
 

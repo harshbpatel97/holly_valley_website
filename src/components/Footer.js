@@ -25,6 +25,14 @@ const Footer = () => {
       <div className="copyright">
         <p>Contact Us: +1(336)304-0094</p>
         <p>&copy;HOLLY VALLEY INC.</p>
+        <div className="legal-links">
+          <small>
+            <a href="/legal">Legal Notice</a> | 
+            <a href="/privacy">Privacy Policy</a> | 
+            <a href="/terms">Terms of Service</a>
+          </small>
+        </div>
+        <small>Age Restricted Products: 21+ Only | ID Required</small>
       </div>
     </footer>
   );

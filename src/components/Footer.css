@@ -59,6 +59,21 @@ footer {
   margin: 5px 0;
 }
 
+.legal-links {
+  margin: 10px 0;
+}
+
+.legal-links a {
+  color: #666;
+  text-decoration: none;
+  margin: 0 5px;
+  transition: color 0.3s ease;
+}
+
+.legal-links a:hover {
+  color: #41A699;
+}
+
 @media screen and (max-width: 768px) {
   footer {
     padding: 15px 0;

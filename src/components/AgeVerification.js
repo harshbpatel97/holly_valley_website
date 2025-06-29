@@ -8,12 +8,20 @@ const AgeVerification = ({ onVerify, onExit }) => {
       <main>
         <article className="box">
           <div className="box-right">
-            <p>Website depicts tobacco and other products which are restricted to age limits.</p>
-            <h3>Age Verification</h3>
-            <p>By clicking enter, I certify that I am over the age of 21 and will comply with the above statement.</p>
+            <p><strong>Age Restricted Content Warning</strong></p>
+            <p>This website contains content related to tobacco products, alcohol, and age-restricted items which are regulated by federal and state laws.</p>
+            <h3>Age Verification Required</h3>
+            <p>By clicking "ENTER", I certify that:</p>
+            <ul className="age-requirements">
+              <li>I am at least 21 years of age</li>
+              <li>I understand that tobacco and alcohol products are for adults only</li>
+              <li>I will comply with all applicable laws and regulations</li>
+              <li>I acknowledge that this website is for informational purposes only</li>
+            </ul>
+            <p><small>Holly Valley complies with all federal and state regulations regarding age-restricted products.</small></p>
 
             <button className="btn btn-alpha" onClick={onVerify}>
-              ENTER
+              ENTER (21+ ONLY)
             </button>
 
             <p className="decor-line"><span>Or</span></p>
@@ -22,7 +30,7 @@ const AgeVerification = ({ onVerify, onExit }) => {
               EXIT
             </button>
 
-            <small>Always enjoy responsibly.</small>
+            <small>Always enjoy responsibly. Tobacco and alcohol products are for adults 21+ only.</small>
           </div>
         </article>
       </main>
