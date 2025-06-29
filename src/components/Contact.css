@@ -89,11 +89,24 @@
 }
 
 @media screen and (max-width: 768px) {
+  .contact {
+    padding: 15px 0;
+  }
+  
   .subsection {
     margin-left: 5%;
     margin-right: 5%;
     padding-left: 15px;
     padding-right: 15px;
+    margin-top: 30px;
+  }
+  
+  .subsection-heading {
+    font-size: 1.5em;
+  }
+  
+  .subsection-heading::after {
+    width: 150px;
   }
   
   .contact-logo img {
@@ -102,5 +115,30 @@
   
   .list-design li {
     font-size: 1em;
+  }
+  
+  .location-list li {
+    font-size: 0.9em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .subsection {
+    margin-left: 3%;
+    margin-right: 3%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .contact-logo img {
+    width: 50px;
+  }
+  
+  .list-design li {
+    font-size: 0.9em;
+  }
+  
+  .location-list li {
+    font-size: 0.8em;
   }
 } 

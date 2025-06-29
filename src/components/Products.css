@@ -185,11 +185,24 @@
 }
 
 @media screen and (max-width: 768px) {
+  .products {
+    padding: 15px 0;
+  }
+  
   .subsection {
     margin-left: 5%;
     margin-right: 5%;
     padding-left: 15px;
     padding-right: 15px;
+    margin-top: 30px;
+  }
+  
+  .subsection-heading {
+    font-size: 1.5em;
+  }
+  
+  .subsection-heading::after {
+    width: 150px;
   }
   
   .services-logo img {
@@ -213,5 +226,46 @@
   .table-heading {
     font-size: 1em;
     padding: 10px;
+  }
+  
+  .table-design {
+    font-size: 0.9em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .subsection {
+    margin-left: 3%;
+    margin-right: 3%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .accordion-header {
+    font-size: 0.9em;
+    padding: 10px 12px;
+  }
+  
+  .panel-products.active {
+    padding: 12px;
+  }
+  
+  .img-design {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .table-heading {
+    font-size: 0.9em;
+    padding: 8px;
+  }
+  
+  .table-design {
+    font-size: 0.8em;
+  }
+  
+  .close-zoom {
+    font-size: 24px;
+    top: -30px;
   }
 } 

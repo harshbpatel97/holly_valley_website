@@ -124,11 +124,24 @@
 }
 
 @media screen and (max-width: 768px) {
+  .services {
+    padding: 15px 0;
+  }
+  
   .subsection {
     margin-left: 5%;
     margin-right: 5%;
     padding-left: 15px;
     padding-right: 15px;
+    margin-top: 30px;
+  }
+  
+  .subsection-heading {
+    font-size: 1.5em;
+  }
+  
+  .subsection-heading::after {
+    width: 150px;
   }
   
   .services-logo img {
@@ -142,5 +155,35 @@
   
   .panel.active {
     padding: 15px;
+  }
+  
+  .img-services img {
+    max-width: 150px;
+  }
+  
+  .list-elements {
+    margin-left: 15px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .subsection {
+    margin-left: 3%;
+    margin-right: 3%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .accordion-header {
+    font-size: 0.9em;
+    padding: 10px 12px;
+  }
+  
+  .panel.active {
+    padding: 12px;
+  }
+  
+  .img-services img {
+    max-width: 120px;
   }
 } 

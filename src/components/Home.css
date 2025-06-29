@@ -188,11 +188,12 @@ address {
 
 @media screen and (max-width: 768px) {
   .page-heading h1 {
-    font-size: 2em;
+    font-size: 1.8em;
+    padding: 0 10px;
   }
   
   .page-heading::after {
-    width: 250px;
+    width: 200px;
   }
   
   .subsection {
@@ -200,13 +201,61 @@ address {
     margin-right: 5%;
     padding-left: 15px;
     padding-right: 15px;
+    margin-top: 30px;
+  }
+  
+  .subsection-heading {
+    font-size: 1.5em;
+  }
+  
+  .subsection-heading::after {
+    width: 150px;
   }
   
   .slide-container {
-    height: 300px;
+    height: 250px;
+  }
+  
+  .prev, .next {
+    padding: 12px;
+    font-size: 16px;
   }
   
   .google-map iframe {
-    height: 300px;
+    height: 250px;
+  }
+  
+  .img-open-sign, .img-7days-sign {
+    width: 100px;
+    margin: 5px;
+  }
+  
+  address {
+    font-size: 1em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .page-heading h1 {
+    font-size: 1.5em;
+  }
+  
+  .page-heading::after {
+    width: 150px;
+  }
+  
+  .subsection {
+    margin-left: 3%;
+    margin-right: 3%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .slide-container {
+    height: 200px;
+  }
+  
+  .google-map iframe {
+    height: 200px;
   }
 } 
