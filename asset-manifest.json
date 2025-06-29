@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/holly_valley_website/static/css/main.18f15d1a.css",
+    "main.js": "/holly_valley_website/static/js/main.9c7d7cb6.js",
+    "static/js/453.dd4fee34.chunk.js": "/holly_valley_website/static/js/453.dd4fee34.chunk.js",
+    "index.html": "/holly_valley_website/index.html",
+    "main.18f15d1a.css.map": "/holly_valley_website/static/css/main.18f15d1a.css.map",
+    "main.9c7d7cb6.js.map": "/holly_valley_website/static/js/main.9c7d7cb6.js.map",
+    "453.dd4fee34.chunk.js.map": "/holly_valley_website/static/js/453.dd4fee34.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.18f15d1a.css",
+    "static/js/main.9c7d7cb6.js"
+  ]
+}
