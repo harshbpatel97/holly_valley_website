@@ -32,8 +32,7 @@ const Footer = () => {
             <a href="/terms">Terms of Service</a>
           </small>
         </div>
-        <small>Age Restricted Products: Tobacco/Alcohol 21+ | Lottery 18+ | ID Required</small>
-        <small>Gambling Problem? Call 1-800-522-4700</small>
+        <small>Age Restricted Products: Tobacco/Alcohol 21+ | Lottery 18+ | ID Required | Gambling Problem? Call 1-800-522-4700</small>
       </div>
     </footer>
   );
