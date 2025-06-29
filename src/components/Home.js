@@ -68,7 +68,7 @@ const Home = () => {
         <h2 className="subsection-heading" id="about-us">About Us</h2>
         <div className="subsection-content textAlignLeft">
           <p>Holly Valley: is a convenience store which aims at providing excellent customer service. It offers variety of products and services
-            ranging from grocery, cigarettes, tobacco & vape products, cold beer, snacks, beverages, game machines, soft drinks, ATM & Bitcoin machine, etc.
+            ranging from grocery, cigarettes, tobacco & vape products, cold beer, snacks, beverages, soft drinks, ATM & Bitcoin machine, etc.
             We accept all forms of payment including EBT too. We also provide U-Haul rental services.</p>
 
           <p>The store is located in the town of Moravian Falls of NC on Old NC Highway 18 S.</p>
@@ -99,7 +99,7 @@ const Home = () => {
           <p>We are open 7 days a week and closed during national holidays.</p>
           <p>Our normal business hours are below:-</p>
           <p>MONDAY - FRIDAY</p>
-          <p>7:30AM - 8:00PM</p>
+          <p>8:00AM - 8:00PM</p>
           <p>SATURDAY</p>
           <p>8:00AM - 8:00PM</p>
           <p>SUNDAY</p>

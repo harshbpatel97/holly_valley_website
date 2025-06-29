@@ -6,6 +6,32 @@ const Services = () => {
 
   const services = [
     {
+      id: 'uhaul',
+      title: 'U-Haul',
+      content: (
+        <div>
+          <div className="img-services">
+            <img src="/images/holly_valley_uhaul.jpg" alt="uhaul-service-img" />
+          </div>
+          <p>Holly Valley is proud to be a U-Haul Neighborhood Dealer, offering convenient truck and trailer rental services to our community.</p>
+          <p><strong>Services Available:</strong></p>
+          <ul className="list-elements">
+            <li>Moving Trucks</li>
+            <li>Trailers & Towing</li>
+            <li>Moving Supplies</li>
+            <li>One-Way and In-Town Rentals</li>
+          </ul>
+          <p><strong>Office Hours:</strong></p>
+          <ul className="list-elements">
+            <li>Monday - Saturday: 8:00 AM - 6:00 PM</li>
+            <li>Sunday: 11:00 AM - 6:00 PM</li>
+          </ul>
+          <p>For reservations, rates, and more detailed information, please visit our U-Haul location page:</p>
+          <p><a href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/" target="_blank" rel="noopener noreferrer" style={{color: '#41A699', fontWeight: 'bold'}}>Book U-Haul Services Online</a></p>
+        </div>
+      )
+    },
+    {
       id: 'payments',
       title: 'Accepted Forms of Payments',
       content: (
@@ -55,7 +81,6 @@ const Services = () => {
             <li>NC Lottery tickets ($1 to $30)</li>
             <li>Online lottery games (Mega Millions, Powerball, Cash 5)</li>
             <li>Instant scratch-off tickets</li>
-            <li>Lottery game machines</li>
           </ul>
           <p><strong>Age Requirements:</strong></p>
           <ul className="list-elements">
@@ -82,32 +107,6 @@ const Services = () => {
           <p><strong>NC Lottery Compliance:</strong> Holly Valley maintains strict compliance with all NC Lottery regulations and guidelines. 
           All lottery transactions are monitored and recorded as required by law.</p>
           <p><small>For more information about NC Lottery rules and regulations, visit <a href="https://www.nclottery.com" target="_blank" rel="noopener noreferrer">nclottery.com</a></small></p>
-        </div>
-      )
-    },
-    {
-      id: 'uhaul',
-      title: 'U-Haul',
-      content: (
-        <div>
-          <div className="img-services">
-            <img src="/images/holly_valley_uhaul.jpg" alt="uhaul-service-img" />
-          </div>
-          <p>Holly Valley is proud to be a U-Haul Neighborhood Dealer, offering convenient truck and trailer rental services to our community.</p>
-          <p><strong>Services Available:</strong></p>
-          <ul className="list-elements">
-            <li>Moving Trucks</li>
-            <li>Trailers & Towing</li>
-            <li>Moving Supplies</li>
-            <li>One-Way and In-Town Rentals</li>
-          </ul>
-          <p><strong>Office Hours:</strong></p>
-          <ul className="list-elements">
-            <li>Monday - Saturday: 8:00 AM - 6:00 PM</li>
-            <li>Sunday: 11:00 AM - 6:00 PM</li>
-          </ul>
-          <p>For reservations, rates, and more detailed information, please visit our U-Haul location page:</p>
-          <p><a href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/" target="_blank" rel="noopener noreferrer" style={{color: '#41A699', fontWeight: 'bold'}}>Book U-Haul Services Online</a></p>
         </div>
       )
     }
