@@ -28,29 +28,6 @@ const Products = () => {
         { src: '/images/groceries/milk.jpg', alt: 'milk', caption: 'Dairy Products' },
         { src: '/images/groceries/funyuns.jpg', alt: 'funyuns', caption: 'Funyuns' }
       ]
-    },
-    {
-      id: 'tobacco',
-      title: 'Tobacco',
-      description: 'All the tobacco products of below brands are available in can, dip, tower, roll, and bag sizes, and flavors such as wintergreen, menthol, fine cut, long cut and many more... (Note: You must be at least 21 years of age to purchase cigarettes from this store)',
-      items: [
-        { src: '/images/tobacco/copehagen.jpg', alt: 'copenhagen', caption: 'Copenhagen' },
-        { src: '/images/tobacco/good-stuff.jpg', alt: 'good-stuff', caption: 'Good Stuff' },
-        { src: '/images/tobacco/grizzly.jpg', alt: 'grizzly', caption: 'Grizzly' },
-        { src: '/images/tobacco/criss-cross.jpg', alt: 'criss-cross', caption: 'Criss Cross' },
-        { src: '/images/tobacco/klondike.jpg', alt: 'klondike', caption: 'Klondike' },
-        { src: '/images/tobacco/longhorn.jpg', alt: 'longhorn', caption: 'Longhorn' },
-        { src: '/images/tobacco/ohm.jpg', alt: 'ohm', caption: 'Ohm' },
-        { src: '/images/tobacco/gambler.jpg', alt: 'gambler', caption: 'Gambler' },
-        { src: '/images/tobacco/redman.jpg', alt: 'redman', caption: 'Red Man' },
-        { src: '/images/tobacco/skoals.jpg', alt: 'skoals-products', caption: 'Skoal' },
-        { src: '/images/tobacco/smokey-mountain.jpg', alt: 'smokey-mountain', caption: 'Smokey Mountain' },
-        { src: '/images/tobacco/american-club.jpg', alt: 'american-club', caption: 'American Club' },
-        { src: '/images/tobacco/velo.jpg', alt: 'velo', caption: 'Velo' },
-        { src: '/images/tobacco/stokers.jpg', alt: 'stokers', caption: "Stoker's" },
-        { src: '/images/tobacco/wolf.jpg', alt: 'wolf', caption: 'Wolf' },
-        { src: '/images/tobacco/shargio.jpg', alt: 'shargio', caption: 'Shargio' }
-      ]
     }
   ];
 
@@ -80,12 +57,6 @@ const Products = () => {
 
   return (
     <div className="products">
-      <div className="legal-disclaimer">
-        <p><strong>LEGAL NOTICE:</strong> This website displays tobacco and alcohol products for informational purposes only. 
-        All products are subject to age verification and compliance with federal and state regulations. 
-        Tobacco and alcohol products are for adults 21+ only.</p>
-      </div>
-      
       <div className="subsection products-subsection">
         <h2 className="subsection-heading" id="products">PRODUCTS</h2>
         <div className="subsection-content" id="subheader-content">
@@ -95,7 +66,6 @@ const Products = () => {
           <p>Holly Valley offers a variety of products ranging from groceries to soft-drinks.
             A detailed overview of each department is mentioned along with the brands and options
             available in each category.</p>
-          <p className="age-notice"><strong>Age Restricted Products:</strong> Tobacco and alcohol products require valid ID and are for adults 21+ only.</p>
         </div>
       </div>
 
