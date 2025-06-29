@@ -99,7 +99,7 @@ const Services = () => {
             <p><strong>Responsible Gambling:</strong></p>
             <ul className="list-elements">
               <li>Set a budget and stick to it</li>
-              <li>Never gamble more than you can afford to lose</li>
+              <li>Never play more than you can afford to lose</li>
               <li>Don't chase losses</li>
               <li>If you have a gambling problem, call 1-800-522-4700</li>
             </ul>
@@ -121,7 +121,7 @@ const Services = () => {
       <div className="legal-disclaimer">
         <p><strong>LEGAL NOTICE:</strong> This website displays lottery services for informational purposes only. 
         All lottery products and services are subject to age verification and compliance with NC Lottery regulations. 
-        Lottery games are for adults 18+ only. Please gamble responsibly.</p>
+        Lottery games are for adults 18+ only. Please play responsibly.</p>
       </div>
       
       <div className="subsection">
@@ -132,7 +132,7 @@ const Services = () => {
           </div>
           <p>Holly Valley offers a variety of services such as Gas service, ATM, and lottery. Details of each service
             mentioned below.</p>
-          <p className="age-notice"><strong>Age Restricted Services:</strong> Lottery services require valid ID and are for adults 18+ only. Please gamble responsibly.</p>
+          <p className="age-notice"><strong>Age Restricted Services:</strong> Lottery services require valid ID and are for adults 18+ only. Please play responsibly.</p>
         </div>
       </div>
 
