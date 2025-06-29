@@ -1,0 +1,144 @@
+.contact {
+  background-color: floralwhite;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.subsection {
+  margin-right: 11%;
+  margin-left: 11%;
+  border: 3px solid #41A698;
+  padding-left: 25px;
+  padding-right: 25px;
+  margin-top: 42px;
+  border-radius: 35px;
+  background-color: antiquewhite;
+  position: relative;
+  padding-bottom: 30px;
+}
+
+.subsection-heading {
+  text-align: center;
+  color: #333;
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.subsection-heading::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 250px;
+  background-color: #41A699;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+
+.subsection-content {
+  text-align: center;
+  line-height: 1.6;
+}
+
+#subheader-content {
+  text-align: center;
+}
+
+.contact-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.contact-logo img {
+  width: 80px;
+  height: auto;
+}
+
+.textAlignLeft {
+  text-align: left;
+}
+
+.list-design {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.list-design li {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+  color: #333;
+}
+
+.list-design li p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.location-list {
+  list-style-type: disc;
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+.location-list li {
+  margin-bottom: 5px;
+  font-size: 1em;
+}
+
+@media screen and (max-width: 768px) {
+  .contact {
+    padding: 15px 0;
+  }
+  
+  .subsection {
+    margin-left: 5%;
+    margin-right: 5%;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 30px;
+  }
+  
+  .subsection-heading {
+    font-size: 1.5em;
+  }
+  
+  .subsection-heading::after {
+    width: 150px;
+  }
+  
+  .contact-logo img {
+    width: 60px;
+  }
+  
+  .list-design li {
+    font-size: 1em;
+  }
+  
+  .location-list li {
+    font-size: 0.9em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .subsection {
+    margin-left: 3%;
+    margin-right: 3%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .contact-logo img {
+    width: 50px;
+  }
+  
+  .list-design li {
+    font-size: 0.9em;
+  }
+  
+  .location-list li {
+    font-size: 0.8em;
+  }
+} 
