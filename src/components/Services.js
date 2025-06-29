@@ -58,6 +58,32 @@ const Services = () => {
             minimum age of 21 years in order to purchase the lottery ticket.</p>
         </div>
       )
+    },
+    {
+      id: 'uhaul',
+      title: 'U-Haul',
+      content: (
+        <div>
+          <div className="img-services">
+            <img src="/images/holly_valley_uhaul.jpg" alt="uhaul-service-img" />
+          </div>
+          <p>Holly Valley is proud to be a U-Haul Neighborhood Dealer, offering convenient truck and trailer rental services to our community.</p>
+          <p><strong>Services Available:</strong></p>
+          <ul className="list-elements">
+            <li>Moving Trucks</li>
+            <li>Trailers & Towing</li>
+            <li>Moving Supplies</li>
+            <li>One-Way and In-Town Rentals</li>
+          </ul>
+          <p><strong>Office Hours:</strong></p>
+          <ul className="list-elements">
+            <li>Monday - Saturday: 8:00 AM - 6:00 PM</li>
+            <li>Sunday: 11:00 AM - 6:00 PM</li>
+          </ul>
+          <p>For reservations, rates, and more detailed information, please visit our U-Haul location page:</p>
+          <p><a href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/" target="_blank" rel="noopener noreferrer" style={{color: '#41A699', fontWeight: 'bold'}}>Book U-Haul Services Online</a></p>
+        </div>
+      )
     }
   ];
 
