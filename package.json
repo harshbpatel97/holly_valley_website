@@ -2,6 +2,7 @@
   "name": "holly-valley-react",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://harshbpatel97.github.io/holly_valley_website",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -13,6 +14,9 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "npm run generate-images && react-scripts build",
@@ -20,7 +24,9 @@
     "eject": "react-scripts eject",
     "sync-images": "node scripts/syncImages.js",
     "generate-images": "node scripts/generateImageList.js",
-    "prebuild": "npm run sync-images"
+    "prebuild": "npm run sync-images",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
