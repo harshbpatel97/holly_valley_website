@@ -1,32 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { storeImages, sliderConfig } from '../config/storeImages';
 import './Home.css';
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const slides = [
-    { src: '/images/holly_valley_front_view.JPG', alt: 'Front View', title: 'Front View' },
-    { src: '/images/holly_valley_left_view.JPG', alt: 'Left Side View', title: 'Left Side View' },
-    { src: '/images/holly_valley_right_view.JPG', alt: 'Right Side View', title: 'Right Side View' },
-    { src: '/images/holly_valley_uhaul.jpg', alt: 'UHaul', title: 'UHaul' },
-    { src: '/images/holly_valley_inside_view1.jpg', alt: 'Inside View 1', title: 'Inside View 1' },
-    { src: '/images/holly_valley_inside_view2.jpg', alt: 'Inside View 2', title: 'Inside View 2' }
-  ];
-
   useEffect(() => {
+    if (!sliderConfig.autoPlay) return;
+    
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 3000);
+      setCurrentSlide((prev) => (prev + 1) % storeImages.length);
+    }, sliderConfig.autoPlayInterval);
 
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [storeImages.length]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setCurrentSlide((prev) => (prev + 1) % storeImages.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrentSlide((prev) => (prev - 1 + storeImages.length) % storeImages.length);
   };
 
   return (
@@ -37,9 +31,9 @@ const Home = () => {
 
       <div className="slider" id="slideshow-container">
         <div className="slide-container">
-          {slides.map((slide, index) => (
+          {storeImages.map((slide, index) => (
             <div
-              key={index}
+              key={slide.id}
               className={`slide ${index === currentSlide ? 'active' : ''}`}
             >
               <img 
@@ -50,25 +44,31 @@ const Home = () => {
               />
             </div>
           ))}
-          <button className="prev" onClick={prevSlide}>&#10094;</button>
-          <button className="next" onClick={nextSlide}>&#10095;</button>
+          {sliderConfig.showNavigation && (
+            <>
+              <button className="prev" onClick={prevSlide}>&#10094;</button>
+              <button className="next" onClick={nextSlide}>&#10095;</button>
+            </>
+          )}
         </div>
-        <div className="dots">
-          {slides.map((_, index) => (
-            <span
-              key={index}
-              className={`dot ${index === currentSlide ? 'active' : ''}`}
-              onClick={() => setCurrentSlide(index)}
-            ></span>
-          ))}
-        </div>
+        {sliderConfig.showDots && (
+          <div className="dots">
+            {storeImages.map((_, index) => (
+              <span
+                key={index}
+                className={`dot ${index === currentSlide ? 'active' : ''}`}
+                onClick={() => setCurrentSlide(index)}
+              ></span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="subsection">
         <h2 className="subsection-heading" id="about-us">About Us</h2>
         <div className="subsection-content textAlignLeft">
           <p>Holly Valley: is a convenience store which aims at providing excellent customer service. It offers variety of products and services
-            ranging from grocery, cigarettes, tobacco & vape products, cold beer, snacks, beverages, soft drinks, ATM & Bitcoin machine, etc.
+            ranging from grocery, snacks, beverages, soft drinks, ATM & Bitcoin machine, etc.
             We accept all forms of payment including EBT too. We also provide U-Haul rental services.</p>
 
           <p>The store is located in the town of Moravian Falls of NC on Old NC Highway 18 S.</p>
