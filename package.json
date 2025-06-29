@@ -15,9 +15,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run generate-images && react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "sync-images": "node scripts/syncImages.js",
+    "generate-images": "node scripts/generateImageList.js",
+    "prebuild": "npm run sync-images"
   },
   "eslintConfig": {
     "extends": [

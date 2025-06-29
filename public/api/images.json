@@ -1,0 +1,34 @@
+{
+  "groceries": [
+    "Bread.jpg",
+    "Cheetos.jpg",
+    "Chewing-Gums.jpg",
+    "Chocolates.jpg",
+    "Cleaning Sprays.jpg",
+    "Dairy Products.jpg",
+    "Dawn Liquid Wash.jpg",
+    "Dial Handwash.jpg",
+    "Dog Products.jpg",
+    "Doritos.jpg",
+    "Dove Products.jpg",
+    "Eggs.jpg",
+    "Funyuns.jpg",
+    "Lays.jpg",
+    "Rice Krispies Treats.jpg",
+    "Skittles.jpg"
+  ],
+  "soft-drinks": [
+    "7UP.jpg",
+    "A&W.jpg",
+    "Brisk Tea.jpg",
+    "Canada Dry.jpg",
+    "Coca Cola.jpg",
+    "Dr Pepper.jpg",
+    "Fanta.jpg",
+    "Pepsi.jpg",
+    "Sprite.jpg",
+    "Starbucks.jpg",
+    "Sunkist.jpg",
+    "Tea.jpg"
+  ]
+}

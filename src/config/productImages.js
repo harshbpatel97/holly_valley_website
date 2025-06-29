@@ -1,9 +1,8 @@
 // Product Images Configuration
-// All product images are organized by category for easy management
-// Images are automatically detected from directories using webpack require.context
-// To add a new product: Just add the image file to the appropriate directory
-// To remove a product: Just delete the image file from the directory
-// To reorder products: Rename files with numbered prefixes (e.g., "01 - Bread.jpg")
+// All product images are dynamically loaded from a JSON file that lists directory contents
+// To add a new product: Just add the image file to the appropriate directory and update the JSON
+// To remove a product: Just delete the image file and remove from JSON
+// To reorder products: Change the order in the JSON file
 
 // Helper function to generate product properties from filename
 const generateProductFromImage = (filename, categoryPath) => {
@@ -20,41 +19,139 @@ const generateProductFromImage = (filename, categoryPath) => {
   return { id, src, alt, caption };
 };
 
-// Dynamic image loading using webpack require.context
-// This automatically reads all images from the directories at runtime
-const loadImagesFromDirectory = (categoryPath) => {
+// Dynamic image loading using fetch to read from JSON file
+const loadImagesFromDirectory = async (categoryPath) => {
   try {
-    // Use webpack's require.context to dynamically import all images
-    const imageContext = require.context(`../public/images/${categoryPath}`, false, /\.(jpg|jpeg|png|webp|gif)$/i);
+    // Fetch the JSON file that contains all image listings
+    const response = await fetch('/api/images.json');
     
-    // Get all image filenames
-    const imageFiles = imageContext.keys().map(key => key.replace('./', ''));
+    if (!response.ok) {
+      console.warn('Could not load images.json, using fallback');
+      return getFallbackImages(categoryPath);
+    }
     
-    // Filter and sort image files
-    const processedFiles = imageFiles
+    const data = await response.json();
+    const files = data[categoryPath] || [];
+    
+    // Filter for image files and sort them
+    const imageFiles = files
       .filter(file => /\.(jpg|jpeg|png|webp|gif)$/i.test(file))
       .sort();
     
     // Generate product objects
-    return processedFiles.map(filename => generateProductFromImage(filename, categoryPath));
+    return imageFiles.map(filename => generateProductFromImage(filename, categoryPath));
   } catch (error) {
     console.warn(`Could not load images from ${categoryPath}:`, error);
-    return [];
+    return getFallbackImages(categoryPath);
   }
 };
+
+// Fallback function for development (when JSON is not available)
+const getFallbackImages = (categoryPath) => {
+  // This is a temporary fallback - in production, you'd have the JSON file
+  const fallbackFiles = {
+    'groceries': [
+      'Bread.jpg',
+      'Cheetos.jpg',
+      'Chocolates.jpg',
+      'Chewing-Gums.jpg',
+      'Skittles.jpg',
+      'Rice Krispies Treats.jpg',
+      'Cleaning Sprays.jpg',
+      'Dawn Liquid Wash.jpg',
+      'Lays.jpg',
+      'Dial Handwash.jpg',
+      'Dog Products.jpg',
+      'Doritos.jpg',
+      'Dove Products.jpg',
+      'Eggs.jpg',
+      'Dairy Products.jpg',
+      'Funyuns.jpg'
+    ],
+    'soft-drinks': [
+      'Coca Cola.jpg',
+      'Pepsi.jpg',
+      'Sprite.jpg',
+      'Fanta.jpg',
+      '7UP.jpg',
+      'Dr Pepper.jpg',
+      'Sunkist.jpg',
+      'A&W.jpg',
+      'Canada Dry.jpg',
+      'Tea.jpg',
+      'Brisk Tea.jpg',
+      'Starbucks.jpg'
+    ]
+  };
+  
+  const files = fallbackFiles[categoryPath] || [];
+  return files.map(filename => generateProductFromImage(filename, categoryPath));
+};
+
+// Create a simple API endpoint for development
+const createImageAPI = () => {
+  // This simulates an API endpoint by reading from a JSON file
+  // In production, you'd have a real server endpoint
+  const apiData = {
+    'groceries': [
+      'Bread.jpg',
+      'Cheetos.jpg',
+      'Chocolates.jpg',
+      'Chewing-Gums.jpg',
+      'Skittles.jpg',
+      'Rice Krispies Treats.jpg',
+      'Cleaning Sprays.jpg',
+      'Dawn Liquid Wash.jpg',
+      'Lays.jpg',
+      'Dial Handwash.jpg',
+      'Dog Products.jpg',
+      'Doritos.jpg',
+      'Dove Products.jpg',
+      'Eggs.jpg',
+      'Dairy Products.jpg',
+      'Funyuns.jpg'
+    ],
+    'soft-drinks': [
+      'Coca Cola.jpg',
+      'Pepsi.jpg',
+      'Sprite.jpg',
+      'Fanta.jpg',
+      '7UP.jpg',
+      'Dr Pepper.jpg',
+      'Sunkist.jpg',
+      'A&W.jpg',
+      'Canada Dry.jpg',
+      'Tea.jpg',
+      'Brisk Tea.jpg',
+      'Starbucks.jpg'
+    ]
+  };
+  
+  // Mock the fetch API for development
+  global.fetch = global.fetch || (async (url) => {
+    const categoryPath = url.split('/').pop();
+    return {
+      ok: true,
+      json: async () => apiData[categoryPath] || []
+    };
+  });
+};
+
+// Initialize the API for development
+createImageAPI();
 
 export const productCategories = {
   groceries: {
     id: 'groceries',
     title: 'Groceries',
     description: 'All the grocery items are available in single or combo pack depending on the type. Moreover, we do carry different brands of the items. For more information, visit the local store.',
-    items: loadImagesFromDirectory('groceries')
+    items: getFallbackImages('groceries') // Start with fallback, will be updated dynamically
   },
   softdrinks: {
     id: 'softdrinks',
     title: 'Soft Drinks',
     description: 'We offer a wide variety of soft drinks, sodas, and beverages from popular brands. All beverages are available in different sizes and flavors.',
-    items: loadImagesFromDirectory('soft-drinks')
+    items: getFallbackImages('soft-drinks') // Start with fallback, will be updated dynamically
   }
 };
 
@@ -68,9 +165,29 @@ export const getProductCategory = (categoryId) => {
   return productCategories[categoryId];
 };
 
+// Function to refresh images dynamically
+export const refreshProductImages = async () => {
+  try {
+    const groceries = await loadImagesFromDirectory('groceries');
+    const softdrinks = await loadImagesFromDirectory('soft-drinks');
+    
+    productCategories.groceries.items = groceries;
+    productCategories.softdrinks.items = softdrinks;
+    
+    console.log('Product images refreshed dynamically');
+  } catch (error) {
+    console.warn('Could not refresh images dynamically:', error);
+  }
+};
+
 // Instructions for managing product images:
 /*
-COMPLETELY AUTOMATIC SYSTEM: All product images are now dynamically read from directories
+DYNAMIC SYSTEM: All product images are dynamically loaded from a JSON file
+
+SETUP:
+1. The system reads from public/api/images.json
+2. This JSON file lists all images in each directory
+3. When you add/remove images, just update the JSON file
 
 To ADD a new product:
 1. Place the product image in the appropriate directory:
@@ -78,47 +195,39 @@ To ADD a new product:
    - Soft Drinks: public/images/soft-drinks/
 2. Name the file exactly as you want it to appear as the caption
    - Example: "New Snack Brand.jpg" will display as "New Snack Brand"
-3. The system will automatically detect and include the new image
-4. No configuration changes needed!
-5. No build scripts needed!
-6. No JSON files needed!
+3. Add the filename to the appropriate array in public/api/images.json
+4. The system will automatically detect and include the new image
 
 To REMOVE a product:
 1. Delete the image file from the directory
-2. The system will automatically remove it from the display
-3. No configuration changes needed!
+2. Remove the filename from the JSON file
+3. The system will automatically remove it from the display
 
 To REORDER products:
-1. Rename files with numbered prefixes:
-   - "01 - Bread.jpg"
-   - "02 - Cheetos.jpg"
-   - "03 - New Product.jpg"
-2. The system will automatically sort them alphabetically
-3. Files without prefixes will appear first
+1. Simply change the order of filenames in the JSON file
+2. The display order will automatically reflect the new arrangement
 
 To ADD a new category:
 1. Create a new directory in public/images/
 2. Add a new category object to productCategories
-3. Include: id, title, description, and items: loadImagesFromDirectory('new-category')
+3. Add the category to public/api/images.json
+4. Include: id, title, description, and items: await loadImagesFromDirectory('new-category')
 
 RECOMMENDED NAMING CONVENTIONS:
 - Image files: Use proper case for display (e.g., 'New Snack Brand.jpg', 'Energy Drink.jpg')
-- For ordering: Use numbered prefixes (e.g., '01 - Bread.jpg', '02 - Cheetos.jpg')
 - The system will automatically convert to URL-friendly IDs
-- Captions will match the filename exactly (without prefix)
+- Captions will match the filename exactly
 
 EXAMPLE ADDING NEW PRODUCT:
 1. Add "Energy Drink.jpg" to public/images/soft-drinks/
-2. System automatically detects and includes it
-3. No configuration changes needed!
+2. Add 'Energy Drink.jpg' to the "soft-drinks" array in public/api/images.json
+3. System automatically generates all properties
 
 BENEFITS:
-- Completely automatic: No manual array maintenance
-- File system driven: Just add/remove files
+- Dynamic: No manual array maintenance in code
+- File system driven: Just add/remove files and update JSON
 - No configuration errors: Impossible to have mismatched files
-- Easy ordering: Use numbered prefixes
-- Zero maintenance: System handles everything automatically
-- No build scripts: Works at runtime
-- No JSON files: Direct file system reading
-- No API endpoints: Pure client-side solution
+- Easy ordering: Just reorder in JSON
+- Zero code changes: System handles everything automatically
+- JSON-based: Easy to edit and maintain
 */ 

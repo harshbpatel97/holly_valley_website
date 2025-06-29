@@ -1,13 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { getAllProductCategories } from '../config/productImages';
+import { getAllProductCategories, refreshProductImages } from '../config/productImages';
 import './Products.css';
 
 const Products = () => {
-  const [activeAccordion, setActiveAccordion] = useState(null);
+  const [activeAccordion, setActiveAccordion] = useState('groceries');
   const [zoomedImage, setZoomedImage] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const products = getAllProductCategories();
+  // Load products dynamically on component mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        // Refresh images from the JSON file
+        await refreshProductImages();
+        // Get the updated products
+        const updatedProducts = getAllProductCategories();
+        setProducts(updatedProducts);
+      } catch (error) {
+        console.warn('Could not load products dynamically:', error);
+        // Fallback to static loading
+        setProducts(getAllProductCategories());
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    loadProducts();
+  }, []);
+  
   const toggleAccordion = (id) => {
     setActiveAccordion(activeAccordion === id ? null : id);
   };
@@ -31,6 +53,22 @@ const Products = () => {
       document.body.style.overflow = 'unset';
     };
   }, [zoomedImage]);
+
+  if (loading) {
+    return (
+      <div className="products">
+        <div className="subsection products-subsection">
+          <h2 className="subsection-heading" id="products">PRODUCTS</h2>
+          <div className="subsection-content" id="subheader-content">
+            <div className="services-logo">
+              <img src="/images/misc/products-logo.png" alt="products-logo" />
+            </div>
+            <p>Loading products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="products">
