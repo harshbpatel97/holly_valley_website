@@ -49,13 +49,39 @@ const Services = () => {
           <div className="img-services">
             <img src="/images/lottery-service.png" alt="lottery-services-pic" />
           </div>
-          <p>Holly Valley has various lottery games installed within the store where
-            customer can come and play the games.</p>
-          <p>Store also has the NC Lottery tickets ranging from $1 to $30 as well as online tickets such as Mega-millions,
-            Cash5, Powerball, etc. Moreover, store is proud to announce that there have
-            been customers who have won $10,000 to $500 while playing lottery games here.</p>
-          <p>Holly Valley strictly complies with guidelines established by the NC Lottery and follows
-            minimum age of 21 years in order to purchase the lottery ticket.</p>
+          <p>Holly Valley is an authorized NC Lottery retailer, offering various lottery games and services in compliance with North Carolina lottery regulations.</p>
+          <p><strong>Services Available:</strong></p>
+          <ul className="list-elements">
+            <li>NC Lottery tickets ($1 to $30)</li>
+            <li>Online lottery games (Mega Millions, Powerball, Cash 5)</li>
+            <li>Instant scratch-off tickets</li>
+            <li>Lottery game machines</li>
+          </ul>
+          <p><strong>Age Requirements:</strong></p>
+          <ul className="list-elements">
+            <li>Must be 18 years or older to purchase lottery tickets</li>
+            <li>Valid government-issued photo ID required</li>
+            <li>No exceptions to age requirements</li>
+          </ul>
+          <p><strong>Important Legal Information:</strong></p>
+          <ul className="list-elements">
+            <li>Holly Valley strictly complies with NC Lottery guidelines</li>
+            <li>All lottery sales are subject to verification</li>
+            <li>Winners must claim prizes according to NC Lottery rules</li>
+            <li>Lottery games are for entertainment purposes only</li>
+          </ul>
+          <div className="responsible-gambling">
+            <p><strong>Responsible Gambling:</strong></p>
+            <ul className="list-elements">
+              <li>Set a budget and stick to it</li>
+              <li>Never gamble more than you can afford to lose</li>
+              <li>Don't chase losses</li>
+              <li>If you have a gambling problem, call 1-800-522-4700</li>
+            </ul>
+          </div>
+          <p><strong>NC Lottery Compliance:</strong> Holly Valley maintains strict compliance with all NC Lottery regulations and guidelines. 
+          All lottery transactions are monitored and recorded as required by law.</p>
+          <p><small>For more information about NC Lottery rules and regulations, visit <a href="https://www.nclottery.com" target="_blank" rel="noopener noreferrer">nclottery.com</a></small></p>
         </div>
       )
     },
@@ -93,6 +119,12 @@ const Services = () => {
 
   return (
     <div className="services">
+      <div className="legal-disclaimer">
+        <p><strong>LEGAL NOTICE:</strong> This website displays lottery services for informational purposes only. 
+        All lottery products and services are subject to age verification and compliance with NC Lottery regulations. 
+        Lottery games are for adults 18+ only. Please gamble responsibly.</p>
+      </div>
+      
       <div className="subsection">
         <h2 className="subsection-heading" id="services">SERVICES</h2>
         <div className="subsection-content" id="subheader-content">
@@ -101,6 +133,7 @@ const Services = () => {
           </div>
           <p>Holly Valley offers a variety of services such as Gas service, ATM, and lottery. Details of each service
             mentioned below.</p>
+          <p className="age-notice"><strong>Age Restricted Services:</strong> Lottery services require valid ID and are for adults 18+ only. Please gamble responsibly.</p>
         </div>
       </div>
 
