@@ -104,8 +104,8 @@ const Home = () => {
           <p>8:00AM - 8:00PM</p>
           <p>SUNDAY</p>
           <p>11:00AM - 7:30PM</p>
-          <img src="/images/open-sign.png" className="img-open-sign" alt="open-sign" />
-          <img src="/images/7days.png" className="img-7days-sign" alt="7days" />
+          <img src="/images/misc/open-sign.png" className="img-open-sign" alt="open-sign" />
+          <img src="/images/misc/7days.png" className="img-7days-sign" alt="7days" />
         </div>
       </div>
     </div>

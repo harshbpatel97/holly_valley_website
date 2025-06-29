@@ -38,7 +38,7 @@ const Products = () => {
         <h2 className="subsection-heading" id="products">PRODUCTS</h2>
         <div className="subsection-content" id="subheader-content">
           <div className="services-logo">
-            <img src="/images/products-logo.png" alt="products-logo" />
+            <img src="/images/misc/products-logo.png" alt="products-logo" />
           </div>
           <p>Holly Valley offers a variety of products ranging from groceries to soft-drinks.
             A detailed overview of each department is mentioned along with the brands and options

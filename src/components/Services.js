@@ -11,7 +11,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/holly_valley_uhaul.jpg" alt="uhaul-service-img" />
+            <img src="/images/storeImages/04_uhaul_services.jpg" alt="uhaul-service-img" />
           </div>
           <p>Holly Valley is proud to be a U-Haul Neighborhood Dealer, offering convenient truck and trailer rental services to our community.</p>
           <p><strong>Services Available:</strong></p>
@@ -37,7 +37,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/payment-service.png" alt="payment-service-img" />
+            <img src="/images/misc/payment-service.png" alt="payment-service-img" />
           </div>
           <p>Holly Valley accepts the most commonly used forms of payments such as:</p>
           <ul className="list-elements">
@@ -58,7 +58,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/atm-service.png" alt="atm-service-img" />
+            <img src="/images/misc/atm-service.png" alt="atm-service-img" />
           </div>
           <p>The store also provides the ATM service at the minimum transaction fee
             and most of the credit and debit cards are accepted. ATM machine is rented
@@ -73,7 +73,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/lottery-service.png" alt="lottery-services-pic" />
+            <img src="/images/misc/lottery-service.png" alt="lottery-services-pic" />
           </div>
           <p>Holly Valley is an authorized NC Lottery retailer, offering various lottery games and services in compliance with North Carolina lottery regulations.</p>
           <p><strong>Services Available:</strong></p>
@@ -128,7 +128,7 @@ const Services = () => {
         <h2 className="subsection-heading" id="services">SERVICES</h2>
         <div className="subsection-content" id="subheader-content">
           <div className="services-logo">
-            <img src="/images/services-logo.png" alt="services-logo" />
+            <img src="/images/misc/services-logo.png" alt="services-logo" />
           </div>
           <p>Holly Valley offers a variety of services such as Gas service, ATM, and lottery. Details of each service
             mentioned below.</p>
