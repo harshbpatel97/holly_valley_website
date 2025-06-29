@@ -127,9 +127,6 @@ const Services = () => {
       <div className="subsection">
         <h2 className="subsection-heading" id="services">SERVICES</h2>
         <div className="subsection-content" id="subheader-content">
-          <div className="services-logo">
-            <img src="/images/misc/services-logo.png" alt="services-logo" />
-          </div>
           <p>Holly Valley offers a variety of services such as Gas service, ATM, and lottery. Details of each service
             mentioned below.</p>
           <p className="age-notice"><strong>Age Restricted Services:</strong> Lottery services require valid ID and are for adults 18+ only. Please play responsibly.</p>

@@ -32,7 +32,7 @@
   content: "";
   display: block;
   height: 3px;
-  width: 250px;
+  width: 150px;
   background-color: #41A699;
   position: relative;
   margin-left: auto;
@@ -47,16 +47,6 @@
 
 #subheader-content {
   text-align: center;
-}
-
-.services-logo {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.services-logo img {
-  width: 80px;
-  height: auto;
 }
 
 .accordion {
@@ -222,9 +212,7 @@
     width: 150px;
   }
   
-  .services-logo img {
-    width: 60px;
-  }
+  /* Mobile logo styles removed - no longer needed */
   
   .accordion-header {
     font-size: 1em;

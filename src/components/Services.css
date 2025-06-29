@@ -28,7 +28,7 @@
   content: "";
   display: block;
   height: 3px;
-  width: 250px;
+  width: 150px;
   background-color: #41A699;
   position: relative;
   margin-left: auto;
@@ -45,15 +45,7 @@
   text-align: center;
 }
 
-.services-logo {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.services-logo img {
-  width: 80px;
-  height: auto;
-}
+/* Logo styles removed - no longer needed */
 
 .accordion {
   margin-bottom: 20px;
@@ -150,9 +142,7 @@
     width: 150px;
   }
   
-  .services-logo img {
-    width: 60px;
-  }
+  /* Mobile logo styles removed - no longer needed */
   
   .accordion-header {
     font-size: 1em;
