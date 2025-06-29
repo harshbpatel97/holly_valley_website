@@ -81,6 +81,36 @@ const getFallbackImages = (categoryPath) => {
       'Tea.jpg',
       'Brisk Tea.jpg',
       'Starbucks.jpg'
+    ],
+    'ice-bags': [
+      'Ice Bag 1.jpg',
+      'Ice Bag 2.jpg',
+      'Ice Bag 3.jpg',
+      'Ice Bag 4.jpg',
+      'Ice Bag 5.jpg'
+    ],
+    'frozen-pizza': [
+      'Frozen Pizza 1.jpg',
+      'Frozen Pizza 2.jpg',
+      'Frozen Pizza 3.jpg',
+      'Frozen Pizza 4.jpg',
+      'Frozen Pizza 5.jpg',
+      'Frozen Pizza 6.jpg'
+    ],
+    'firewood': [
+      'Firewood Bundle 1.jpg',
+      'Firewood Bundle 2.jpg',
+      'Firewood Bundle 3.jpg',
+      'Firewood Bundle 4.jpg',
+      'Firewood Bundle 5.jpg'
+    ],
+    'ice-cream': [
+      'Ice Cream 1.jpg',
+      'Ice Cream 2.jpg',
+      'Ice Cream 3.jpg',
+      'Dippin Dots 1.jpg',
+      'Dippin Dots 2.jpg',
+      'Dippin Dots 3.jpg'
     ]
   };
   
@@ -152,6 +182,30 @@ export const productCategories = {
     title: 'Soft Drinks',
     description: 'We offer a wide variety of soft drinks, sodas, and beverages from popular brands. All beverages are available in different sizes and flavors.',
     items: getFallbackImages('soft-drinks') // Start with fallback, will be updated dynamically
+  },
+  icebags: {
+    id: 'icebags',
+    title: 'Ice Bags',
+    description: 'We carry various sizes of ice bags for your convenience. Perfect for parties, events, or everyday use. Available in different quantities.',
+    items: getFallbackImages('ice-bags') // Start with fallback, will be updated dynamically
+  },
+  frozenpizza: {
+    id: 'frozenpizza',
+    title: 'Frozen Pizza',
+    description: 'A selection of frozen pizzas from popular brands. Available in different sizes and flavors including cheese, pepperoni, and specialty varieties.',
+    items: getFallbackImages('frozen-pizza') // Start with fallback, will be updated dynamically
+  },
+  firewood: {
+    id: 'firewood',
+    title: 'Firewood Bundles',
+    description: 'Quality firewood bundles for your fireplace, fire pit, or wood stove. Available in various sizes and quantities. Perfect for heating and outdoor activities.',
+    items: getFallbackImages('firewood') // Start with fallback, will be updated dynamically
+  },
+  icecream: {
+    id: 'icecream',
+    title: 'Ice Cream & Dippin Dots',
+    description: 'We carry a wide variety of ice cream brands and frozen treats including Good Humor, Ben & Jerry\'s, Magnum, Talenti, Popsicle, Klondike, Breyers, Mars, Rich\'s Ice Cream, Dippin Dots, and many more. Available in different sizes and flavors. Perfect for hot days and sweet cravings.',
+    items: getFallbackImages('ice-cream') // Start with fallback, will be updated dynamically
   }
 };
 
@@ -170,9 +224,17 @@ export const refreshProductImages = async () => {
   try {
     const groceries = await loadImagesFromDirectory('groceries');
     const softdrinks = await loadImagesFromDirectory('soft-drinks');
+    const icebags = await loadImagesFromDirectory('ice-bags');
+    const frozenpizza = await loadImagesFromDirectory('frozen-pizza');
+    const firewood = await loadImagesFromDirectory('firewood');
+    const icecream = await loadImagesFromDirectory('ice-cream');
     
     productCategories.groceries.items = groceries;
     productCategories.softdrinks.items = softdrinks;
+    productCategories.icebags.items = icebags;
+    productCategories.frozenpizza.items = frozenpizza;
+    productCategories.firewood.items = firewood;
+    productCategories.icecream.items = icecream;
     
     console.log('Product images refreshed dynamically');
   } catch (error) {

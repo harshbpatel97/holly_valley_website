@@ -30,5 +30,18 @@
     "Starbucks.jpg",
     "Sunkist.jpg",
     "Tea.jpg"
-  ]
+  ],
+  "ice-bags": [
+    "Bag of Ice.jpeg"
+  ],
+  "frozen-pizza": [
+    "French Bread Peproni Pizza.jpg",
+    "Mama Cozzi.png",
+    "Mama Cozzie Cheese Pizza.jpg",
+    "Totino Party Pizza.png"
+  ],
+  "firewood": [
+    "Firewood.jpeg"
+  ],
+  "ice-cream": []
 }

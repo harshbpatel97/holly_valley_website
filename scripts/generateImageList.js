@@ -46,6 +46,26 @@ function generateImageList() {
   imageList['soft-drinks'] = getImageFiles(softDrinksPath);
   console.log(`Found ${imageList['soft-drinks'].length} soft drink images`);
   
+  // Ice bags
+  const iceBagsPath = path.join(baseDir, 'ice-bags');
+  imageList['ice-bags'] = getImageFiles(iceBagsPath);
+  console.log(`Found ${imageList['ice-bags'].length} ice bag images`);
+  
+  // Frozen pizza
+  const frozenPizzaPath = path.join(baseDir, 'frozen-pizza');
+  imageList['frozen-pizza'] = getImageFiles(frozenPizzaPath);
+  console.log(`Found ${imageList['frozen-pizza'].length} frozen pizza images`);
+  
+  // Firewood
+  const firewoodPath = path.join(baseDir, 'firewood');
+  imageList['firewood'] = getImageFiles(firewoodPath);
+  console.log(`Found ${imageList['firewood'].length} firewood images`);
+  
+  // Ice cream
+  const iceCreamPath = path.join(baseDir, 'ice-cream');
+  imageList['ice-cream'] = getImageFiles(iceCreamPath);
+  console.log(`Found ${imageList['ice-cream'].length} ice cream images`);
+  
   // Ensure the api directory exists
   const apiDir = path.dirname(outputPath);
   if (!fs.existsSync(apiDir)) {
@@ -59,6 +79,10 @@ function generateImageList() {
     console.log('📊 Summary:');
     console.log(`   Groceries: ${imageList.groceries.length} images`);
     console.log(`   Soft Drinks: ${imageList['soft-drinks'].length} images`);
+    console.log(`   Ice Bags: ${imageList['ice-bags'].length} images`);
+    console.log(`   Frozen Pizza: ${imageList['frozen-pizza'].length} images`);
+    console.log(`   Firewood: ${imageList['firewood'].length} images`);
+    console.log(`   Ice Cream: ${imageList['ice-cream'].length} images`);
   } catch (error) {
     console.error('❌ Error writing JSON file:', error);
   }
