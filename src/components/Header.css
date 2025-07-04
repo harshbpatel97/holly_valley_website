@@ -150,19 +150,6 @@ nav {
   }
   
   .dropdown-content {
-    position: static;
-    box-shadow: none;
-    background-color: #444;
-    border-radius: 0;
-    width: 100%;
-  }
-  
-  .dropdown-content a {
-    color: white;
-    border-bottom: 1px solid #555;
-  }
-  
-  .dropdown-content a:last-child {
-    border-bottom: none;
+    display: none !important;
   }
 } 

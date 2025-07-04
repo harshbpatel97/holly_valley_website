@@ -27,9 +27,7 @@ const Footer = () => {
         <p>&copy;HOLLY VALLEY INC.</p>
         <div className="legal-links">
           <small>
-            <a href="/legal">Legal Notice</a> | 
-            <a href="/privacy">Privacy Policy</a> | 
-            <a href="/terms">Terms of Service</a>
+            Legal Notice | Privacy Policy | Terms of Service
           </small>
         </div>
         <small>Age Restricted Products: Tobacco/Alcohol 21+ | Lottery 18+ | ID Required | Gambling Problem? Call 1-800-522-4700</small>
