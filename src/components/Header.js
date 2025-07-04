@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { getImagePath } from '../utils/imageUtils';
 import './Header.css';
 
 const Header = () => {
@@ -18,7 +19,7 @@ const Header = () => {
     <header>
       <div className="logo">
         <Link to="/">
-          <img src="/images/misc/holly_valley_logo.png?v=1" alt="Holly Valley Logo" />
+          <img src={getImagePath("/images/misc/holly_valley_logo.png?v=1")} alt="Holly Valley Logo" />
         </Link>
       </div>
       <nav>

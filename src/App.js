@@ -30,24 +30,26 @@ function App() {
     setShowVerification(true);
   };
 
-  if (showVerification) {
-    return <AgeVerification onVerify={handleAgeVerification} onExit={handleExit} />;
-  }
-
   return (
     <Router>
       <div className="App">
-        <Header />
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-        <Footer />
+        {showVerification ? (
+          <AgeVerification onVerify={handleAgeVerification} onExit={handleExit} />
+        ) : (
+          <>
+            <Header />
+            <main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+            <Footer />
+          </>
+        )}
       </div>
     </Router>
   );

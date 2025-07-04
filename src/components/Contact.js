@@ -1,4 +1,5 @@
 import React from 'react';
+import { getImagePath } from '../utils/imageUtils';
 import './Contact.css';
 
 const Contact = () => {
@@ -8,7 +9,7 @@ const Contact = () => {
         <h2 className="subsection-heading" id="contact">CONTACT US</h2>
         <div className="subsection-content" id="subheader-content">
           <div className="contact-logo">
-            <img src="/images/misc/contact.png" alt="contact-logo" />
+            <img src={getImagePath("/images/misc/contact.png")} alt="contact-logo" />
           </div>
           <p className="textAlignLeft">Holly Valley values customer satisfaction. If any queries or questions, feel free to reach
             through the following medium of communication: </p>

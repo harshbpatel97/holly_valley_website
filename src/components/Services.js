@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getImagePath } from '../utils/imageUtils';
 import './Services.css';
 
 const Services = () => {
@@ -11,7 +13,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/storeImages/04_uhaul_services.jpg" alt="uhaul-service-img" />
+            <img src={getImagePath("/images/storeImages/04_uhaul_services.jpg")} alt="uhaul-service-img" />
           </div>
           <p>Holly Valley is proud to be a U-Haul Neighborhood Dealer, offering convenient truck and trailer rental services to our community.</p>
           <p><strong>Services Available:</strong></p>
@@ -37,7 +39,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/misc/payment-service.png" alt="payment-service-img" />
+            <img src={getImagePath("/images/misc/payment-service.png")} alt="payment-service-img" />
           </div>
           <p>Holly Valley accepts the most commonly used forms of payments such as:</p>
           <ul className="list-elements">
@@ -58,7 +60,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/misc/atm-service.png" alt="atm-service-img" />
+            <img src={getImagePath("/images/misc/atm-service.png")} alt="atm-service-img" />
           </div>
           <p>The store also provides the ATM service at the minimum transaction fee
             and most of the credit and debit cards are accepted. ATM machine is rented
@@ -73,7 +75,7 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src="/images/misc/lottery-service.png" alt="lottery-services-pic" />
+            <img src={getImagePath("/images/misc/lottery-service.png")} alt="lottery-services-pic" />
           </div>
           <p>Holly Valley is an authorized NC Lottery retailer, offering various lottery games and services in compliance with North Carolina lottery regulations.</p>
           <p><strong>Services Available:</strong></p>

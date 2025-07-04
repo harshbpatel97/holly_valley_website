@@ -1,3 +1,5 @@
+import { getImagePath } from '../utils/imageUtils';
+
 // Store Images Configuration
 // All images in the public/images/storeImages/ directory will be automatically displayed
 // To add a new image: Simply place it in the storeImages directory
@@ -11,42 +13,42 @@
 export const storeImages = [
   {
     id: 'front-view',
-    src: '/images/storeImages/01_store_front_view.jpg',
+    src: getImagePath('/images/storeImages/01_store_front_view.jpg'),
     alt: 'Front View',
     title: 'Front View',
     description: 'Front view of Holly Valley store'
   },
   {
     id: 'left-view',
-    src: '/images/storeImages/02_store_left_view.jpg',
+    src: getImagePath('/images/storeImages/02_store_left_view.jpg'),
     alt: 'Left Side View',
     title: 'Left Side View',
     description: 'Left side view of Holly Valley store'
   },
   {
     id: 'right-view',
-    src: '/images/storeImages/03_store_right_view.jpg',
+    src: getImagePath('/images/storeImages/03_store_right_view.jpg'),
     alt: 'Right Side View',
     title: 'Right Side View',
     description: 'Right side view of Holly Valley store'
   },
   {
     id: 'uhaul',
-    src: '/images/storeImages/04_uhaul_services.jpg',
+    src: getImagePath('/images/storeImages/04_uhaul_services.jpg'),
     alt: 'UHaul Services',
     title: 'UHaul Services',
     description: 'U-Haul rental services available at Holly Valley'
   },
   {
     id: 'inside-view-1',
-    src: '/images/storeImages/05_inside_view_1.jpg',
+    src: getImagePath('/images/storeImages/05_inside_view_1.jpg'),
     alt: 'Inside View 1',
     title: 'Inside View 1',
     description: 'Inside view of Holly Valley store'
   },
   {
     id: 'inside-view-2',
-    src: '/images/storeImages/06_inside_view_2.jpg',
+    src: getImagePath('/images/storeImages/06_inside_view_2.jpg'),
     alt: 'Inside View 2',
     title: 'Inside View 2',
     description: 'Another inside view of Holly Valley store'

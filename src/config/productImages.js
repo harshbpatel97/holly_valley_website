@@ -1,3 +1,5 @@
+import { getImagePath } from '../utils/imageUtils';
+
 // Product Images Configuration
 // All product images are dynamically loaded from a JSON file that lists directory contents
 // To add a new product: Just add the image file to the appropriate directory and update the JSON
@@ -12,7 +14,7 @@ const generateProductFromImage = (filename, categoryPath) => {
   const cleanName = nameWithoutExtension.replace(/^\d+\s*-\s*/, "");
   
   const id = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-'); // Convert to URL-friendly ID
-  const src = `/images/${categoryPath}/${filename}`;
+  const src = getImagePath(`/images/${categoryPath}/${filename}`);
   const alt = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-');
   const caption = cleanName; // Use clean filename as caption
   

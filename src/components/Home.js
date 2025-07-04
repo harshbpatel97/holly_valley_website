@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { storeImages, sliderConfig } from '../config/storeImages';
+import { getImagePath } from '../utils/imageUtils';
 import './Home.css';
 
 const Home = () => {
@@ -104,8 +106,10 @@ const Home = () => {
           <p>8:00AM - 8:00PM</p>
           <p>SUNDAY</p>
           <p>11:00AM - 7:30PM</p>
-          <img src="/images/misc/open-sign.png" className="img-open-sign" alt="open-sign" />
-          <img src="/images/misc/7days.png" className="img-7days-sign" alt="7days" />
+          <div className="open-signs">
+            <img src={getImagePath("/images/misc/open-sign.png")} className="img-open-sign" alt="open-sign" />
+            <img src={getImagePath("/images/misc/7days.png")} className="img-7days-sign" alt="7days" />
+          </div>
         </div>
       </div>
     </div>
