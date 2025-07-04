@@ -15,7 +15,15 @@
     "Funyuns.jpg",
     "Lays.jpg",
     "Rice Krispies Treats.jpg",
-    "Skittles.jpg"
+    "Skittles.jpg",
+    "bread.jpg",
+    "cheetos.jpg",
+    "chocolates.jpg",
+    "doritos.jpg",
+    "eggs.jpg",
+    "funyuns.jpg",
+    "lays.jpg",
+    "skittles.jpg"
   ],
   "soft-drinks": [
     "Brisk Tea.jpg",
@@ -27,7 +35,13 @@
     "Sprite.jpg",
     "Starbucks.jpg",
     "Sunkist.jpg",
-    "Tea.jpg"
+    "Tea.jpg",
+    "fanta.jpg",
+    "pepsi.jpg",
+    "sprite.jpg",
+    "starbucks.jpg",
+    "sunkist.jpg",
+    "tea.jpg"
   ],
   "ice-bags": [
     "Bag of Ice.jpeg"
