@@ -75,14 +75,12 @@ const getFallbackImages = (categoryPath) => {
       'Pepsi.jpg',
       'Sprite.jpg',
       'Fanta.jpg',
-      '7UP.jpg',
       'Dr Pepper.jpg',
-      'Sunkist.jpg',
-      'A&W.jpg',
       'Canada Dry.jpg',
-      'Tea.jpg',
       'Brisk Tea.jpg',
-      'Starbucks.jpg'
+      'Starbucks.jpg',
+      'Sunkist.jpg',
+      'Tea.jpg'
     ],
     'ice-bags': [
       'Ice Bag 1.jpg',
@@ -148,14 +146,12 @@ const createImageAPI = () => {
       'Pepsi.jpg',
       'Sprite.jpg',
       'Fanta.jpg',
-      '7UP.jpg',
       'Dr Pepper.jpg',
-      'Sunkist.jpg',
-      'A&W.jpg',
       'Canada Dry.jpg',
-      'Tea.jpg',
       'Brisk Tea.jpg',
-      'Starbucks.jpg'
+      'Starbucks.jpg',
+      'Sunkist.jpg',
+      'Tea.jpg'
     ]
   };
   

@@ -107,12 +107,8 @@ src/assets/images/soft-drinks/
 ├── Pepsi.jpg                    # Pepsi
 ├── Sprite.jpg                   # Sprite
 ├── Fanta.jpg                    # Fanta
-├── 7UP.jpg                      # 7UP
 ├── Dr Pepper.jpg                # Dr Pepper
-├── Sunkist.jpg                  # Sunkist
-├── A&W.jpg                      # A&W
 ├── Canada Dry.jpg               # Canada Dry
-├── Tea.jpg                      # Tea
 ├── Brisk Tea.jpg                # Brisk Tea
 └── Starbucks.jpg                # Starbucks
 ```
