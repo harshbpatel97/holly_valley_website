@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { getImagePath } from '../utils/imageUtils';
 import './Services.css';
 
@@ -80,7 +79,7 @@ const Services = () => {
           <p>Holly Valley is an authorized NC Lottery retailer, offering various lottery games and services in compliance with North Carolina lottery regulations.</p>
           <p><strong>Services Available:</strong></p>
           <ul className="list-elements">
-            <li>NC Lottery tickets ($1 to $30)</li>
+            <li>NC Lottery tickets ($1 to $50)</li>
             <li>Online lottery games (Mega Millions, Powerball, Cash 5)</li>
             <li>Instant scratch-off tickets</li>
           </ul>

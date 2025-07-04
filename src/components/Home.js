@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { storeImages, sliderConfig } from '../config/storeImages';
 import { getImagePath } from '../utils/imageUtils';
 import './Home.css';
@@ -69,7 +68,7 @@ const Home = () => {
       <div className="subsection">
         <h2 className="subsection-heading" id="about-us">About Us</h2>
         <div className="subsection-content textAlignLeft">
-          <p>Holly Valley: is a convenience store which aims at providing excellent customer service. It offers variety of products and services
+          <p>Holly Valley is a convenience store which aims at providing excellent customer service. It offers variety of products and services
             ranging from grocery, snacks, beverages, soft drinks, ATM & Bitcoin machine, etc.
             We accept all forms of payment including EBT too. We also provide U-Haul rental services.</p>
 
@@ -98,7 +97,7 @@ const Home = () => {
       <div className="subsection">
         <h2 className="subsection-heading" id="hrs-of-opr">Hours of Operation</h2>
         <div className="subsection-content">
-          <p>We are open 7 days a week and closed during national holidays.</p>
+          <p>We are open 7 days a week.</p>
           <p>Our normal business hours are below:-</p>
           <p>MONDAY - FRIDAY</p>
           <p>8:00AM - 8:00PM</p>

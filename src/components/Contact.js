@@ -15,12 +15,11 @@ const Contact = () => {
             through the following medium of communication: </p>
           <ul className="list-design">
             <li><p>Phone No: (336)304-0094</p></li>
-            <li>Location:
-              <ul className="location-list">
-                <li>2730 NC Hwy 18 S</li>
-                <li>Moravian Falls</li>
-                <li>NC-28654</li>
-              </ul>
+            <li>Location:<br />
+              <span style={{ display: 'block', marginLeft: '1em' }}>
+                2730 NC Hwy 18 S<br />
+                Moravian Falls, NC 28654
+              </span>
             </li>
           </ul>
         </div>
