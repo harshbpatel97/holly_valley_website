@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllProductCategories, refreshProductImages } from '../config/productImages';
-import './Products.css';
+import { Box, Heading, Text, Collapse, SimpleGrid, useColorModeValue, Image } from '@chakra-ui/react';
+import ProductCard from './ProductCard';
 
 const Products = () => {
   const [activeAccordion, setActiveAccordion] = useState('groceries');
@@ -8,28 +9,30 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Load products dynamically on component mount
+  // Always call hooks at the top level
+  const sectionTextColor = useColorModeValue('gray.600', 'gray.300');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const cardHoverBg = useColorModeValue('teal.100', 'teal.700');
+  const cardBorder = useColorModeValue('gray.100', 'gray.700');
+  const panelTextColor = useColorModeValue('gray.700', 'gray.200');
+
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        // Refresh images from the JSON file
         await refreshProductImages();
-        // Get the updated products
         const updatedProducts = getAllProductCategories();
         setProducts(updatedProducts);
       } catch (error) {
         console.warn('Could not load products dynamically:', error);
-        // Fallback to static loading
         setProducts(getAllProductCategories());
       } finally {
         setLoading(false);
       }
     };
-
     loadProducts();
   }, []);
-  
+
   const toggleAccordion = (id) => {
     setActiveAccordion(activeAccordion === id ? null : id);
   };
@@ -48,7 +51,6 @@ const Products = () => {
     } else {
       document.body.style.overflow = 'unset';
     }
-
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -56,87 +58,87 @@ const Products = () => {
 
   if (loading) {
     return (
-      <div className="products">
-        <div className="subsection products-subsection">
-          <div className="subsection-content" id="subheader-content">
-            <p>Loading products...</p>
-          </div>
-        </div>
-      </div>
+      <Box p={8}><Text>Loading products...</Text></Box>
     );
   }
 
   return (
-    <div className="products">
-      <div className="subsection products-subsection">
-        <h2 className="subsection-heading" id="products">PRODUCTS</h2>
-        <div className="subsection-content" id="subheader-content">
-          <p>Holly Valley offers a variety of products ranging from groceries to soft-drinks.
-            A detailed overview of each department is mentioned along with the brands and options
-            available in each category.</p>
-        </div>
-      </div>
-
-      <div className="subsection products-subsection">
-        {products.map((product) => (
-          <div key={product.id} className="accordion" id={product.id}>
-            <h3 
-              className={`accordion-header ${activeAccordion === product.id ? 'active' : ''}`}
-              onClick={() => toggleAccordion(product.id)}
-            >
-              {product.title}
-            </h3>
-            <div className={`panel-products ${activeAccordion === product.id ? 'active' : ''}`}>
-              <table className="table-design">
-                <tr>
-                  <th colSpan="4" className="table-heading">{product.description}</th>
-                </tr>
-                {product.items.map((item, index) => (
-                  <React.Fragment key={item.id}>
-                    {index % 4 === 0 && (
-                      <tr>
-                        {product.items.slice(index, index + 4).map((subItem, subIndex) => (
-                          <td key={subItem.id}>
-                            <img 
-                              src={subItem.src} 
-                              alt={subItem.alt} 
-                              className="img-design"
-                              onClick={() => handleImageClick(subItem.src)}
-                            />
-                          </td>
-                        ))}
-                        {Array.from({ length: 4 - (product.items.length - index) }, (_, i) => (
-                          <td key={`empty-${i}`}></td>
-                        ))}
-                      </tr>
-                    )}
-                    {index % 4 === 0 && (
-                      <tr>
-                        {product.items.slice(index, index + 4).map((subItem, subIndex) => (
-                          <td key={subItem.id} className="table-caption">{subItem.caption}</td>
-                        ))}
-                        {Array.from({ length: 4 - (product.items.length - index) }, (_, i) => (
-                          <td key={`empty-caption-${i}`}></td>
-                        ))}
-                      </tr>
-                    )}
-                  </React.Fragment>
+    <Box p={{ base: 2, md: 8 }}>
+      <Box mb={8} textAlign="center">
+        <Heading mb={2}>PRODUCTS</Heading>
+        <Text color={sectionTextColor}>
+          Holly Valley offers a variety of products ranging from groceries to soft-drinks. A detailed overview of each department is mentioned along with the brands and options available in each category.
+        </Text>
+      </Box>
+      {products.map((product) => (
+        <Box key={product.id} mb={6} borderWidth="1px" borderRadius="lg" boxShadow="md" bg={cardBg}
+          _hover={{ boxShadow: 'lg' }}>
+          <Box
+            as="button"
+            w="100%"
+            textAlign="left"
+            px={6}
+            py={4}
+            fontWeight="bold"
+            fontSize="xl"
+            borderTopRadius="lg"
+            bg={activeAccordion === product.id ? cardHoverBg : cardBorder}
+            onClick={() => toggleAccordion(product.id)}
+          >
+            {product.title}
+          </Box>
+          <Collapse in={activeAccordion === product.id} animateOpacity>
+            <Box px={6} py={4}>
+              <Text mb={4} color={panelTextColor}>{product.description}</Text>
+              <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
+                {product.items.map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    image={item.src}
+                    name={item.caption}
+                    category={product.title}
+                    onClick={() => handleImageClick(item.src)}
+                  />
                 ))}
-              </table>
-            </div>
-          </div>
-        ))}
-      </div>
-
+              </SimpleGrid>
+            </Box>
+          </Collapse>
+        </Box>
+      ))}
       {zoomedImage && (
-        <div className="image-zoom-overlay" onClick={closeZoom}>
-          <div className="image-zoom-container">
-            <img src={zoomedImage} alt="Zoomed" />
-            <button className="close-zoom" onClick={closeZoom}>&times;</button>
-          </div>
-        </div>
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          w="100vw"
+          h="100vh"
+          bg="rgba(0,0,0,0.7)"
+          zIndex={1000}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          onClick={closeZoom}
+        >
+          <Box bg="white" p={4} borderRadius="md" boxShadow="lg" maxW="90vw" maxH="90vh" position="relative">
+            <Image src={zoomedImage} alt="Zoomed" maxH="70vh" maxW="80vw" />
+            <Box
+              as="button"
+              position="absolute"
+              top={2}
+              right={2}
+              fontSize="2xl"
+              color="gray.600"
+              bg="transparent"
+              border="none"
+              cursor="pointer"
+              onClick={closeZoom}
+            >
+              &times;
+            </Box>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
