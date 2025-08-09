@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Flex, HStack, IconButton, useDisclosure, Stack, Link as ChakraLink, Image, Spacer, useColorModeValue } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import DarkModeToggle from './DarkModeToggle';
 
 const Links = [
@@ -27,7 +27,6 @@ const NavLink = ({ to, children }) => (
 
 export default function Header() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const location = useLocation();
 
   return (
     <Box bg={useColorModeValue('gray.100', 'gray.800')} px={4} boxShadow="sm">
