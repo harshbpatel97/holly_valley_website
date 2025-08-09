@@ -36,12 +36,12 @@ const Products = () => {
 
   const toggleAccordion = (id) => {
     setActiveAccordion(activeAccordion === id ? null : id);
-    track('product_category_view', { category: id });
+    track('product_category_open', { category: id });
   };
 
   const handleImageClick = (imageSrc, category, caption) => {
     setZoomedImage(imageSrc);
-    track('image_zoom', { category, item_caption: caption });
+    track('product_image_zoom', { category, item_caption: caption });
   };
 
   const closeZoom = () => {

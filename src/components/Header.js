@@ -21,7 +21,7 @@ const NavLink = ({ to, children, locationLabel }) => (
     _hover={{ textDecoration: 'none', bg: 'gray.200', color: 'teal.600' }}
     _dark={{ _hover: { bg: 'gray.700', color: 'teal.200' } }}
     to={to}
-    onClick={() => track('nav_click', { label: children, location: locationLabel })}
+    onClick={() => track('nav_link_click', { link_text: String(children), location: locationLabel, path: to })}
   >
     {children}
   </ChakraLink>

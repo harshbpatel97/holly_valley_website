@@ -29,7 +29,7 @@ const Services = () => {
             <li>Sunday: 11:00 AM - 6:00 PM</li>
           </ul>
           <p>For reservations, rates, and more detailed information, please visit our U-Haul location page:</p>
-          <p><a href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/" target="_blank" rel="noopener noreferrer" style={{color: '#41A699', fontWeight: 'bold'}} onClick={() => track('outbound_click', { destination: 'https://www.uhaul.com/...', label: 'uhaul_booking' })}>Book U-Haul Services Online</a></p>
+          <p><a href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/" target="_blank" rel="noopener noreferrer" style={{color: '#41A699', fontWeight: 'bold'}} onClick={() => track('uhaul_booking_click', { destination: 'https://www.uhaul.com/...', location: 'services' })}>Book U-Haul Services Online</a></p>
         </div>
       )
     },
@@ -116,7 +116,7 @@ const Services = () => {
 
   const toggleAccordion = (id) => {
     setActiveAccordion(activeAccordion === id ? null : id);
-    track('service_view', { service_id: id });
+    track('service_accordion_open', { service_id: id });
   };
 
   return (

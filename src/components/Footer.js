@@ -4,8 +4,8 @@ import './Footer.css';
 import { track } from '../utils/ga';
 
 const Footer = () => {
-  const onNavClick = (label) => track('nav_click', { label, location: 'footer' });
-  const onPhoneClick = () => track('contact_click', { method: 'phone', location: 'footer' });
+  const onNavClick = (label, path) => track('nav_link_click', { link_text: label, location: 'footer', path });
+  const onPhoneClick = () => track('phone_click', { location: 'footer' });
 
   return (
     <footer>
@@ -13,16 +13,16 @@ const Footer = () => {
         <h3>Quick Links</h3>
         <ul className="quick-links">
           <li className="quick-icon">
-            <Link to="/" onClick={() => onNavClick('HOME')}>HOME</Link>
+            <Link to="/" onClick={() => onNavClick('HOME', '/')}>HOME</Link>
           </li>
           <li className="quick-icon">
-            <Link to="/services" onClick={() => onNavClick('SERVICES')}>SERVICES</Link>
+            <Link to="/services" onClick={() => onNavClick('SERVICES', '/services')}>SERVICES</Link>
           </li>
           <li className="quick-icon">
-            <Link to="/products" onClick={() => onNavClick('PRODUCTS')}>PRODUCTS</Link>
+            <Link to="/products" onClick={() => onNavClick('PRODUCTS', '/products')}>PRODUCTS</Link>
           </li>
           <li className="quick-icon">
-            <Link to="/contact" onClick={() => onNavClick('CONTACT US')}>CONTACT US</Link>
+            <Link to="/contact" onClick={() => onNavClick('CONTACT US', '/contact')}>CONTACT US</Link>
           </li>
         </ul>
       </div>

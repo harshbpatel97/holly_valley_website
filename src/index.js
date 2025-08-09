@@ -51,8 +51,8 @@ reportWebVitals((metric) => {
   const params = {
     value: metric.value,
     metric_id: metric.id,
-    metric_name: metric.name,
     metric_delta: metric.delta,
   };
-  gtag('event', 'web_vital', params);
+  const eventName = `web_vital_${metric.name.toLowerCase()}`;
+  gtag('event', eventName, params);
 });

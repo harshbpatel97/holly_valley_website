@@ -8,11 +8,11 @@ const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=Holly+Valley,27
 
 const Contact = () => {
   const onCallClick = () => {
-    track('contact_click', { method: 'phone', location: 'contact' });
+    track('phone_click', { location: 'contact' });
   };
 
   const onDirectionsClick = () => {
-    track('get_directions', { provider: 'google_maps', location: 'contact' });
+    track('directions_click', { provider: 'google_maps', location: 'contact' });
   };
 
   return (
