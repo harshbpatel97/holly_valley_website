@@ -1,29 +1,35 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
+import { track } from '../utils/ga';
 
 const Footer = () => {
+  const onNavClick = (label) => track('nav_click', { label, location: 'footer' });
+  const onPhoneClick = () => track('contact_click', { method: 'phone', location: 'footer' });
+
   return (
     <footer>
       <div className="footer-content">
         <h3>Quick Links</h3>
         <ul className="quick-links">
           <li className="quick-icon">
-            <Link to="/">HOME</Link>
+            <Link to="/" onClick={() => onNavClick('HOME')}>HOME</Link>
           </li>
           <li className="quick-icon">
-            <Link to="/services">SERVICES</Link>
+            <Link to="/services" onClick={() => onNavClick('SERVICES')}>SERVICES</Link>
           </li>
           <li className="quick-icon">
-            <Link to="/products">PRODUCTS</Link>
+            <Link to="/products" onClick={() => onNavClick('PRODUCTS')}>PRODUCTS</Link>
           </li>
           <li className="quick-icon">
-            <Link to="/contact">CONTACT US</Link>
+            <Link to="/contact" onClick={() => onNavClick('CONTACT US')}>CONTACT US</Link>
           </li>
         </ul>
       </div>
       <div className="copyright">
-        <p>Contact Us: +1(336)304-0094</p>
+        <p>
+          Contact Us: <a href="tel:13363040094" onClick={onPhoneClick}>+1(336)304-0094</a>
+        </p>
         <p>&copy;HOLLY VALLEY INC.</p>
         <div className="legal-links">
           <small>

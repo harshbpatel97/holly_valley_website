@@ -3,6 +3,7 @@ import { Box, Flex, HStack, IconButton, useDisclosure, Stack, Link as ChakraLink
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import DarkModeToggle from './DarkModeToggle';
+import { track } from '../utils/ga';
 
 const Links = [
   { label: 'Home', to: '/' },
@@ -11,7 +12,7 @@ const Links = [
   { label: 'Contact Us', to: '/contact' },
 ];
 
-const NavLink = ({ to, children }) => (
+const NavLink = ({ to, children, locationLabel }) => (
   <ChakraLink
     as={Link}
     px={3}
@@ -20,6 +21,7 @@ const NavLink = ({ to, children }) => (
     _hover={{ textDecoration: 'none', bg: 'gray.200', color: 'teal.600' }}
     _dark={{ _hover: { bg: 'gray.700', color: 'teal.200' } }}
     to={to}
+    onClick={() => track('nav_click', { label: children, location: locationLabel })}
   >
     {children}
   </ChakraLink>
@@ -38,7 +40,7 @@ export default function Header() {
         <Spacer />
         <HStack as={'nav'} spacing={4} display={{ base: 'none', md: 'flex' }}>
           {Links.map((link) => (
-            <NavLink key={link.to} to={link.to}>
+            <NavLink key={link.to} to={link.to} locationLabel="header">
               {link.label}
             </NavLink>
           ))}
@@ -58,7 +60,7 @@ export default function Header() {
         <Box pb={4} display={{ md: 'none' }}>
           <Stack as={'nav'} spacing={4}>
             {Links.map((link) => (
-              <NavLink key={link.to} to={link.to}>
+              <NavLink key={link.to} to={link.to} locationLabel="mobile-menu">
                 {link.label}
               </NavLink>
             ))}

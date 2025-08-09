@@ -44,7 +44,15 @@ root.render(
   </ChakraProvider>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// Send Web Vitals to GA as events
+reportWebVitals((metric) => {
+  const gtag = window.gtag;
+  if (!gtag || !GA_ID) return;
+  const params = {
+    value: metric.value,
+    metric_id: metric.id,
+    metric_name: metric.name,
+    metric_delta: metric.delta,
+  };
+  gtag('event', 'web_vital', params);
+});

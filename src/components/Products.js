@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllProductCategories, refreshProductImages } from '../config/productImages';
 import { Box, Heading, Text, Collapse, SimpleGrid, useColorModeValue, Image } from '@chakra-ui/react';
 import ProductCard from './ProductCard';
+import { track } from '../utils/ga';
 
 const Products = () => {
   const [activeAccordion, setActiveAccordion] = useState('groceries');
@@ -35,10 +36,12 @@ const Products = () => {
 
   const toggleAccordion = (id) => {
     setActiveAccordion(activeAccordion === id ? null : id);
+    track('product_category_view', { category: id });
   };
 
-  const handleImageClick = (imageSrc) => {
+  const handleImageClick = (imageSrc, category, caption) => {
     setZoomedImage(imageSrc);
+    track('image_zoom', { category, item_caption: caption });
   };
 
   const closeZoom = () => {
@@ -97,7 +100,7 @@ const Products = () => {
                     image={item.src}
                     name={item.caption}
                     category={product.title}
-                    onClick={() => handleImageClick(item.src)}
+                    onClick={() => handleImageClick(item.src, product.id, item.caption)}
                   />
                 ))}
               </SimpleGrid>
