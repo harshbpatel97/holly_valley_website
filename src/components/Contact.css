@@ -1,5 +1,5 @@
 .contact {
-  background-color: floralwhite;
+  background-color: transparent;
   min-height: 100vh;
   padding: 20px 0;
 }
@@ -69,7 +69,7 @@
 .list-design li {
   margin-bottom: 15px;
   font-size: 1.1em;
-  color: #333;
+  color: inherit;
 }
 
 .list-design li p {

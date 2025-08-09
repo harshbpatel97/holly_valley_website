@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Box, useColorModeValue } from '@chakra-ui/react';
 import AgeVerification from './components/AgeVerification';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -30,9 +31,12 @@ function App() {
     setShowVerification(true);
   };
 
+  const appBg = useColorModeValue('gray.50', 'gray.900');
+  const appColor = useColorModeValue('gray.800', 'gray.100');
+
   return (
     <Router>
-      <div className="App">
+      <Box className="App" bg={appBg} color={appColor} minH="100vh">
         {showVerification ? (
           <AgeVerification onVerify={handleAgeVerification} onExit={handleExit} />
         ) : (
@@ -50,7 +54,7 @@ function App() {
             <Footer />
           </>
         )}
-      </div>
+      </Box>
     </Router>
   );
 }
