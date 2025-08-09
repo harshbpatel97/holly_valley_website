@@ -12,6 +12,30 @@ const theme = extendTheme({
   },
 });
 
+// Google Analytics runtime injection
+const GA_ID = process.env.REACT_APP_GA_ID;
+function injectGoogleAnalytics(measurementId) {
+  if (!measurementId) return;
+  if (window.gtag) return; // avoid duplicate injection
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+  document.head.appendChild(script);
+
+  const inline = document.createElement('script');
+  inline.innerHTML = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} 
+    gtag('js', new Date());
+    gtag('config', '${measurementId}');
+  `;
+  document.head.appendChild(inline);
+}
+
+if (typeof window !== 'undefined' && GA_ID) {
+  injectGoogleAnalytics(GA_ID);
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <ChakraProvider theme={theme}>

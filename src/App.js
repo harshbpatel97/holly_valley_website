@@ -8,6 +8,7 @@ import Home from './components/Home';
 import Services from './components/Services';
 import Products from './components/Products';
 import Contact from './components/Contact';
+import GoogleAnalytics from './components/GoogleAnalytics';
 import './App.css';
 
 function App() {
@@ -34,8 +35,11 @@ function App() {
   const appBg = useColorModeValue('gray.50', 'gray.900');
   const appColor = useColorModeValue('gray.800', 'gray.100');
 
+  const measurementId = process.env.REACT_APP_GA_ID;
+
   return (
     <Router>
+      {measurementId && <GoogleAnalytics measurementId={measurementId} />}
       <Box className="App" bg={appBg} color={appColor} minH="100vh">
         {showVerification ? (
           <AgeVerification onVerify={handleAgeVerification} onExit={handleExit} />
