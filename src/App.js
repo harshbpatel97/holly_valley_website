@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Box, useColorModeValue } from '@chakra-ui/react';
 import AgeVerification from './components/AgeVerification';
 import Header from './components/Header';
@@ -8,19 +8,28 @@ import Home from './components/Home';
 import Services from './components/Services';
 import Products from './components/Products';
 import Contact from './components/Contact';
+import Signage from './components/Signage';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import './App.css';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const isSignagePage = location.pathname === '/signage';
   const [showVerification, setShowVerification] = useState(false);
 
   useEffect(() => {
+    // Skip age verification for signage page
+    if (isSignagePage) {
+      setShowVerification(false);
+      return;
+    }
+    
     // Check if user has already verified their age
     const verified = sessionStorage.getItem('advertOnce') === 'true';
     if (!verified) {
       setShowVerification(true);
     }
-  }, []);
+  }, [isSignagePage]);
 
   const handleAgeVerification = () => {
     sessionStorage.setItem('advertOnce', 'true');
@@ -37,8 +46,13 @@ function App() {
 
   const measurementId = process.env.REACT_APP_GA_ID;
 
+  // Render signage page without header, footer, or age verification
+  if (isSignagePage) {
+    return <Signage />;
+  }
+
   return (
-    <Router>
+    <>
       {measurementId && <GoogleAnalytics measurementId={measurementId} />}
       <Box className="App" bg={appBg} color={appColor} minH="100vh">
         {showVerification ? (
@@ -52,6 +66,7 @@ function App() {
                 <Route path="/services" element={<Services />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/signage" element={<Signage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
@@ -59,6 +74,16 @@ function App() {
           </>
         )}
       </Box>
+    </>
+  );
+}
+
+function App() {
+  const measurementId = process.env.REACT_APP_GA_ID;
+
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

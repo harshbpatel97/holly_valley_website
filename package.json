@@ -29,6 +29,7 @@
     "eject": "react-scripts eject",
     "sync-images": "node scripts/syncImages.js",
     "generate-images": "node scripts/generateImageList.js",
+    "generate-signage-images": "node scripts/generateSignageImages.js",
     "prebuild": "npm run sync-images",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
