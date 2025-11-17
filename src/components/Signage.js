@@ -133,7 +133,6 @@ const Signage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [loadedImages, setLoadedImages] = useState(new Set());
   const [lastImageLoadTime, setLastImageLoadTime] = useState(0);
 
   const imageSource = process.env.REACT_APP_IMAGE_SOURCE || process.env.REACT_APP_ONEDRIVE_LINK;
@@ -191,8 +190,6 @@ const Signage = () => {
           return;
         }
 
-        setLoadedImages(new Set());
-        
         setImages(imageUrls);
         setCurrentIndex(0);
         setLoading(false);
@@ -217,8 +214,6 @@ const Signage = () => {
           }
           return;
         }
-        
-        setLoadedImages(new Set());
         
         setImages(imageUrls);
         setCurrentIndex(0);
@@ -246,8 +241,6 @@ const Signage = () => {
         return;
       }
 
-      setLoadedImages(new Set());
-      
       setImages(imageUrls);
       setCurrentIndex(0);
       if (!isRefresh) {
@@ -346,9 +339,7 @@ const Signage = () => {
                 currentIndex={currentIndex}
                 lastImageLoadTime={lastImageLoadTime}
                 setLastImageLoadTime={setLastImageLoadTime}
-                onLoad={() => {
-                  setLoadedImages(prev => new Set([...prev, imageUrl]));
-                }}
+                onLoad={() => {}}
               />
             ) : null}
           </Box>
