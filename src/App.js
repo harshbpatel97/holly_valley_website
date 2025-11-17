@@ -52,7 +52,7 @@ function SignageRoute() {
 
       if (!requiredToken) {
         // No token configured - track open access
-        window.gtag('event', 'signage_access', {
+        window.gtag('event', 'signage_access_granted', {
           event_category: 'Security',
           event_label: 'open_access',
           has_token: false,
@@ -62,7 +62,7 @@ function SignageRoute() {
         });
       } else if (isValidToken) {
         // Valid token - track successful access
-        window.gtag('event', 'signage_access', {
+        window.gtag('event', 'signage_access_granted', {
           event_category: 'Security',
           event_label: 'access_granted',
           has_token: true,

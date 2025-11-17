@@ -140,36 +140,6 @@ const Signage = () => {
   // Convert days to milliseconds: 1 day = 24 * 60 * 60 * 1000 = 86400000 ms
   const refreshIntervalDays = parseInt(process.env.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1', 10);
   const refreshInterval = refreshIntervalDays * 24 * 60 * 60 * 1000;
-  const measurementId = process.env.REACT_APP_GA_ID;
-
-  useEffect(() => {
-    // Track successful signage page access once images are loaded
-    const trackSignageView = async () => {
-      if (!measurementId || !window.gtag || images.length === 0 || loading) return;
-
-      // Get IP address
-      let ipAddress = null;
-      try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        ipAddress = data.ip;
-      } catch (error) {
-        // IP fetch failed, continue without IP
-      }
-
-      window.gtag('event', 'signage_page_view', {
-        event_category: 'Signage',
-        event_label: 'page_viewed',
-        images_count: images.length,
-        slide_duration_ms: slideDuration,
-        refresh_interval_days: refreshIntervalDays,
-        page_title: 'Signage Display',
-        ...(ipAddress && { ip_address: ipAddress }),
-      });
-    };
-
-    trackSignageView();
-  }, [measurementId, images.length, slideDuration, refreshIntervalDays, loading]);
 
   useEffect(() => {
     if (!imageSource) {
