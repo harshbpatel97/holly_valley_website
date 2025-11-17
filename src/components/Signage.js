@@ -5,9 +5,14 @@ import './Signage.css';
 const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadTime, setLastImageLoadTime, onLoad }) => {
   const [shouldLoad, setShouldLoad] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [imageError, setImageError] = useState(false);
   const retryTimeoutRef = useRef(null);
+  const loadTimeoutRef = useRef(null);
   const prevImageUrlRef = useRef(null);
   const prevCurrentIndexRef = useRef(null);
+  
+  // Detect mobile device for optimized loading
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   useEffect(() => {
     const isSameImage = imageUrl === prevImageUrlRef.current && currentIndex === prevCurrentIndexRef.current;
@@ -23,12 +28,19 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
         clearTimeout(retryTimeoutRef.current);
         retryTimeoutRef.current = null;
       }
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
       setRetryCount(0);
       setShouldLoad(false);
+      setImageError(false);
     }
 
+    // Use shorter delay on mobile (1 second) vs desktop (2 seconds)
+    // This helps prevent timeouts on slower mobile networks
     const timeSinceLastLoad = lastImageLoadTime > 0 ? Date.now() - lastImageLoadTime : 999999;
-    const minDelay = 5000;
+    const minDelay = isMobile ? 1000 : 2000;
     const delay = lastImageLoadTime > 0 ? Math.max(0, minDelay - timeSinceLastLoad) : 0;
 
     const loadTimer = setTimeout(() => {
@@ -37,19 +49,21 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
     }, delay);
 
     return () => clearTimeout(loadTimer);
-  }, [currentIndex, imageUrl, lastImageLoadTime, setLastImageLoadTime, shouldLoad, index]);
+  }, [currentIndex, imageUrl, lastImageLoadTime, setLastImageLoadTime, shouldLoad, index, isMobile]);
 
   const handleError = (e) => {
+    setImageError(true);
     if (retryCount < 3) {
-      const retryDelay = Math.pow(2, retryCount + 1) * 5000;
+      // Faster retries on mobile
+      const retryDelay = isMobile 
+        ? Math.pow(2, retryCount) * 2000 
+        : Math.pow(2, retryCount + 1) * 5000;
       retryTimeoutRef.current = setTimeout(() => {
         setRetryCount(prev => prev + 1);
+        setImageError(false);
         setShouldLoad(true);
         setLastImageLoadTime(Date.now());
       }, retryDelay);
-    } else {
-      e.target.style.display = 'none';
-      onLoad();
     }
   };
 
@@ -57,6 +71,9 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
     return () => {
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
+      }
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
       }
     };
   }, []);
@@ -74,6 +91,29 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
     );
   }
 
+  if (imageError && retryCount >= 3) {
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minH="100vh"
+        bg="black"
+        color="white"
+        p={8}
+      >
+        <Box textAlign="center">
+          <Text fontSize="lg" color="gray.400" mb={2}>
+            Unable to load image {index + 1}
+          </Text>
+          <Text fontSize="sm" color="gray.500">
+            Check your connection or image URL
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box
       display="flex"
@@ -83,12 +123,11 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
       bg="black"
     >
       <img
-        key={`image-${index}`}
+        key={`image-${index}-${retryCount}`}
         src={imageUrl}
         alt={`Slide ${index + 1}`}
         className="signage-image"
         loading="eager"
-        referrerPolicy="no-referrer"
         style={{
           maxWidth: '100%',
           maxHeight: '100%',
@@ -96,11 +135,14 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
           height: 'auto',
           objectFit: 'contain',
           display: 'block',
-          margin: 'auto'
+          margin: 'auto',
+          opacity: imageError ? 0.5 : 1,
+          transition: 'opacity 0.3s ease'
         }}
         onError={handleError}
         onLoad={(e) => {
           setRetryCount(0);
+          setImageError(false);
           onLoad();
         }}
         ref={(imgElement) => {
@@ -108,17 +150,36 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
           
           setTimeout(() => {
             if (imgElement.complete && imgElement.naturalHeight > 0) {
+              setImageError(false);
               onLoad();
             } else {
-              const loadHandler = () => onLoad();
+              const loadHandler = () => {
+                if (loadTimeoutRef.current) {
+                  clearTimeout(loadTimeoutRef.current);
+                  loadTimeoutRef.current = null;
+                }
+                setImageError(false);
+                onLoad();
+              };
               imgElement.addEventListener('load', loadHandler, { once: true });
+              
+              // Timeout for mobile - if image doesn't load within 10 seconds, show error
+              loadTimeoutRef.current = setTimeout(() => {
+                if (!imgElement.complete || imgElement.naturalHeight === 0) {
+                  handleError({ target: imgElement });
+                }
+              }, isMobile ? 10000 : 15000);
               
               if (imgElement.src) {
                 setTimeout(() => {
                   if (imgElement.complete && imgElement.naturalHeight > 0) {
+                    if (loadTimeoutRef.current) {
+                      clearTimeout(loadTimeoutRef.current);
+                      loadTimeoutRef.current = null;
+                    }
                     loadHandler();
                   }
-                }, 50);
+                }, 100);
               }
             }
           }, 0);
