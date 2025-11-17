@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REACT_APP_GA_ID: ${{ secrets.REACT_APP_GA_ID }}
+      REACT_APP_IMAGE_SOURCE: /api/signage-images.json
+      REACT_APP_SIGNAGE_SLIDE_DURATION: ${{ secrets.REACT_APP_SIGNAGE_SLIDE_DURATION || '10000' }}
+      REACT_APP_SIGNAGE_REFRESH_INTERVAL: ${{ secrets.REACT_APP_SIGNAGE_REFRESH_INTERVAL || '86400000' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

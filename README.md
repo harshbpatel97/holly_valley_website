@@ -155,7 +155,7 @@ The website includes a digital signage feature accessible at `/signage` path, de
 
 ### Setting Up Digital Signage
 
-**Note:** We use Google Drive for dynamic image loading. See `GOOGLE_DRIVE_SETUP.md` for detailed setup instructions.
+**Note:** We use Google Drive for dynamic image loading. See `DEPLOYMENT.md` for deployment setup.
 
 #### Method 1: Using Google Drive (Recommended - Automatic)
 
@@ -204,7 +204,7 @@ GitHub Actions will automatically update images daily:
    REACT_APP_IMAGE_SOURCE=/api/signage-images.json
    ```
 
-See `GOOGLE_DRIVE_SETUP.md` and `GITHUB_ACTIONS_SETUP.md` for detailed instructions.
+See `DEPLOYMENT.md` for detailed deployment and GitHub Actions setup instructions.
 
 #### Method 3: Manual JSON File
 
