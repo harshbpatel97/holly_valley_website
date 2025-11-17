@@ -107,10 +107,10 @@ Create or update `.env` file:
 REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
 
 # Optional: Slide duration in milliseconds (default: 10000 = 10 seconds)
-REACT_APP_SIGNAGE_SLIDE_DURATION=10000
+REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000
 
-# Optional: Auto-refresh interval in milliseconds (default: 86400000 = 24 hours)
-REACT_APP_SIGNAGE_REFRESH_INTERVAL=86400000
+# Optional: Auto-refresh interval in days (default: 1 = refresh daily)
+REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS=1
 ```
 
 ### Step 5: Test Locally
@@ -127,8 +127,8 @@ Visit: `http://localhost:3000/signage`
    - Go to **Settings** → **Secrets and variables** → **Actions**
    - Add `GOOGLE_DRIVE_FOLDER_ID`
    - Add `GOOGLE_DRIVE_API_KEY`
-   - (Optional) Add `REACT_APP_SIGNAGE_SLIDE_DURATION`
-   - (Optional) Add `REACT_APP_SIGNAGE_REFRESH_INTERVAL`
+   - (Optional) Add `REACT_APP_SIGNAGE_SLIDE_DURATION_MS` (milliseconds)
+   - (Optional) Add `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` (days)
 
 2. **Enable GitHub Pages**:
    - Go to **Settings** → **Pages**
@@ -146,8 +146,8 @@ Visit: `http://localhost:3000/signage`
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `REACT_APP_SIGNAGE_IMG_REF_LINK` | Path to JSON file with image URLs | - | Yes |
-| `REACT_APP_SIGNAGE_SLIDE_DURATION` | Duration per slide (ms) | `10000` | No |
-| `REACT_APP_SIGNAGE_REFRESH_INTERVAL` | Auto-refresh interval (ms) | `86400000` | No |
+| `REACT_APP_SIGNAGE_SLIDE_DURATION_MS` | Duration per slide (milliseconds) | `10000` | No |
+| `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` | Auto-refresh interval (days) | `1` | No |
 
 ### JSON File Format
 
@@ -249,24 +249,30 @@ To prevent 429 "Too Many Requests" errors from Google CDN:
 
 ### Daily Update Workflow
 
-**Schedule**: Daily at 2 AM UTC (configurable)
+**Schedule**: Daily at 2 AM UTC (checks if update is needed)
 
-**Actions**:
-1. Checks out repository
-2. Installs dependencies
-3. Generates new image list from Google Drive
-4. Commits changes if images changed
-5. Triggers automatic redeployment
+**How it works**:
+1. Workflow runs daily at 2 AM UTC
+2. Checks `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` secret
+3. Compares last update time with interval
+4. Only updates if enough days have passed since last update
+5. If update needed: Fetches images from Google Drive, commits if changed
+6. Triggers automatic redeployment
 
 **Configuration**: `.github/workflows/update-signage.yml`
 
 **Customize Schedule**:
 ```yaml
 schedule:
-  - cron: '0 2 * * *'  # 2 AM UTC daily
+  - cron: '0 2 * * *'  # 2 AM UTC daily (checks interval)
 ```
 
-Use [crontab.guru](https://crontab.guru/) to calculate your desired schedule.
+The cron schedule checks daily, but actual updates happen based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` secret:
+- If set to `1`: Updates daily (if scheduled cron runs)
+- If set to `2`: Updates every 2 days (when cron checks and interval has passed)
+- If set to `7`: Updates weekly
+
+Use [crontab.guru](https://crontab.guru/) to calculate your desired check schedule.
 
 ### Deployment Workflow
 
@@ -297,7 +303,7 @@ Use [crontab.guru](https://crontab.guru/) to calculate your desired schedule.
 **Issue**: Getting "Too Many Requests" errors
 
 **Solutions**:
-1. Increase `REACT_APP_SIGNAGE_SLIDE_DURATION` (e.g., `15000` for 15 seconds)
+1. Increase `REACT_APP_SIGNAGE_SLIDE_DURATION_MS` (e.g., `15000` for 15 seconds)
 2. The component already has 5-second throttling built-in
 3. Ensure only one instance of the slideshow is running
 

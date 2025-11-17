@@ -67,13 +67,13 @@ REACT_APP_GA_ID=
 #    JSON format: ["url1", "url2", ...] or {"images": ["url1", "url2", ...]}
 REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
 
-# Slide duration in milliseconds (default: 5000 = 5 seconds)
-REACT_APP_SIGNAGE_SLIDE_DURATION=5000
+# Slide duration in milliseconds (default: 10000 = 10 seconds)
+REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000
 
-# Auto-refresh interval in milliseconds (default: 86400000 = 24 hours / 1 day)
+# Auto-refresh interval in days (default: 1 = refresh daily)
 # Images are automatically refreshed to pick up new/removed images
-# Set to refresh once per day by default
-REACT_APP_SIGNAGE_REFRESH_INTERVAL=86400000
+# Set to refresh once per day by default (value: 1)
+REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS=1
 
 # Access token for signage page (required for security)
 # Access signage via: /signage?token=YOUR_TOKEN_HERE
@@ -186,8 +186,8 @@ The website includes a digital signage feature accessible at `/signage` path, de
 
 5. **Optionally set slide timing:**
    ```env
-   REACT_APP_SIGNAGE_SLIDE_DURATION=5000  # 5 seconds per slide
-   REACT_APP_SIGNAGE_REFRESH_INTERVAL=86400000  # Refresh daily
+   REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000  # 10 seconds per slide
+   REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS=1  # Refresh daily
    ```
 
 6. **Build and deploy your application**

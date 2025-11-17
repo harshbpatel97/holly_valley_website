@@ -21,8 +21,8 @@ Go to **Settings** → **Secrets and variables** → **Actions** → **New repos
 
 **Optional:**
 - `REACT_APP_GA_ID` - Google Analytics tracking ID (e.g., `G-XXXXXXXXXX`)
-- `REACT_APP_SIGNAGE_SLIDE_DURATION` - Slide duration in milliseconds (default: `10000`)
-- `REACT_APP_SIGNAGE_REFRESH_INTERVAL` - Refresh interval in milliseconds (default: `86400000`)
+- `REACT_APP_SIGNAGE_SLIDE_DURATION_MS` - Slide duration in milliseconds (default: `10000`)
+- `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` - Refresh interval in days (default: `1`)
 
 ### 3. Deploy
 
@@ -47,16 +47,29 @@ Every push to `master` branch automatically:
 
 ### Automatic Signage Updates
 
-Every day at 2 AM UTC:
-1. Fetches images from Google Drive
-2. Updates `public/api/signage-images.json`
-3. Commits changes (if any)
-4. Triggers automatic redeployment
+**How it works:**
+1. Cron runs daily at 2 AM UTC to check if update is needed
+2. Checks `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` secret
+3. Compares last update time with interval days
+4. Only updates if enough days have passed since last update
+5. If update needed:
+   - Fetches images from Google Drive
+   - Updates `public/api/signage-images.json`
+   - Commits changes (if any)
+   - Triggers automatic redeployment
 
 **Workflow:** `.github/workflows/update-signage.yml`
 
-You can also trigger manually:
+**Interval behavior:**
+- Cron checks daily at 2 AM UTC
+- Actual updates happen based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS`:
+  - `1` = Updates daily (when cron runs)
+  - `2` = Updates every 2 days (when interval passed)
+  - `7` = Updates weekly
+
+**Manual trigger:**
 - Go to **Actions** → **Update Signage Images** → **Run workflow**
+- Manual triggers always run (bypasses interval check)
 
 ## GitHub Secrets Setup
 
@@ -188,7 +201,7 @@ Your site already has a custom domain (`wilkes-cstore.com`) configured via `publ
 4. Verify secrets are set correctly
 
 **429 Errors (rate limiting):**
-- Increase `REACT_APP_SIGNAGE_SLIDE_DURATION` secret (e.g., `15000` for 15 seconds)
+- Increase `REACT_APP_SIGNAGE_SLIDE_DURATION_MS` secret (e.g., `15000` for 15 seconds)
 - This is handled automatically in production
 
 ### Site Not Updating

@@ -136,8 +136,10 @@ const Signage = () => {
   const [lastImageLoadTime, setLastImageLoadTime] = useState(0);
 
   const imageSource = process.env.REACT_APP_SIGNAGE_IMG_REF_LINK;
-  const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION || '10000', 10);
-  const refreshInterval = parseInt(process.env.REACT_APP_SIGNAGE_REFRESH_INTERVAL || '86400000', 10);
+  const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000', 10);
+  // Convert days to milliseconds: 1 day = 24 * 60 * 60 * 1000 = 86400000 ms
+  const refreshIntervalDays = parseInt(process.env.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1', 10);
+  const refreshInterval = refreshIntervalDays * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
     if (!imageSource) {
