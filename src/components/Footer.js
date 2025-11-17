@@ -30,7 +30,7 @@ const Footer = () => {
         <p>
           Contact Us: <a href="tel:13363040094" onClick={onPhoneClick}>+1(336)304-0094</a>
         </p>
-        <p>&copy;HOLLY VALLEY INC.</p>
+        <p>DBA Holly Valley</p>
         <div className="legal-links">
           <small>
             Legal Notice | Privacy Policy | Terms of Service

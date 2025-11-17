@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Spinner, Text } from '@chakra-ui/react';
+import { Box, Spinner, Text, VStack, HStack } from '@chakra-ui/react';
 import './Signage.css';
 
 const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadTime, setLastImageLoadTime, onLoad }) => {
@@ -154,6 +154,16 @@ const Signage = () => {
 
     return () => clearInterval(refreshTimer);
   }, [imageSource, refreshInterval]);
+
+  useEffect(() => {
+    // Disable scrolling on body when signage is active
+    document.body.classList.add('signage-active');
+    
+    return () => {
+      // Re-enable scrolling when component unmounts
+      document.body.classList.remove('signage-active');
+    };
+  }, []);
 
   useEffect(() => {
     if (images.length === 0) return;
@@ -313,38 +323,119 @@ const Signage = () => {
 
   return (
     <Box className="signage-container">
-      {images.map((imageUrl, index) => {
-        const isActive = index === currentIndex;
-        
-        return (
-          <Box
-            key={index}
-            className={`signage-slide ${isActive ? 'active' : ''}`}
-            style={{ 
-              display: isActive ? 'flex' : 'none',
-              opacity: isActive ? 1 : 0,
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            {isActive ? (
-              <ActiveImageWithThrottle
-                imageUrl={imageUrl}
-                index={index}
-                currentIndex={currentIndex}
-                lastImageLoadTime={lastImageLoadTime}
-                setLastImageLoadTime={setLastImageLoadTime}
-                onLoad={() => {}}
+      {/* Header with Logo */}
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        width="100%"
+        zIndex="100"
+        bg="rgba(0, 0, 0, 0.8)"
+        py={3}
+        px={8}
+      >
+        <VStack spacing={2} align="center">
+          {/* Logo and Brand Name */}
+          <HStack spacing={6} align="center">
+            <Box>
+              <img
+                src="/images/misc/holly_valley_logo.png"
+                alt="Holly Valley Logo"
+                style={{
+                  height: '80px',
+                  width: 'auto',
+                  objectFit: 'contain'
+                }}
               />
-            ) : null}
-          </Box>
-        );
-      })}
+            </Box>
+            <Text
+              fontSize="4xl"
+              fontWeight="900"
+              color="white"
+              letterSpacing="0.1em"
+            >
+              HOLLY VALLEY
+            </Text>
+          </HStack>
+        </VStack>
+      </Box>
+
+      {/* Slideshow Images */}
+      <Box position="relative" width="100%" height="calc(100vh - 25vh - 120px)" mt="120px" mb="25vh">
+        {images.map((imageUrl, index) => {
+          const isActive = index === currentIndex;
+          
+          return (
+            <Box
+              key={index}
+              className={`signage-slide ${isActive ? 'active' : ''}`}
+              style={{ 
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {isActive && (
+                <ActiveImageWithThrottle
+                  imageUrl={imageUrl}
+                  index={index}
+                  currentIndex={currentIndex}
+                  lastImageLoadTime={lastImageLoadTime}
+                  setLastImageLoadTime={setLastImageLoadTime}
+                  onLoad={() => {}}
+                />
+              )}
+            </Box>
+          );
+        })}
+      </Box>
+
+      {/* Footer with Legal Disclaimers - 25% of page height */}
+      <Box
+        position="absolute"
+        bottom="0"
+        left="0"
+        width="100%"
+        height="25vh"
+        maxHeight="300px"
+        zIndex="100"
+        bg="rgba(0, 0, 0, 0.9)"
+        py={2}
+        px={8}
+        overflowY="auto"
+      >
+        <VStack spacing={1.5} align="center" h="100%" justify="center">
+          {/* Contact Info */}
+          <HStack spacing={4} align="center">
+            <Text fontSize="sm" color="white">
+              Contact: <a href="tel:13363040094" style={{ color: '#4FD1C7' }}>+1(336)304-0094</a>
+            </Text>
+            <Text fontSize="sm" color="gray.400">|</Text>
+            <Text fontSize="sm" color="white">DBA Holly Valley</Text>
+          </HStack>
+
+          {/* Legal Disclaimers - Compact */}
+          <VStack spacing={1} align="center" maxW="1200px">
+            {/* Age Restrictions */}
+            <Text fontSize="sm" color="yellow.400" fontWeight="600" textAlign="center">
+              Age Restricted Products: Tobacco/Alcohol 21+ | Lottery 18+ | Valid ID Required
+            </Text>
+
+            {/* NC Regulations & ABC Laws Compliance - Compact */}
+            <Text fontSize="10px" color="gray.300" textAlign="center" lineHeight="1.4">
+              <strong>LEGAL NOTICE - NC REGULATIONS & ABC LAWS COMPLIANCE:</strong> This establishment complies with all NC state regulations and ABC laws regarding tobacco products and alcoholic beverages (including cold beer). All advertisements are for informational purposes only. <strong>Tobacco:</strong> 21+ only, valid ID required. <strong>Alcoholic Beverages (Cold Beer):</strong> Regulated by NC ABC Commission, 21+ only, valid ID required. <strong>NC Lottery:</strong> 18+ only, valid ID required. Play responsibly. Gambling problem? Call 1-800-522-4700.
+            </Text>
+            <Text fontSize="10px" color="gray.400" textAlign="center" mt={1}>
+              Holly Valley maintains strict compliance with all applicable regulations. 
+              For more information, visit <a href="https://www.abc.nc.gov" target="_blank" rel="noopener noreferrer" style={{ color: '#4FD1C7' }}>abc.nc.gov</a> and <a href="https://www.nclottery.com" target="_blank" rel="noopener noreferrer" style={{ color: '#4FD1C7' }}>nclottery.com</a>
+            </Text>
+          </VStack>
+        </VStack>
+      </Box>
     </Box>
   );
 };

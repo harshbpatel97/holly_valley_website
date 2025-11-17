@@ -16,15 +16,19 @@
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 1.5s ease-in-out;
+  transform: scale(1.05);
+  transition: opacity 2s ease-in-out, transform 2s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
 .signage-slide.active {
   opacity: 1;
+  transform: scale(1);
   z-index: 1;
+  pointer-events: auto;
 }
 
 .signage-image {
@@ -55,10 +59,32 @@
   -ms-user-select: none;
 }
 
-/* Ensure fullscreen on all devices */
-html, body {
-  margin: 0;
-  padding: 0;
+/* Ensure fullscreen on all devices - scoped to signage only */
+.signage-container body,
+body.signage-active {
   overflow: hidden;
+}
+
+/* Footer styling for signage page */
+.signage-container a {
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.signage-container a:hover {
+  color: #81e6d9 !important;
+}
+
+/* Responsive footer text for TV displays */
+@media screen and (min-width: 1920px) {
+  .signage-container footer {
+    font-size: 0.95em;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .signage-container footer {
+    font-size: 0.75em;
+  }
 }
 
