@@ -61,32 +61,6 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
     };
   }, []);
 
-  useEffect(() => {
-    if (!shouldLoad) return;
-    
-    const frameId = requestAnimationFrame(() => {
-      const testImg = new Image();
-      let onLoadFired = false;
-      
-      const fireOnLoad = () => {
-        if (!onLoadFired) {
-          onLoadFired = true;
-          onLoad();
-        }
-      };
-      
-      testImg.onload = fireOnLoad;
-      testImg.src = imageUrl;
-      
-      setTimeout(() => {
-        if (testImg.complete && testImg.naturalHeight > 0) {
-          fireOnLoad();
-        }
-      }, 10);
-    });
-    
-    return () => cancelAnimationFrame(frameId);
-  }, [shouldLoad, imageUrl, onLoad]);
 
   if (!shouldLoad) {
     return (
