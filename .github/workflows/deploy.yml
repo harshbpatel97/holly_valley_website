@@ -45,6 +45,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          REACT_APP_GA_ID: ${{ secrets.REACT_APP_GA_ID }}
+          REACT_APP_SIGNAGE_IMG_REF_LINK: /api/signage-images.json
+          REACT_APP_SIGNAGE_SLIDE_DURATION: ${{ secrets.REACT_APP_SIGNAGE_SLIDE_DURATION || '10000' }}
+          REACT_APP_SIGNAGE_REFRESH_INTERVAL: ${{ secrets.REACT_APP_SIGNAGE_REFRESH_INTERVAL || '86400000' }}
+          REACT_APP_SIGNAGE_TOKEN: ${{ secrets.REACT_APP_SIGNAGE_TOKEN }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
