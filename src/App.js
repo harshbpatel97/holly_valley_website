@@ -85,7 +85,7 @@ function SignageRoute() {
     };
 
     trackSignageAccess();
-  }, [location.pathname, location.search, measurementId, token, requiredToken]);
+  }, [location.pathname, location.search, location.hash, measurementId, token, requiredToken]);
 
   // If no token is configured, allow access (for development/fallback)
   if (!requiredToken) {
