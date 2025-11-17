@@ -135,13 +135,13 @@ const Signage = () => {
   const [error, setError] = useState(null);
   const [lastImageLoadTime, setLastImageLoadTime] = useState(0);
 
-  const imageSource = process.env.REACT_APP_IMAGE_SOURCE || process.env.REACT_APP_ONEDRIVE_LINK;
+  const imageSource = process.env.REACT_APP_SIGNAGE_IMG_REF_LINK;
   const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION || '10000', 10);
   const refreshInterval = parseInt(process.env.REACT_APP_SIGNAGE_REFRESH_INTERVAL || '86400000', 10);
 
   useEffect(() => {
     if (!imageSource) {
-      setError('Image source not configured. Please set REACT_APP_IMAGE_SOURCE environment variable.');
+      setError('Image source not configured. Please set REACT_APP_SIGNAGE_IMG_REF_LINK environment variable.');
       setLoading(false);
       return;
     }
@@ -299,7 +299,7 @@ const Signage = () => {
           <Text fontSize="2xl" mb={4} color="red.400">Error</Text>
           <Text fontSize="lg">{error}</Text>
           <Text fontSize="sm" mt={4} color="gray.400">
-            Please configure REACT_APP_IMAGE_SOURCE with a JSON file URL or Google Drive proxy URL.
+            Please configure REACT_APP_SIGNAGE_IMG_REF_LINK with a JSON file URL or Google Drive proxy URL.
           </Text>
         </Box>
       </Box>

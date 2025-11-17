@@ -17,6 +17,7 @@ Go to **Settings** → **Secrets and variables** → **Actions** → **New repos
 **Required for Signage:**
 - `GOOGLE_DRIVE_FOLDER_ID` - Your Google Drive folder ID from the URL
 - `GOOGLE_DRIVE_API_KEY` - Your Google Drive API key
+- `REACT_APP_SIGNAGE_TOKEN` - Secret token for accessing the signage page (e.g., `your-secret-token-123`)
 
 **Optional:**
 - `REACT_APP_GA_ID` - Google Analytics tracking ID (e.g., `G-XXXXXXXXXX`)
@@ -93,6 +94,7 @@ You can also trigger manually:
 5. Value: Your folder ID
 6. Click **Add secret**
 7. Repeat for `GOOGLE_DRIVE_API_KEY`
+8. Repeat for `REACT_APP_SIGNAGE_TOKEN` (create a strong, random token for security)
 
 ## Testing Before Deploy
 

@@ -104,7 +104,7 @@ Create or update `.env` file:
 
 ```env
 # Required: Path to JSON file with image URLs
-REACT_APP_IMAGE_SOURCE=/api/signage-images.json
+REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
 
 # Optional: Slide duration in milliseconds (default: 10000 = 10 seconds)
 REACT_APP_SIGNAGE_SLIDE_DURATION=10000
@@ -145,7 +145,7 @@ Visit: `http://localhost:3000/signage`
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `REACT_APP_IMAGE_SOURCE` | Path to JSON file with image URLs | - | Yes |
+| `REACT_APP_SIGNAGE_IMG_REF_LINK` | Path to JSON file with image URLs | - | Yes |
 | `REACT_APP_SIGNAGE_SLIDE_DURATION` | Duration per slide (ms) | `10000` | No |
 | `REACT_APP_SIGNAGE_REFRESH_INTERVAL` | Auto-refresh interval (ms) | `86400000` | No |
 
@@ -327,7 +327,7 @@ Use [crontab.guru](https://crontab.guru/) to calculate your desired schedule.
 
 **Solutions**:
 1. Check browser console for JavaScript errors
-2. Verify `REACT_APP_IMAGE_SOURCE` is set correctly
+2. Verify `REACT_APP_SIGNAGE_IMG_REF_LINK` is set correctly
 3. Ensure JSON file is accessible at the path
 4. Check network tab for failed requests
 

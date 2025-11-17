@@ -158,7 +158,7 @@ async function main() {
     console.log(`\n✓ Successfully generated ${outputFile}`);
     console.log(`\nNext steps:`);
     console.log(`1. Update your .env file:`);
-    console.log(`   REACT_APP_IMAGE_SOURCE=/api/signage-images.json`);
+    console.log(`   REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json`);
     console.log(`2. Rebuild your application: npm run build`);
     console.log(`\nImage URLs saved:`);
     imageUrls.forEach((url, index) => {

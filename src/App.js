@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Box, useColorModeValue } from '@chakra-ui/react';
 import AgeVerification from './components/AgeVerification';
 import Header from './components/Header';
@@ -9,8 +9,30 @@ import Services from './components/Services';
 import Products from './components/Products';
 import Contact from './components/Contact';
 import Signage from './components/Signage';
+import SignageAccessDenied from './components/SignageAccessDenied';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import './App.css';
+
+// Signage route component with token authentication
+// Must be inside Router context (used in AppContent)
+function SignageRoute() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const requiredToken = process.env.REACT_APP_SIGNAGE_TOKEN;
+
+  // If no token is configured, allow access (for development/fallback)
+  if (!requiredToken) {
+    return <Signage />;
+  }
+
+  // Check if token is provided and matches
+  if (!token || token !== requiredToken) {
+    return <SignageAccessDenied />;
+  }
+
+  // Token is valid, show signage
+  return <Signage />;
+}
 
 function AppContent() {
   const location = useLocation();
@@ -46,9 +68,9 @@ function AppContent() {
 
   const measurementId = process.env.REACT_APP_GA_ID;
 
-  // Render signage page without header, footer, or age verification
+  // Render signage page with authentication check
   if (isSignagePage) {
-    return <Signage />;
+    return <SignageRoute />;
   }
 
   return (

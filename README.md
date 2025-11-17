@@ -65,7 +65,7 @@ REACT_APP_GA_ID=
 # 1. JSON file URL: /api/signage-images.json or https://yourdomain.com/images.json
 # 2. Google Drive proxy URL: http://localhost:3001/api/googledrive/images?folderId=FOLDER_ID&apiKey=API_KEY
 #    JSON format: ["url1", "url2", ...] or {"images": ["url1", "url2", ...]}
-REACT_APP_IMAGE_SOURCE=/api/signage-images.json
+REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
 
 # Slide duration in milliseconds (default: 5000 = 5 seconds)
 REACT_APP_SIGNAGE_SLIDE_DURATION=5000
@@ -74,6 +74,11 @@ REACT_APP_SIGNAGE_SLIDE_DURATION=5000
 # Images are automatically refreshed to pick up new/removed images
 # Set to refresh once per day by default
 REACT_APP_SIGNAGE_REFRESH_INTERVAL=86400000
+
+# Access token for signage page (required for security)
+# Access signage via: /signage?token=YOUR_TOKEN_HERE
+# If not set, signage page will be publicly accessible
+REACT_APP_SIGNAGE_TOKEN=your-secret-token-here
 ```
 
 **Note**: Make sure to add `.env` to `.gitignore` to protect sensitive information.
@@ -176,7 +181,7 @@ The website includes a digital signage feature accessible at `/signage` path, de
 
 4. **Set environment variable:**
    ```env
-   REACT_APP_IMAGE_SOURCE=/api/signage-images.json
+   REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
    ```
 
 5. **Optionally set slide timing:**
@@ -201,7 +206,7 @@ GitHub Actions will automatically update images daily:
 
 3. **Set environment variable:**
    ```env
-   REACT_APP_IMAGE_SOURCE=/api/signage-images.json
+   REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
    ```
 
 See `docs/DEPLOYMENT.md` for detailed deployment and GitHub Actions setup instructions.
@@ -220,13 +225,13 @@ Create a JSON file manually with your image URLs:
 
 Save it as `public/api/signage-images.json` and set:
 ```env
-REACT_APP_IMAGE_SOURCE=/api/signage-images.json
+REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
 ```
 
 ### Troubleshooting
 
 If images don't load:
-1. Check that `REACT_APP_IMAGE_SOURCE` is set correctly in your `.env` file
+1. Check that `REACT_APP_SIGNAGE_IMG_REF_LINK` is set correctly in your `.env` file
 2. Verify the JSON file contains valid image URLs
 3. Ensure images are accessible (not behind authentication)
 4. Check browser console for detailed error messages
