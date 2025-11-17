@@ -79,8 +79,6 @@ function AppContent() {
 }
 
 function App() {
-  const measurementId = process.env.REACT_APP_GA_ID;
-
   return (
     <Router>
       <AppContent />

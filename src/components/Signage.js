@@ -322,7 +322,6 @@ const Signage = () => {
     <Box className="signage-container">
       {images.map((imageUrl, index) => {
         const isActive = index === currentIndex;
-        const isLoaded = loadedImages.has(imageUrl);
         
         return (
           <Box
