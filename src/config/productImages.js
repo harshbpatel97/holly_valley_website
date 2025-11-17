@@ -28,7 +28,6 @@ const loadImagesFromDirectory = async (categoryPath) => {
     const response = await fetch('/api/images.json');
     
     if (!response.ok) {
-      console.warn('Could not load images.json, using fallback');
       return getFallbackImages(categoryPath);
     }
     
@@ -43,7 +42,6 @@ const loadImagesFromDirectory = async (categoryPath) => {
     // Generate product objects
     return imageFiles.map(filename => generateProductFromImage(filename, categoryPath));
   } catch (error) {
-    console.warn(`Could not load images from ${categoryPath}:`, error);
     return getFallbackImages(categoryPath);
   }
 };
@@ -234,9 +232,7 @@ export const refreshProductImages = async () => {
     productCategories.firewood.items = firewood;
     productCategories.icecream.items = icecream;
     
-    console.log('Product images refreshed dynamically');
   } catch (error) {
-    console.warn('Could not refresh images dynamically:', error);
   }
 };
 

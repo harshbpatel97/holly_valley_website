@@ -25,7 +25,6 @@ const Products = () => {
         const updatedProducts = getAllProductCategories();
         setProducts(updatedProducts);
       } catch (error) {
-        console.warn('Could not load products dynamically:', error);
         setProducts(getAllProductCategories());
       } finally {
         setLoading(false);

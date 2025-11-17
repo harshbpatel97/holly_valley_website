@@ -33,20 +33,21 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       
-      - name: Generate signage images from OneDrive
+      - name: Generate signage images from Google Drive
         env:
-          ONEDRIVE_LINK: ${{ secrets.ONEDRIVE_LINK }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          GOOGLE_DRIVE_API_KEY: ${{ secrets.GOOGLE_DRIVE_API_KEY }}
         run: |
-          if [ -z "$ONEDRIVE_LINK" ]; then
-            echo "Error: ONEDRIVE_LINK secret is not set"
-            echo "Please add your OneDrive link as a GitHub secret:"
+          if [ -z "$GOOGLE_DRIVE_FOLDER_ID" ] || [ -z "$GOOGLE_DRIVE_API_KEY" ]; then
+            echo "Error: Google Drive secrets are not set"
+            echo "Please add your Google Drive credentials as GitHub secrets:"
             echo "1. Go to Settings > Secrets and variables > Actions"
-            echo "2. Click 'New repository secret'"
-            echo "3. Name: ONEDRIVE_LINK"
-            echo "4. Value: Your OneDrive share link"
+            echo "2. Add GOOGLE_DRIVE_FOLDER_ID (your folder ID)"
+            echo "3. Add GOOGLE_DRIVE_API_KEY (your API key)"
+            echo "See GOOGLE_DRIVE_SETUP.md for instructions"
             exit 1
           fi
-          npm run generate-signage-images "$ONEDRIVE_LINK" public/api/signage-images.json
+          npm run generate-signage-images-gdrive "$GOOGLE_DRIVE_FOLDER_ID" public/api/signage-images.json "$GOOGLE_DRIVE_API_KEY"
       
       - name: Check for changes
         id: git-check
@@ -63,7 +64,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add public/api/signage-images.json
-          git commit -m "Auto-update signage images from OneDrive [skip ci]"
+          git commit -m "Auto-update signage images from Google Drive [skip ci]"
           git push origin master
       
       - name: No changes detected

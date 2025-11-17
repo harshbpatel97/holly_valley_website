@@ -60,19 +60,18 @@ Create a `.env` file in the root directory to configure environment variables:
 # Google Analytics ID (optional)
 REACT_APP_GA_ID=
 
-# OneDrive Share Link for Digital Signage
+# Image Source for Digital Signage
 # Format options:
-# 1. OneDrive share link: https://1drv.ms/f/s!TOKEN or https://1drv.ms/f/c/ID1/ID2?e=CODE
-# 2. OneDrive Live link: https://onedrive.live.com/?id=TOKEN
-# 3. JSON file URL: https://yourdomain.com/images.json
+# 1. JSON file URL: /api/signage-images.json or https://yourdomain.com/images.json
+# 2. Google Drive proxy URL: http://localhost:3001/api/googledrive/images?folderId=FOLDER_ID&apiKey=API_KEY
 #    JSON format: ["url1", "url2", ...] or {"images": ["url1", "url2", ...]}
-REACT_APP_ONEDRIVE_LINK=
+REACT_APP_IMAGE_SOURCE=/api/signage-images.json
 
 # Slide duration in milliseconds (default: 5000 = 5 seconds)
 REACT_APP_SIGNAGE_SLIDE_DURATION=5000
 
 # Auto-refresh interval in milliseconds (default: 86400000 = 24 hours / 1 day)
-# Images are automatically refreshed to pick up new/removed images from OneDrive
+# Images are automatically refreshed to pick up new/removed images
 # Set to refresh once per day by default
 REACT_APP_SIGNAGE_REFRESH_INTERVAL=86400000
 ```
@@ -147,81 +146,65 @@ The website includes a digital signage feature accessible at `/signage` path, de
 
 - **Fullscreen Slideshow**: Displays images in a fullscreen, TV-optimized slideshow
 - **Automatic Transitions**: Auto-advances through images with configurable timing
-- **OneDrive Integration**: Dynamically fetches images from a OneDrive share link (configured via environment variable)
-- **Auto-Refresh**: Automatically refreshes images daily (once per day) to pick up new/removed images from OneDrive
-- **Privacy Protection**: OneDrive link is stored in environment variables, not in code
+- **Google Drive Integration**: Dynamically fetches images from a Google Drive folder (configured via environment variable)
+- **Auto-Refresh**: Automatically refreshes images daily to pick up new/removed images from Google Drive
+- **Privacy Protection**: Image source is stored in environment variables, not in code
 - **Clean Interface**: Bypasses header, footer, and age verification for uninterrupted viewing
 - **TV Optimized**: Responsive design optimized for large displays and FireTV
-- **Multiple Link Formats**: Supports various OneDrive link formats including `/f/c/` folder links
+- **Dynamic Updates**: Images automatically refresh from Google Drive daily
 
 ### Setting Up Digital Signage
 
-#### Method 1: Using OneDrive Share Link (Automatic)
+**Note:** We use Google Drive for dynamic image loading. See `GOOGLE_DRIVE_SETUP.md` for detailed setup instructions.
 
-1. Share your OneDrive folder containing JPEG images:
-   - Right-click the folder in OneDrive
-   - Select "Share" → "Anyone with the link" (read-only)
-   - Copy the share link
-   
-2. Set `REACT_APP_ONEDRIVE_LINK` in your `.env` file with the OneDrive share link:
+#### Method 1: Using Google Drive (Recommended - Automatic)
+
+1. **Get Google Drive API Key:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a project and enable "Google Drive API"
+   - Create an API key (see `GOOGLE_DRIVE_SETUP.md` for detailed instructions)
+
+2. **Share your Google Drive folder:**
+   - Upload images to a folder in Google Drive
+   - Right-click the folder → "Share" → "Anyone with the link can view"
+   - Copy the folder ID from the URL: `https://drive.google.com/drive/folders/FOLDER_ID`
+
+3. **Generate JSON file:**
+   ```bash
+   npm run generate-signage-images-gdrive "FOLDER_ID" public/api/signage-images.json "YOUR_API_KEY"
+   ```
+
+4. **Set environment variable:**
    ```env
-   REACT_APP_ONEDRIVE_LINK=https://1drv.ms/f/s!YOUR_TOKEN_HERE
+   REACT_APP_IMAGE_SOURCE=/api/signage-images.json
    ```
 
-3. Optionally set `REACT_APP_SIGNAGE_SLIDE_DURATION` for slide timing (default: 5000ms = 5 seconds)
-4. Optionally set `REACT_APP_SIGNAGE_REFRESH_INTERVAL` for auto-refresh timing (default: 86400000ms = 24 hours)
-   - The slideshow automatically refreshes daily to pick up new/removed images from OneDrive
-5. Build and deploy your application
-6. Access the signage at: `https://yourdomain.com/signage`
-
-#### Method 2: Using JSON File (Recommended - More Reliable)
-
-This is the recommended method for `/f/c/` format OneDrive links and provides dynamic daily updates:
-
-1. **Initial Setup - Generate JSON file:**
-   ```bash
-   npm run generate-signage-images "https://1drv.ms/f/c/YOUR_ID1/YOUR_ID2?e=CODE" public/api/signage-images.json
-   ```
-   This will create a JSON file with all image URLs from your OneDrive folder.
-
-2. **Set environment variable:**
+5. **Optionally set slide timing:**
    ```env
-   REACT_APP_ONEDRIVE_LINK=/api/signage-images.json
+   REACT_APP_SIGNAGE_SLIDE_DURATION=5000  # 5 seconds per slide
+   REACT_APP_SIGNAGE_REFRESH_INTERVAL=86400000  # Refresh daily
    ```
 
-3. **Set up daily auto-refresh** (choose one method):
+6. **Build and deploy your application**
+7. **Access the signage at:** `https://yourdomain.com/signage`
 
-   **Option A: Cron Job (macOS/Linux):**
-   ```bash
-   # Edit crontab
-   crontab -e
-   
-   # Add this line to run daily at 2 AM (adjust time as needed)
-   # Replace /path/to/project with your actual project path
-   0 2 * * * cd /path/to/holly_valley_website && npm run generate-signage-images "YOUR_ONEDRIVE_LINK" public/api/signage-images.json
+#### Method 2: Using GitHub Actions (Automatic Daily Updates)
+
+GitHub Actions will automatically update images daily:
+
+1. **Add GitHub Secrets:**
+   - Go to Settings → Secrets and variables → Actions
+   - Add `GOOGLE_DRIVE_FOLDER_ID` (your folder ID)
+   - Add `GOOGLE_DRIVE_API_KEY` (your API key)
+
+2. **The workflow runs daily** and updates `public/api/signage-images.json`
+
+3. **Set environment variable:**
+   ```env
+   REACT_APP_IMAGE_SOURCE=/api/signage-images.json
    ```
 
-   **Option B: Scheduled Task (Windows):**
-   - Open Task Scheduler
-   - Create Basic Task
-   - Set trigger to "Daily" at your preferred time
-   - Set action to run:
-     ```cmd
-     cmd /c "cd C:\path\to\holly_valley_website && npm run generate-signage-images YOUR_ONEDRIVE_LINK public/api/signage-images.json"
-     ```
-
-   **Option C: Manual Refresh:**
-   Simply run the script whenever you want to update images:
-   ```bash
-   npm run generate-signage-images "YOUR_ONEDRIVE_LINK" public/api/signage-images.json
-   ```
-
-4. **Rebuild and deploy:**
-   ```bash
-   npm run build
-   ```
-
-The React app will automatically check for updated images once per day (default: every 24 hours). When you add or remove images from OneDrive, they will appear in the slideshow after the next daily refresh cycle completes.
+See `GOOGLE_DRIVE_SETUP.md` and `GITHUB_ACTIONS_SETUP.md` for detailed instructions.
 
 #### Method 3: Manual JSON File
 
@@ -235,22 +218,19 @@ Create a JSON file manually with your image URLs:
 ]
 ```
 
-Save it as `public/api/signage-images.json` and set `REACT_APP_ONEDRIVE_LINK=/api/signage-images.json`
-
-### OneDrive Share Link Formats Supported
-
-- `https://1drv.ms/f/s!TOKEN` - OneDrive share link (most common)
-- `https://1drv.ms/u/s!TOKEN` - OneDrive user share link
-- `https://onedrive.live.com/?id=TOKEN` - OneDrive Live link
-- JSON file URL with format: `["url1", "url2", ...]` or `{"images": ["url1", "url2", ...]}`
+Save it as `public/api/signage-images.json` and set:
+```env
+REACT_APP_IMAGE_SOURCE=/api/signage-images.json
+```
 
 ### Troubleshooting
 
-If you get "Invalid OneDrive link format" error:
-1. Ensure the folder is shared with "Anyone with the link" permission
-2. Verify the link format matches one of the supported formats
-3. Try using Method 2 (JSON file) for more reliable access
+If images don't load:
+1. Check that `REACT_APP_IMAGE_SOURCE` is set correctly in your `.env` file
+2. Verify the JSON file contains valid image URLs
+3. Ensure images are accessible (not behind authentication)
 4. Check browser console for detailed error messages
+5. For Google Drive: Ensure folder is shared publicly and API key is valid
 
 ## Technologies Used
 
