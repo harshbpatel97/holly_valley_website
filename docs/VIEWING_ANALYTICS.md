@@ -155,6 +155,168 @@ Your signage page tracks the following events:
 
 ---
 
+## Setting Up a Dashboard for Signage Events
+
+### In Google Analytics Web Interface
+
+#### Method 1: Custom Dashboard (Recommended)
+
+1. **Create a New Dashboard**
+   - Go to **Reports** → **Dashboards** (left sidebar)
+   - Click **+ Create Dashboard**
+   - Name it: "Signage Security Dashboard"
+   - Choose "Blank Canvas" layout
+
+2. **Add Widget: Access Granted Count**
+   - Click **+ Add Widget**
+   - Widget Type: Select **Metric**
+   - Widget Title: "Access Granted"
+   - Configuration:
+     - Metric: **Event count**
+     - Filter: `Event name` = `signage_access_granted`
+   - Click **Save**
+
+3. **Add Widget: Access Denied Count**
+   - Click **+ Add Widget**
+   - Widget Type: Select **Metric**
+   - Widget Title: "Access Denied"
+   - Configuration:
+     - Metric: **Event count**
+     - Filter: `Event name` = `signage_access_denied`
+   - Click **Save**
+
+4. **Add Widget: Events Timeline**
+   - Click **+ Add Widget**
+   - Widget Type: Select **Line Chart** or **Timeline**
+   - Widget Title: "Signage Events Timeline"
+   - Configuration:
+     - Metric: **Event count**
+     - Dimension: **Date** (or **Hour** for hourly view)
+     - Filter: `Event name` contains `signage_access`
+   - Series:
+     - Series 1: Filter `Event name` = `signage_access_granted` (label: "Granted")
+     - Series 2: Filter `Event name` = `signage_access_denied` (label: "Denied")
+   - Click **Save**
+
+5. **Add Widget: Recent Events Table**
+   - Click **+ Add Widget**
+   - Widget Type: Select **Table**
+   - Widget Title: "Recent Signage Events"
+   - Configuration:
+     - Dimensions: **Event name**, **Date**, **Hour**
+     - Metric: **Event count**
+     - Filter: `Event name` contains `signage_access`
+     - Sort by: **Date** (descending)
+     - Rows: 10-20
+   - Click **Save**
+
+6. **Add Widget: Access Denied Reasons**
+   - Click **+ Add Widget**
+   - Widget Type: Select **Pie Chart** or **Bar Chart**
+   - Widget Title: "Denial Reasons"
+   - Configuration:
+     - Metric: **Event count**
+     - Dimension: **Event parameter: reason**
+     - Filter: `Event name` = `signage_access_denied`
+   - Click **Save**
+
+7. **Add Widget: Top IP Addresses (Denied)**
+   - Click **+ Add Widget**
+   - Widget Type: Select **Table**
+   - Widget Title: "Top IPs - Access Denied"
+   - Configuration:
+     - Dimensions: **Event parameter: ip_address**
+     - Metric: **Event count**
+     - Filter: `Event name` = `signage_access_denied`
+     - Sort by: **Event count** (descending)
+     - Rows: 10
+   - Click **Save**
+
+8. **Arrange Dashboard**
+   - Drag widgets to arrange them
+   - Resize widgets as needed
+   - Click **Save** (top right) to save the dashboard
+
+#### Method 2: Explore Report (Advanced)
+
+1. **Create Free Form Report**
+   - Go to **Explore** → **Free Form** (left sidebar)
+   - Click **+ New Exploration**
+   - Name it: "Signage Security Analysis"
+
+2. **Configure Dimensions**
+   - Click **+** under Dimensions
+   - Add:
+     - `Event name`
+     - `Event category`
+     - `Event label`
+     - `Event parameter: ip_address`
+     - `Event parameter: reason`
+     - `Event parameter: has_token`
+     - `Date`
+     - `Hour`
+
+3. **Configure Metrics**
+   - Click **+** under Metrics
+   - Add:
+     - `Event count`
+     - `Users`
+     - `Sessions`
+
+4. **Configure Rows/Columns**
+   - Drag `Event name` to Rows
+   - Drag `Event parameter: reason` to Rows (under Event name)
+   - Drag `Date` to Columns
+   - Drag `Event count` to Values
+
+5. **Add Filters**
+   - Click **Filters** → **Add filter**
+   - Filter: `Event category` = `Security`
+   - Apply filter
+
+6. **Save Report**
+   - Click **Save** (top right)
+   - Name: "Signage Security Analysis"
+
+---
+
+### In Google Analytics Mobile App
+
+**Note:** The Google Analytics mobile app has limited dashboard creation capabilities. It's better to create dashboards on the web interface, then view them in the mobile app.
+
+#### Viewing Dashboards on Mobile
+
+1. **Open the App**
+   - Download "Google Analytics" app (iOS/Android)
+   - Sign in with your Google account
+
+2. **Access Dashboards**
+   - Tap **Reports** (bottom navigation)
+   - Scroll to find your custom dashboard
+   - Or tap **Dashboards** if available in your app version
+
+3. **View Dashboard Widgets**
+   - Tap on any widget to see detailed data
+   - Swipe left/right to see different metrics
+
+#### Creating Reports on Mobile (Limited)
+
+1. **View Events**
+   - Tap **Reports** → **Events**
+   - Find `signage_access_granted` or `signage_access_denied`
+   - Tap to view details
+
+2. **Save as Favorite**
+   - Tap the ⭐ (star) icon to save the report
+   - Access from **Favorites** section
+
+3. **View Real-Time**
+   - Tap **Realtime** (bottom navigation)
+   - Tap **Events** to see live signage events
+   - Filter by event name if needed
+
+---
+
 ## Useful Filters and Segments
 
 ### Filter for Security Events Only
