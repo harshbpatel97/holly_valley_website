@@ -193,21 +193,28 @@ The website includes a digital signage feature accessible at `/signage` path, de
 6. **Build and deploy your application**
 7. **Access the signage at:** `https://yourdomain.com/signage`
 
-#### Method 2: Using GitHub Actions (Automatic Daily Updates)
+#### Method 2: Using GitHub Actions (Automatic Updates)
 
-GitHub Actions will automatically update images daily:
+GitHub Actions will automatically update images:
 
+**On Every Deployment:**
+- Every push to `master` branch automatically fetches latest images from Google Drive before building and deploying
+
+**Daily Updates (Optional):**
+- A separate workflow runs daily at 2 AM UTC to update images based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` setting
+
+**Setup:**
 1. **Add GitHub Secrets:**
    - Go to Settings → Secrets and variables → Actions
    - Add `GOOGLE_DRIVE_FOLDER_ID` (your folder ID)
    - Add `GOOGLE_DRIVE_API_KEY` (your API key)
 
-2. **The workflow runs daily** and updates `public/api/signage-images.json`
-
-3. **Set environment variable:**
+2. **Set environment variable:**
    ```env
    REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
    ```
+
+3. **Deploy:** Every deployment automatically fetches latest images from Google Drive!
 
 See `docs/DEPLOYMENT.md` for detailed deployment and GitHub Actions setup instructions.
 

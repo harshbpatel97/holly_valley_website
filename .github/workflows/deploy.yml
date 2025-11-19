@@ -43,6 +43,20 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Generate signage images from Google Drive
+        env:
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          GOOGLE_DRIVE_API_KEY: ${{ secrets.GOOGLE_DRIVE_API_KEY }}
+        run: |
+          if [ -z "$GOOGLE_DRIVE_FOLDER_ID" ] || [ -z "$GOOGLE_DRIVE_API_KEY" ]; then
+            echo "Warning: Google Drive secrets are not set - skipping image update"
+            echo "Signage will use existing public/api/signage-images.json if available"
+            exit 0
+          fi
+          echo "Fetching latest images from Google Drive..."
+          npm run generate-signage-images-gdrive "$GOOGLE_DRIVE_FOLDER_ID" public/api/signage-images.json "$GOOGLE_DRIVE_API_KEY"
+          echo "✓ Successfully updated signage images from Google Drive"
+
       - name: Build
         run: npm run build
         env:

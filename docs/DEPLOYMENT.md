@@ -39,11 +39,15 @@ Go to **Actions** tab to watch the deployment. It will take 2-5 minutes.
 ### Automatic Deployment
 
 Every push to `master` branch automatically:
-1. Builds the React app
-2. Generates image lists
-3. Deploys to GitHub Pages
+1. **Fetches latest images from Google Drive** (if secrets are configured)
+2. Updates `public/api/signage-images.json` with latest URLs
+3. Builds the React app
+4. Generates image lists
+5. Deploys to GitHub Pages
 
 **Workflow:** `.github/workflows/deploy.yml`
+
+**Note:** If Google Drive secrets (`GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_DRIVE_API_KEY`) are not set, the workflow will skip image fetching and use the existing `public/api/signage-images.json` file if available.
 
 ### Automatic Signage Updates
 
