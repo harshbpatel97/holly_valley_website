@@ -47,9 +47,8 @@ if (!apiKey) {
 function fetchGoogleDriveFolder(folderId, apiKey) {
   return new Promise((resolve, reject) => {
     // Google Drive API v3 - List files in folder
-    // Get webContentLink, thumbnailLink, and also request thumbnail with full size
-    // For full-size thumbnails, add thumbnailLink to the fields and use size parameter
-    const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&fields=files(id,name,webContentLink,thumbnailLink,mimeType,size)&key=${apiKey}`;
+    // Request thumbnailLink for generating CDN URLs (more reliable than export=view)
+    const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&fields=files(id,name,thumbnailLink,webContentLink,mimeType,size)&key=${apiKey}`;
     
     console.log('Fetching images from Google Drive...');
     
@@ -100,6 +99,7 @@ async function main() {
     }
     
     // Extract direct download URLs that work publicly
+    // Priority: webContentLink (most reliable) > direct view URL > thumbnailLink
     const imageUrls = imageFiles
       .filter(file => {
         // Ensure it's an image
@@ -107,30 +107,34 @@ async function main() {
         return mimeType.startsWith('image/');
       })
       .map(file => {
-        // Use thumbnailLink CDN URL (works with folder-level sharing)
-        // Direct CDN URLs - component handles throttling to avoid 429 errors
+        // Priority 1: Use thumbnailLink CDN URLs (works with folder-level public sharing)
+        // These Google CDN URLs (lh3.googleusercontent.com) are more reliable for public files
         if (file.thumbnailLink) {
           const thumbUrl = file.thumbnailLink;
-          // Replace size parameter to get full-size image
-          // Format: ...=s220 -> ...=s0 (full size, unlimited quality) for best signage display
-          let fullSizeUrl = thumbUrl;
-          
-          // Replace =sNUMBER with =s0 (full size, no limit) for best quality
-          fullSizeUrl = fullSizeUrl.replace(/=s\d+($|&)/, '=s0$1');
+          // Replace size parameter with =s0 for full-size, unlimited quality
+          // Format: ...=s220 -> ...=s0 (full size)
+          let fullSizeUrl = thumbUrl.replace(/=s\d+($|&)/, '=s0$1');
           
           // Also handle /sNUMBER/ format if present
           fullSizeUrl = fullSizeUrl.replace(/\/s\d+\//, '/s0/');
           
-          // Ensure it has a size parameter - if not, add =s0 at the end
+          // If no size parameter found, add =s0
           if (!fullSizeUrl.match(/[=\/]s\d+/)) {
-            fullSizeUrl = fullSizeUrl + (fullSizeUrl.includes('?') ? '&' : '?') + 'sz=s0';
+            fullSizeUrl = fullSizeUrl + (fullSizeUrl.includes('?') ? '&' : '?') + 's=0';
           }
           
-          console.log(`  Using direct CDN URL (full size): ${file.name}`);
+          console.log(`  Using CDN thumbnail URL (full size): ${file.name}`);
           return fullSizeUrl;
         }
         
-        // Fallback: Construct direct view URL (requires file-level sharing)
+        // Priority 2: Try webContentLink with export=view
+        if (file.webContentLink) {
+          const viewUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
+          console.log(`  Using webContentLink view URL: ${file.name}`);
+          return viewUrl;
+        }
+        
+        // Priority 3: Direct view URL (fallback)
         const viewUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
         console.log(`  Using direct view URL: ${file.name}`);
         return viewUrl;

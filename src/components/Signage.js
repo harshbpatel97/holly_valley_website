@@ -91,7 +91,8 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
     );
   }
 
-  if (imageError && retryCount >= 3) {
+  if (imageError && retryCount >= 1) {
+    const isGoogleDrive = imageUrl && imageUrl.includes('drive.google.com');
     return (
       <Box
         display="flex"
@@ -102,13 +103,30 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
         color="white"
         p={8}
       >
-        <Box textAlign="center">
-          <Text fontSize="lg" color="gray.400" mb={2}>
+        <Box textAlign="center" maxW="600px">
+          <Text fontSize="lg" color="red.400" mb={2} fontWeight="bold">
             Unable to load image {index + 1}
           </Text>
-          <Text fontSize="sm" color="gray.500">
-            Check your connection or image URL
-          </Text>
+          {isGoogleDrive ? (
+            <>
+              <Text fontSize="md" color="gray.300" mb={3}>
+                Error 403: Access Denied
+              </Text>
+              <Text fontSize="sm" color="gray.400" mb={2}>
+                Google Drive images must be publicly shared:
+              </Text>
+              <VStack spacing={1} align="flex-start" fontSize="xs" color="gray.500" textAlign="left" mt={2}>
+                <Text>1. Open your Google Drive folder</Text>
+                <Text>2. Right-click → Share → "Anyone with the link" → Viewer</Text>
+                <Text>3. Also share each image file individually</Text>
+                <Text>4. Regenerate images: npm run generate-signage-images-gdrive</Text>
+              </VStack>
+            </>
+          ) : (
+            <Text fontSize="sm" color="gray.500">
+              Check your connection or image URL
+            </Text>
+          )}
         </Box>
       </Box>
     );
@@ -128,6 +146,7 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
         alt={`Slide ${index + 1}`}
         className="signage-image"
         loading="eager"
+        referrerPolicy="no-referrer"
         style={{
           maxWidth: '100%',
           maxHeight: '100%',
@@ -139,7 +158,32 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
           opacity: imageError ? 0.5 : 1,
           transition: 'opacity 0.3s ease'
         }}
-        onError={handleError}
+        onError={(e) => {
+          // Try alternative URL format for Google Drive if original fails
+          if (imageUrl && imageUrl.includes('drive.google.com')) {
+            if (imageUrl.includes('export=view') && retryCount === 0) {
+              // Try export=download format as fallback
+              const altUrl = imageUrl.replace('export=view', 'export=download');
+              e.target.src = altUrl;
+              setRetryCount(1);
+              setImageError(false);
+              return;
+            }
+            // If CDN URL failed, try export=view format
+            if (imageUrl.includes('googleusercontent.com') && retryCount === 0) {
+              // Extract file ID from URL if possible, or use alternative approach
+              const fileIdMatch = imageUrl.match(/[/=](\w{28,})/);
+              if (fileIdMatch) {
+                const altUrl = `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+                e.target.src = altUrl;
+                setRetryCount(1);
+                setImageError(false);
+                return;
+              }
+            }
+          }
+          handleError(e);
+        }}
         onLoad={(e) => {
           setRetryCount(0);
           setImageError(false);
