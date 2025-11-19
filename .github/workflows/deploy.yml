@@ -5,6 +5,12 @@ on:
     branches: [ master ]
     tags: [ "v*", "release-*" ]
   workflow_dispatch:
+  # Run daily at 2 AM UTC to check if deployment is needed based on REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS
+  # Format: minute hour day month weekday
+  # To change time: UTC 2 AM = 9 PM EST previous day, 6 PM PST previous day
+  # Note: Actual deployment only happens if REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS has passed since last deployment
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC daily
 
 concurrency:
   group: pages-deploy-${{ github.ref }}
@@ -26,13 +32,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check if scheduled deployment is needed
+        id: check-interval
+        if: github.event_name == 'schedule'
+        env:
+          REFRESH_INTERVAL_DAYS: ${{ secrets.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1' }}
+        run: |
+          # For scheduled runs, check if enough time has passed since last deployment
+          # Get last commit date that was a deployment
+          if git log -1 --format=%ct 2>/dev/null | grep -q .; then
+            LAST_DEPLOYMENT=$(git log -1 --format=%ct)
+          else
+            LAST_DEPLOYMENT=0
+          fi
+          
+          CURRENT_TIME=$(date +%s)
+          INTERVAL_SECONDS=$((REFRESH_INTERVAL_DAYS * 24 * 60 * 60))
+          TIME_SINCE_DEPLOYMENT=$((CURRENT_TIME - LAST_DEPLOYMENT))
+          
+          echo "Last deployment: $(date -d @$LAST_DEPLOYMENT 2>/dev/null || date -r $LAST_DEPLOYMENT 2>/dev/null || echo 'never')"
+          echo "Current time: $(date -d @$CURRENT_TIME 2>/dev/null || date -r $CURRENT_TIME 2>/dev/null)"
+          echo "Refresh interval: $REFRESH_INTERVAL_DAYS day(s) = $INTERVAL_SECONDS seconds"
+          echo "Time since last deployment: $TIME_SINCE_DEPLOYMENT seconds"
+          
+          if [ "$TIME_SINCE_DEPLOYMENT" -ge "$INTERVAL_SECONDS" ]; then
+            echo "Deployment needed: Enough time has passed since last deployment"
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            REMAINING=$((INTERVAL_SECONDS - TIME_SINCE_DEPLOYMENT))
+            REMAINING_HOURS=$((REMAINING / 3600))
+            echo "Deployment not needed: Only $REMAINING_HOURS hour(s) remaining until next deployment"
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Setup Node
+        if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
       - name: Cache npm
+        if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         uses: actions/cache@v4
         with:
           path: ~/.npm
@@ -41,9 +82,11 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Install dependencies
+        if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         run: npm install --no-audit --no-fund
 
       - name: Generate signage images from Google Drive
+        if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         env:
           GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
           GOOGLE_DRIVE_API_KEY: ${{ secrets.GOOGLE_DRIVE_API_KEY }}
@@ -58,6 +101,7 @@ jobs:
           echo "✓ Successfully updated signage images from Google Drive"
 
       - name: Build
+        if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         run: npm run build
         env:
           REACT_APP_GA_ID: ${{ secrets.REACT_APP_GA_ID }}
@@ -67,8 +111,13 @@ jobs:
           REACT_APP_SIGNAGE_TOKEN: ${{ secrets.REACT_APP_SIGNAGE_TOKEN }}
 
       - name: Deploy to GitHub Pages
+        if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
           force_orphan: true
+
+      - name: Skip deployment - interval not reached
+        if: github.event_name == 'schedule' && steps.check-interval.outputs.should_deploy == 'false'
+        run: echo "Skipping deployment - refresh interval not yet reached"

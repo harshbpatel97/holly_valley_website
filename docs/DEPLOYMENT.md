@@ -49,31 +49,40 @@ Every push to `master` branch automatically:
 
 **Note:** If Google Drive secrets (`GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_DRIVE_API_KEY`) are not set, the workflow will skip image fetching and use the existing `public/api/signage-images.json` file if available.
 
-### Automatic Signage Updates
+### Automatic Scheduled Updates
+
+The deploy workflow also runs on a **daily schedule** (2 AM UTC) to check if a deployment is needed.
 
 **How it works:**
-1. Cron runs daily at 2 AM UTC to check if update is needed
+1. Cron runs daily at 2 AM UTC
 2. Checks `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` secret
-3. Compares last update time with interval days
-4. Only updates if enough days have passed since last update
-5. If update needed:
-   - Fetches images from Google Drive
-   - Updates `public/api/signage-images.json`
-   - Commits changes (if any)
-   - Triggers automatic redeployment
+3. Compares last deployment time with interval days
+4. Only deploys if enough days have passed since last deployment
+5. If deployment needed:
+   - Fetches latest images from Google Drive
+   - Builds the React app with updated images
+   - Deploys to GitHub Pages
 
-**Workflow:** `.github/workflows/update-signage.yml`
+**Schedule trigger:** `.github/workflows/deploy.yml` runs on:
+- **Push to `master` branch** - Always deploys (bypasses interval check)
+- **Manual trigger** (workflow_dispatch) - Always deploys (bypasses interval check)
+- **Daily at 2 AM UTC** (cron schedule) - Only deploys if interval has passed
 
 **Interval behavior:**
 - Cron checks daily at 2 AM UTC
-- Actual updates happen based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS`:
-  - `1` = Updates daily (when cron runs)
-  - `2` = Updates every 2 days (when interval passed)
-  - `7` = Updates weekly
+- Actual deployments happen based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS`:
+  - `1` = Deploys daily (when cron runs and interval passed)
+  - `2` = Deploys every 2 days (when interval passed)
+  - `7` = Deploys weekly
 
-**Manual trigger:**
-- Go to **Actions** → **Update Signage Images** → **Run workflow**
-- Manual triggers always run (bypasses interval check)
+**To change the check schedule:**
+- Edit `.github/workflows/deploy.yml`
+- Modify the cron expression: `'0 2 * * *'` (minute hour day month weekday)
+- Example: `'0 14 * * *'` = Check at 2 PM UTC daily
+
+**To change deployment frequency:**
+- Set `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` secret (e.g., `1`, `2`, `7`)
+- This controls how often deployments actually happen when cron runs
 
 ## GitHub Secrets Setup
 

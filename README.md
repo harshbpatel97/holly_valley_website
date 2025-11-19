@@ -195,13 +195,17 @@ The website includes a digital signage feature accessible at `/signage` path, de
 
 #### Method 2: Using GitHub Actions (Automatic Updates)
 
-GitHub Actions will automatically update images:
+GitHub Actions automatically updates images and deploys:
 
-**On Every Deployment:**
-- Every push to `master` branch automatically fetches latest images from Google Drive before building and deploying
+**Automatic Updates:**
+- **On every push** to `master` - Fetches latest images and deploys immediately
+- **Daily at 2 AM UTC** - Checks if deployment needed based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS`
+- **Manual trigger** - Click "Run workflow" in Actions tab for on-demand updates (bypasses interval check)
 
-**Daily Updates (Optional):**
-- A separate workflow runs daily at 2 AM UTC to update images based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` setting
+**Interval-based deployments:**
+- Set `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` secret to control how often scheduled deployments happen
+- `1` = Daily deployments, `7` = Weekly deployments, etc.
+- Push and manual triggers always deploy immediately regardless of interval
 
 **Setup:**
 1. **Add GitHub Secrets:**
@@ -215,6 +219,8 @@ GitHub Actions will automatically update images:
    ```
 
 3. **Deploy:** Every deployment automatically fetches latest images from Google Drive!
+
+**To change daily schedule:** Edit `.github/workflows/deploy.yml` cron expression (default: 2 AM UTC daily)
 
 See `docs/DEPLOYMENT.md` for detailed deployment and GitHub Actions setup instructions.
 
