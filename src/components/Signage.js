@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Spinner, Text, VStack, HStack } from '@chakra-ui/react';
 import './Signage.css';
 
-const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadTime, setLastImageLoadTime, onLoad }) => {
+const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadTime, setLastImageLoadTime, onLoad, onError }) => {
   const [shouldLoad, setShouldLoad] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [imageError, setImageError] = useState(false);
@@ -54,19 +54,9 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
   const handleError = (e) => {
     setImageError(true);
     
-    // Track 403 errors from Google Drive URLs (especially expired CDN URLs)
-    const img = e.target;
-    if (img && img.src && (img.src.includes('googleusercontent.com') || img.src.includes('drive.google.com'))) {
-      errorCountRef.current += 1;
-      
-      // If multiple errors detected (likely expired URLs), trigger JSON refresh
-      if (errorCountRef.current >= 3 && imageSource) {
-        setTimeout(() => {
-          // Refresh images JSON to get new URLs (in case they were regenerated)
-          fetchImages(imageSource, true);
-          errorCountRef.current = 0; // Reset error count
-        }, 10000); // Wait 10 seconds before refreshing
-      }
+    // Notify parent component about error (for tracking expired URLs)
+    if (onError) {
+      onError(e);
     }
     
     if (retryCount < 3) {
@@ -263,44 +253,7 @@ const Signage = () => {
   const refreshIntervalDays = parseInt(process.env.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1', 10);
   const refreshInterval = refreshIntervalDays * 24 * 60 * 60 * 1000;
 
-  useEffect(() => {
-    if (!imageSource) {
-      setError('Image source not configured. Please set REACT_APP_SIGNAGE_IMG_REF_LINK environment variable.');
-      setLoading(false);
-      return;
-    }
-
-    fetchImages(imageSource, false);
-
-    const refreshTimer = setInterval(() => {
-      fetchImages(imageSource, true);
-    }, refreshInterval);
-
-    return () => clearInterval(refreshTimer);
-  }, [imageSource, refreshInterval]);
-
-
-  useEffect(() => {
-    // Disable scrolling on body when signage is active
-    document.body.classList.add('signage-active');
-    
-    return () => {
-      // Re-enable scrolling when component unmounts
-      document.body.classList.remove('signage-active');
-    };
-  }, []);
-
-  useEffect(() => {
-    if (images.length === 0) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, slideDuration);
-
-    return () => clearInterval(interval);
-  }, [images.length, slideDuration]);
-
-  const fetchImages = async (source, isRefresh = false) => {
+  const fetchImages = useCallback(async (source, isRefresh = false) => {
     try {
       if (!isRefresh) {
         setLoading(true);
@@ -389,7 +342,43 @@ const Signage = () => {
         setLoading(false);
       }
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!imageSource) {
+      setError('Image source not configured. Please set REACT_APP_SIGNAGE_IMG_REF_LINK environment variable.');
+      setLoading(false);
+      return;
+    }
+
+    fetchImages(imageSource, false);
+
+    const refreshTimer = setInterval(() => {
+      fetchImages(imageSource, true);
+    }, refreshInterval);
+
+    return () => clearInterval(refreshTimer);
+  }, [imageSource, refreshInterval, fetchImages]);
+
+  useEffect(() => {
+    // Disable scrolling on body when signage is active
+    document.body.classList.add('signage-active');
+    
+    return () => {
+      // Re-enable scrolling when component unmounts
+      document.body.classList.remove('signage-active');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (images.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, slideDuration);
+
+    return () => clearInterval(interval);
+  }, [images.length, slideDuration]);
 
   if (loading) {
     return (
@@ -504,16 +493,32 @@ const Signage = () => {
                 justifyContent: 'center'
               }}
             >
-              {isActive && (
-                <ActiveImageWithThrottle
-                  imageUrl={imageUrl}
-                  index={index}
-                  currentIndex={currentIndex}
-                  lastImageLoadTime={lastImageLoadTime}
-                  setLastImageLoadTime={setLastImageLoadTime}
-                  onLoad={() => {}}
-                />
-              )}
+                    {isActive && (
+                      <ActiveImageWithThrottle
+                        imageUrl={imageUrl}
+                        index={index}
+                        currentIndex={currentIndex}
+                        lastImageLoadTime={lastImageLoadTime}
+                        setLastImageLoadTime={setLastImageLoadTime}
+                        onLoad={() => {}}
+                        onError={(e) => {
+                          // Track 403 errors from Google Drive URLs (especially expired CDN URLs)
+                          const img = e.target;
+                          if (img && img.src && (img.src.includes('googleusercontent.com') || img.src.includes('drive.google.com'))) {
+                            errorCountRef.current += 1;
+                            
+                            // If multiple errors detected (likely expired URLs), trigger JSON refresh
+                            if (errorCountRef.current >= 3 && imageSource) {
+                              setTimeout(() => {
+                                // Refresh images JSON to get new URLs (in case they were regenerated)
+                                fetchImages(imageSource, true);
+                                errorCountRef.current = 0; // Reset error count
+                              }, 10000); // Wait 10 seconds before refreshing
+                            }
+                          }
+                        }}
+                      />
+                    )}
             </Box>
           );
         })}
