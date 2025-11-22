@@ -47,8 +47,8 @@ if (!apiKey) {
 function fetchGoogleDriveFolder(folderId, apiKey) {
   return new Promise((resolve, reject) => {
     // Google Drive API v3 - List files in folder
-    // Request thumbnailLink for generating CDN URLs (more reliable than export=view)
-    const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&fields=files(id,name,thumbnailLink,webContentLink,mimeType,size)&key=${apiKey}`;
+    // Request file IDs only - we'll use permanent export=view URLs (don't expire like CDN URLs)
+    const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&fields=files(id,name,mimeType,size)&key=${apiKey}`;
     
     console.log('Fetching images from Google Drive...');
     
@@ -107,36 +107,11 @@ async function main() {
         return mimeType.startsWith('image/');
       })
       .map(file => {
-        // Priority 1: Use thumbnailLink CDN URLs (works with folder-level public sharing)
-        // These Google CDN URLs (lh3.googleusercontent.com) are more reliable for public files
-        if (file.thumbnailLink) {
-          const thumbUrl = file.thumbnailLink;
-          // Replace size parameter with =s0 for full-size, unlimited quality
-          // Format: ...=s220 -> ...=s0 (full size)
-          let fullSizeUrl = thumbUrl.replace(/=s\d+($|&)/, '=s0$1');
-          
-          // Also handle /sNUMBER/ format if present
-          fullSizeUrl = fullSizeUrl.replace(/\/s\d+\//, '/s0/');
-          
-          // If no size parameter found, add =s0
-          if (!fullSizeUrl.match(/[=\/]s\d+/)) {
-            fullSizeUrl = fullSizeUrl + (fullSizeUrl.includes('?') ? '&' : '?') + 's=0';
-          }
-          
-          console.log(`  Using CDN thumbnail URL (full size): ${file.name}`);
-          return fullSizeUrl;
-        }
-        
-        // Priority 2: Try webContentLink with export=view
-        if (file.webContentLink) {
-          const viewUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
-          console.log(`  Using webContentLink view URL: ${file.name}`);
-          return viewUrl;
-        }
-        
-        // Priority 3: Direct view URL (fallback)
+        // Use file ID with export=view format (most permanent, doesn't expire)
+        // This format works when files are publicly shared and doesn't use temporary tokens
+        // Format: https://drive.google.com/uc?export=view&id=FILE_ID
         const viewUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
-        console.log(`  Using direct view URL: ${file.name}`);
+        console.log(`  Generated permanent view URL for: ${file.name}`);
         return viewUrl;
       })
       .filter(url => url && url.length > 0);

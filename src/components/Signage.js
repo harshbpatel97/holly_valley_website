@@ -53,6 +53,22 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
 
   const handleError = (e) => {
     setImageError(true);
+    
+    // Track 403 errors from Google Drive URLs (especially expired CDN URLs)
+    const img = e.target;
+    if (img && img.src && (img.src.includes('googleusercontent.com') || img.src.includes('drive.google.com'))) {
+      errorCountRef.current += 1;
+      
+      // If multiple errors detected (likely expired URLs), trigger JSON refresh
+      if (errorCountRef.current >= 3 && imageSource) {
+        setTimeout(() => {
+          // Refresh images JSON to get new URLs (in case they were regenerated)
+          fetchImages(imageSource, true);
+          errorCountRef.current = 0; // Reset error count
+        }, 10000); // Wait 10 seconds before refreshing
+      }
+    }
+    
     if (retryCount < 3) {
       // Faster retries on mobile
       const retryDelay = isMobile 
@@ -239,6 +255,7 @@ const Signage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastImageLoadTime, setLastImageLoadTime] = useState(0);
+  const errorCountRef = useRef(0);
 
   const imageSource = process.env.REACT_APP_SIGNAGE_IMG_REF_LINK;
   const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000', 10);
@@ -261,6 +278,7 @@ const Signage = () => {
 
     return () => clearInterval(refreshTimer);
   }, [imageSource, refreshInterval]);
+
 
   useEffect(() => {
     // Disable scrolling on body when signage is active
