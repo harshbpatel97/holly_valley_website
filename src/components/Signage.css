@@ -7,6 +7,8 @@
   background-color: #000;
   overflow: hidden;
   z-index: 9999;
+  display: flex;
+  flex-direction: column;
 }
 
 .signage-slide {
@@ -22,6 +24,8 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .signage-slide.active {
@@ -37,17 +41,89 @@
   width: auto;
   height: auto;
   object-fit: contain;
-  /* Ensure images maintain aspect ratio and are centered */
   display: block;
   margin: auto;
+  /* Ensure image never exceeds container */
+  box-sizing: border-box;
 }
 
-/* Optimize for TV/FireTV displays */
+/* Optimize for TV/FireTV displays (43" TVs typically 1920x1080) */
 @media screen and (min-width: 1920px) {
+  .signage-container {
+    /* Ensure proper layout on large screens */
+    height: 100vh;
+    overflow: hidden;
+  }
+  
   .signage-image {
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
+  }
+  
+  /* Ensure header doesn't grow too large on TV */
+  .signage-container header {
+    min-height: 120px;
+    max-height: 120px;
+  }
+}
+
+/* Slideshow container - positioned below header */
+.signage-slideshow {
+  position: absolute;
+  top: 120px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 25vh - 120px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Ensure images respect boundaries on all screen sizes */
+@media screen and (max-height: 1080px) {
+  .signage-slide {
+    padding: 5px;
+  }
+  
+  .signage-image {
+    max-width: calc(100% - 10px);
+    max-height: calc(100% - 10px);
+  }
+}
+
+/* Specific optimization for 43" TV (1920x1080) */
+@media screen and (min-width: 1920px) and (min-height: 1080px) {
+  .signage-container {
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .signage-container header {
+    height: 120px;
+    min-height: 120px;
+    max-height: 120px;
+  }
+  
+  .signage-slideshow {
+    top: 120px;
+    height: calc(100vh - 25vh - 120px); /* Account for footer (25vh) and header (120px) */
+    min-height: 500px; /* Ensure minimum space for images */
+  }
+  
+  .signage-slide {
+    padding: 10px;
+  }
+  
+  .signage-image {
+    max-width: calc(100% - 20px);
+    max-height: calc(100% - 20px);
+  }
+  
+  /* Footer on TV screens */
+  .signage-container footer {
+    height: 25vh;
+    max-height: 300px;
+    bottom: 0;
   }
 }
 
@@ -75,10 +151,27 @@ body.signage-active {
   color: #81e6d9 !important;
 }
 
+/* Header styling - ensure fixed height */
+.signage-container header {
+  height: 120px;
+  min-height: 120px;
+  max-height: 120px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+}
+
 /* Responsive footer text for TV displays */
 @media screen and (min-width: 1920px) {
   .signage-container footer {
     font-size: 0.95em;
+  }
+  
+  /* Optimize for 43" TV (1920x1080) */
+  .signage-container header {
+    height: 120px;
   }
 }
 
@@ -86,5 +179,21 @@ body.signage-active {
   .signage-container footer {
     font-size: 0.75em;
   }
+  
+  .signage-container header {
+    height: 100px;
+    min-height: 100px;
+  }
+  
+  /* Adjust slideshow area for smaller header on mobile */
+  .signage-container .signage-slideshow {
+    top: 100px !important;
+    height: calc(100vh - 25vh - 100px) !important;
+  }
+}
+
+/* Ensure no overlap between header, images, and footer */
+.signage-container > * {
+  box-sizing: border-box;
 }
 

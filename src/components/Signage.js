@@ -158,15 +158,16 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
         loading="eager"
         referrerPolicy="no-referrer"
         style={{
-          maxWidth: '100%',
-          maxHeight: '100%',
+          maxWidth: 'calc(100% - 20px)',
+          maxHeight: 'calc(100% - 20px)',
           width: 'auto',
           height: 'auto',
           objectFit: 'contain',
           display: 'block',
           margin: 'auto',
           opacity: imageError ? 0.5 : 1,
-          transition: 'opacity 0.3s ease'
+          transition: 'opacity 0.3s ease',
+          boxSizing: 'border-box'
         }}
         onError={(e) => {
           // Try multiple URL format fallbacks for Google Drive
@@ -465,36 +466,44 @@ const Signage = () => {
 
   return (
     <Box className="signage-container">
-      {/* Header with Logo */}
+      {/* Header with Logo - Fixed height */}
       <Box
         position="absolute"
         top="0"
         left="0"
         width="100%"
+        height="120px"
         zIndex="100"
         bg="rgba(0, 0, 0, 0.8)"
-        py={3}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
         px={8}
+        boxSizing="border-box"
       >
-        <VStack spacing={2} align="center">
+        <VStack spacing={2} align="center" width="100%">
           {/* Logo and Brand Name */}
-          <HStack spacing={6} align="center">
-            <Box>
+          <HStack spacing={6} align="center" justify="center">
+            <Box flexShrink={0}>
               <img
                 src="/images/misc/holly_valley_logo.png"
                 alt="Holly Valley Logo"
                 style={{
-                  height: '80px',
+                  height: '65px',
                   width: 'auto',
-                  objectFit: 'contain'
+                  objectFit: 'contain',
+                  maxHeight: '65px',
+                  display: 'block'
                 }}
               />
             </Box>
             <Text
-              fontSize="4xl"
+              fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
               fontWeight="900"
               color="white"
               letterSpacing="0.1em"
+              lineHeight="1.1"
+              whiteSpace="nowrap"
             >
               HOLLY VALLEY
             </Text>
@@ -502,8 +511,17 @@ const Signage = () => {
         </VStack>
       </Box>
 
-      {/* Slideshow Images */}
-      <Box position="relative" width="100%" height="calc(100vh - 25vh - 120px)" mt="120px" mb="25vh">
+      {/* Slideshow Images - Positioned below header */}
+      <Box 
+        className="signage-slideshow"
+        position="absolute"
+        top="120px"
+        left="0"
+        width="100%" 
+        height="calc(100vh - 25vh - 120px)"
+        overflow="hidden"
+        boxSizing="border-box"
+      >
         {images.map((imageUrl, index) => {
           const isActive = index === currentIndex;
           
@@ -517,8 +535,11 @@ const Signage = () => {
                 left: 0,
                 width: '100%',
                 height: '100%',
+                display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                padding: '10px',
+                boxSizing: 'border-box'
               }}
             >
                     {isActive && (
