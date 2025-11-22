@@ -24,8 +24,9 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  padding: 15px;
+  padding: 20px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .signage-slide.active {
@@ -37,18 +38,25 @@
 
 .signage-image {
   /* Auto-size to fit container while maintaining aspect ratio */
+  /* Critical: Use contain to ensure FULL image is visible - never crop */
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
-  object-fit: contain;
+  object-fit: contain !important;
   object-position: center center;
   display: block;
-  margin: auto;
+  margin: 0;
   box-sizing: border-box;
-  /* Ensure full image is always visible */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+  /* Ensure full image is always visible - prevent any clipping */
+  position: relative;
+  /* Smooth rendering */
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Force browser to respect contain */
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 /* Optimize for TV/FireTV displays (43" TVs typically 1920x1080) */
@@ -84,17 +92,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Ensure proper containment */
+  contain: layout style paint;
 }
 
 /* Ensure images respect boundaries on all screen sizes */
 @media screen and (max-height: 1080px) {
   .signage-slide {
-    padding: 10px;
+    padding: 20px;
+    overflow: hidden;
   }
   
   .signage-image {
     max-width: 100%;
     max-height: 100%;
+    object-fit: contain !important;
   }
 }
 
@@ -115,18 +127,25 @@
     top: 120px;
     height: calc(100vh - 15vh - 120px); /* Account for footer (15vh) and header (120px) */
     min-height: 500px; /* Ensure minimum space for images */
+    overflow: hidden; /* Prevent any overflow */
   }
   
   .signage-slide {
-    padding: 15px;
+    padding: 20px;
+    overflow: hidden; /* Ensure no cropping from slide container */
   }
   
   .signage-image {
+    /* Use full available space - padding is handled by parent */
     max-width: 100%;
     max-height: 100%;
-    /* Let browser auto-size based on aspect ratio */
     width: auto;
     height: auto;
+    object-fit: contain !important;
+    object-position: center center;
+    /* Ensure full image is always visible - never crop */
+    min-width: 0;
+    min-height: 0;
   }
   
   /* Footer on TV screens - reduced height */

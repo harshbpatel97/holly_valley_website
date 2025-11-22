@@ -147,8 +147,11 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
       display="flex"
       alignItems="center"
       justifyContent="center"
-      minH="100vh"
+      width="100%"
+      height="100%"
       bg="black"
+      overflow="hidden"
+      position="relative"
     >
       <img
         key={`image-${index}-${retryCount}`}
@@ -164,12 +167,15 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
           height: 'auto',
           objectFit: 'contain',
           display: 'block',
-          margin: 'auto',
+          margin: '0',
           opacity: imageError ? 0.5 : 1,
           transition: 'opacity 0.3s ease',
           boxSizing: 'border-box',
-          // Ensure full image is visible - let browser handle aspect ratio
-          objectPosition: 'center center'
+          objectPosition: 'center center',
+          position: 'relative',
+          // Prevent any clipping - let parent handle centering
+          flexShrink: 0,
+          flexGrow: 0
         }}
         onError={(e) => {
           // Try multiple URL format fallbacks for Google Drive
@@ -540,8 +546,9 @@ const Signage = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '15px',
-                boxSizing: 'border-box'
+                padding: '20px',
+                boxSizing: 'border-box',
+                overflow: 'hidden'
               }}
             >
                     {isActive && (
