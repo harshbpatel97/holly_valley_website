@@ -158,8 +158,8 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
         loading="eager"
         referrerPolicy="no-referrer"
         style={{
-          maxWidth: 'calc(100% - 20px)',
-          maxHeight: 'calc(100% - 20px)',
+          maxWidth: '100%',
+          maxHeight: '100%',
           width: 'auto',
           height: 'auto',
           objectFit: 'contain',
@@ -167,7 +167,9 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
           margin: 'auto',
           opacity: imageError ? 0.5 : 1,
           transition: 'opacity 0.3s ease',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          // Ensure full image is visible - let browser handle aspect ratio
+          objectPosition: 'center center'
         }}
         onError={(e) => {
           // Try multiple URL format fallbacks for Google Drive
@@ -518,7 +520,7 @@ const Signage = () => {
         top="120px"
         left="0"
         width="100%" 
-        height="calc(100vh - 25vh - 120px)"
+        height="calc(100vh - 15vh - 120px)"
         overflow="hidden"
         boxSizing="border-box"
       >
@@ -538,7 +540,7 @@ const Signage = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '10px',
+                padding: '15px',
                 boxSizing: 'border-box'
               }}
             >
@@ -573,39 +575,39 @@ const Signage = () => {
         })}
       </Box>
 
-      {/* Footer with Legal Disclaimers - 25% of page height */}
+      {/* Footer with Legal Disclaimers - Reduced height */}
       <Box
         position="absolute"
         bottom="0"
         left="0"
         width="100%"
-        height="25vh"
-        maxHeight="300px"
+        height="15vh"
+        maxHeight="180px"
         zIndex="100"
         bg="rgba(0, 0, 0, 0.9)"
-        py={2}
+        py={1.5}
         px={8}
         overflowY="auto"
       >
-        <VStack spacing={1.5} align="center" h="100%" justify="center">
+        <VStack spacing={1} align="center" h="100%" justify="center">
           {/* Contact Info */}
           <HStack spacing={4} align="center">
-            <Text fontSize="sm" color="white">
+            <Text fontSize="xs" color="white">
               Contact: <a href="tel:13363040094" style={{ color: '#4FD1C7' }}>+1(336)304-0094</a>
             </Text>
-            <Text fontSize="sm" color="gray.400">|</Text>
-            <Text fontSize="sm" color="white">DBA Holly Valley</Text>
+            <Text fontSize="xs" color="gray.400">|</Text>
+            <Text fontSize="xs" color="white">DBA Holly Valley</Text>
           </HStack>
 
           {/* Legal Disclaimers - Compact */}
-          <VStack spacing={1} align="center" maxW="1200px">
+          <VStack spacing={0.5} align="center" maxW="1200px">
             {/* Age Restrictions */}
-            <Text fontSize="sm" color="yellow.400" fontWeight="600" textAlign="center">
+            <Text fontSize="xs" color="yellow.400" fontWeight="600" textAlign="center" lineHeight="1.2">
               Age Restricted Products: Tobacco/Alcohol 21+ | Lottery 18+ | Valid ID Required
             </Text>
 
             {/* NC Regulations & ABC Laws Compliance - Compact */}
-            <Text fontSize="10px" color="gray.300" textAlign="center" lineHeight="1.4">
+            <Text fontSize="9px" color="gray.300" textAlign="center" lineHeight="1.3">
               <strong>LEGAL NOTICE - NC REGULATIONS & ABC LAWS COMPLIANCE:</strong> This establishment complies with all NC state regulations and ABC laws regarding tobacco products and alcoholic beverages (including cold beer). All advertisements are for informational purposes only. <strong>Tobacco:</strong> 21+ only, valid ID required. <strong>Alcoholic Beverages (Cold Beer):</strong> Regulated by NC ABC Commission, 21+ only, valid ID required. <strong>NC Lottery:</strong> 18+ only, valid ID required. Play responsibly. Gambling problem? Call 1-800-522-4700.
             </Text>
             <Text fontSize="10px" color="gray.400" textAlign="center" mt={1}>

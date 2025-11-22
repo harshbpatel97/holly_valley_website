@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  padding: 10px;
+  padding: 15px;
   box-sizing: border-box;
 }
 
@@ -36,15 +36,19 @@
 }
 
 .signage-image {
+  /* Auto-size to fit container while maintaining aspect ratio */
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
   object-fit: contain;
+  object-position: center center;
   display: block;
   margin: auto;
-  /* Ensure image never exceeds container */
   box-sizing: border-box;
+  /* Ensure full image is always visible */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 /* Optimize for TV/FireTV displays (43" TVs typically 1920x1080) */
@@ -74,20 +78,23 @@
   top: 120px;
   left: 0;
   width: 100%;
-  height: calc(100vh - 25vh - 120px);
+  height: calc(100vh - 15vh - 120px);
   overflow: hidden;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Ensure images respect boundaries on all screen sizes */
 @media screen and (max-height: 1080px) {
   .signage-slide {
-    padding: 5px;
+    padding: 10px;
   }
   
   .signage-image {
-    max-width: calc(100% - 10px);
-    max-height: calc(100% - 10px);
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 
@@ -106,23 +113,26 @@
   
   .signage-slideshow {
     top: 120px;
-    height: calc(100vh - 25vh - 120px); /* Account for footer (25vh) and header (120px) */
+    height: calc(100vh - 15vh - 120px); /* Account for footer (15vh) and header (120px) */
     min-height: 500px; /* Ensure minimum space for images */
   }
   
   .signage-slide {
-    padding: 10px;
+    padding: 15px;
   }
   
   .signage-image {
-    max-width: calc(100% - 20px);
-    max-height: calc(100% - 20px);
+    max-width: 100%;
+    max-height: 100%;
+    /* Let browser auto-size based on aspect ratio */
+    width: auto;
+    height: auto;
   }
   
-  /* Footer on TV screens */
+  /* Footer on TV screens - reduced height */
   .signage-container footer {
-    height: 25vh;
-    max-height: 300px;
+    height: 15vh;
+    max-height: 180px;
     bottom: 0;
   }
 }
