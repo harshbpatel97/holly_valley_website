@@ -47,7 +47,7 @@ if (!apiKey) {
 function fetchGoogleDriveFolder(folderId, apiKey) {
   return new Promise((resolve, reject) => {
     // Google Drive API v3 - List files in folder
-    // Request file IDs only - we'll use permanent export=view URLs (don't expire like CDN URLs)
+    // Only need file ID and name - we'll construct thumbnail URLs ourselves
     const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&fields=files(id,name,mimeType,size)&key=${apiKey}`;
     
     console.log('Fetching images from Google Drive...');
@@ -107,12 +107,13 @@ async function main() {
         return mimeType.startsWith('image/');
       })
       .map(file => {
-        // Use file ID with export=view format (most permanent, doesn't expire)
-        // This format works when files are publicly shared and doesn't use temporary tokens
-        // Format: https://drive.google.com/uc?export=view&id=FILE_ID
-        const viewUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
-        console.log(`  Generated permanent view URL for: ${file.name}`);
-        return viewUrl;
+        // Use Google Drive's thumbnail API endpoint - designed specifically for displaying images
+        // Format: https://drive.google.com/thumbnail?id=FILE_ID&sz=w1920
+        // This format works better for publicly shared files than /uc?export= formats
+        // sz parameter: w1920 = width 1920px, w0 = original size
+        const thumbnailUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w0`;
+        console.log(`  Using thumbnail API URL: ${file.name}`);
+        return thumbnailUrl;
       })
       .filter(url => url && url.length > 0);
     

@@ -119,13 +119,17 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
                 Error 403: Access Denied
               </Text>
               <Text fontSize="sm" color="gray.400" mb={2}>
-                Google Drive images must be publicly shared:
+                Google Drive images must be publicly shared. See docs/FIX_GOOGLE_DRIVE_403.md for complete instructions.
               </Text>
               <VStack spacing={1} align="flex-start" fontSize="xs" color="gray.500" textAlign="left" mt={2}>
-                <Text>1. Open your Google Drive folder</Text>
-                <Text>2. Right-click → Share → "Anyone with the link" → Viewer</Text>
-                <Text>3. Also share each image file individually</Text>
-                <Text>4. Regenerate images: npm run generate-signage-images-gdrive</Text>
+                <Text fontWeight="bold" color="yellow.400">Quick Fix:</Text>
+                <Text>1. Open Google Drive folder</Text>
+                <Text>2. Select ALL image files (Ctrl+A / Cmd+A)</Text>
+                <Text>3. Right-click → Share → "Anyone with the link" → Viewer</Text>
+                <Text>4. Also share the folder itself</Text>
+                <Text>5. Verify: npm run verify-gdrive-sharing</Text>
+                <Text>6. Regenerate: npm run generate-signage-images-gdrive</Text>
+                <Text>7. Deploy: Fresh URLs will be fetched automatically</Text>
               </VStack>
             </>
           ) : (
@@ -165,29 +169,53 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
           transition: 'opacity 0.3s ease'
         }}
         onError={(e) => {
-          // Try alternative URL format for Google Drive if original fails
-          if (imageUrl && imageUrl.includes('drive.google.com')) {
-            if (imageUrl.includes('export=view') && retryCount === 0) {
-              // Try export=download format as fallback
-              const altUrl = imageUrl.replace('export=view', 'export=download');
+          // Try multiple URL format fallbacks for Google Drive
+          if (imageUrl && (imageUrl.includes('drive.google.com') || imageUrl.includes('googleusercontent.com'))) {
+            // Extract file ID from different URL formats
+            let fileId = null;
+            
+            // Try to extract from thumbnail URL: lh3.googleusercontent.com/d/FILE_ID
+            const thumbnailMatch = imageUrl.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+            if (thumbnailMatch) {
+              fileId = thumbnailMatch[1];
+            } else {
+              // Try to extract from drive.google.com URL
+              const driveMatch = imageUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+              if (driveMatch) {
+                fileId = driveMatch[1];
+              }
+            }
+            
+            if (!fileId) {
+              handleError(e);
+              return;
+            }
+            
+            // Try different URL formats based on retry count
+            if (retryCount === 0) {
+              // First fallback: Try Google Drive viewer/thumbnail format
+              const altUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1920`;
               e.target.src = altUrl;
               setRetryCount(1);
               setImageError(false);
               return;
-            }
-            // If CDN URL failed, try export=view format
-            if (imageUrl.includes('googleusercontent.com') && retryCount === 0) {
-              // Extract file ID from URL if possible, or use alternative approach
-              const fileIdMatch = imageUrl.match(/[/=](\w{28,})/);
-              if (fileIdMatch) {
-                const altUrl = `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
-                e.target.src = altUrl;
-                setRetryCount(1);
-                setImageError(false);
-                return;
-              }
+            } else if (retryCount === 1) {
+              // Second fallback: Try export=view format
+              const altUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+              e.target.src = altUrl;
+              setRetryCount(2);
+              setImageError(false);
+              return;
+            } else if (retryCount === 2) {
+              // Third fallback: Try export=download format
+              const altUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+              e.target.src = altUrl;
+              setRetryCount(3);
+              setImageError(false);
+              return;
             }
           }
+          
           handleError(e);
         }}
         onLoad={(e) => {

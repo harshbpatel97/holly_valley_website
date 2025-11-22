@@ -32,6 +32,7 @@
     "sync-images": "node scripts/syncImages.js",
     "generate-images": "node scripts/generateImageList.js",
     "generate-signage-images-gdrive": "node scripts/generateSignageImagesGoogleDrive.js",
+    "test-gdrive-url": "node scripts/testGoogleDriveUrl.js",
     "verify-gdrive-sharing": "node scripts/verifyGoogleDriveSharing.js",
     "prebuild": "npm run sync-images",
     "predeploy": "npm run build",
