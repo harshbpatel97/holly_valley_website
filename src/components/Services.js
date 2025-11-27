@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
 import { getImagePath } from '../utils/imageUtils';
+import { useStoreImages } from '../config/storeImages';
 import './Services.css';
 import { track } from '../utils/ga';
 
 const Services = () => {
   const [activeAccordion, setActiveAccordion] = useState(null);
+  const { storeImages } = useStoreImages();
+
+  // Find U-Haul image from store images (Google Drive)
+  // The image ID will be "uhaul-services" (from "04_uhaul_services.jpg" after processing)
+  const uhaulImage = storeImages.find(img => 
+    img.id?.toLowerCase().includes('uhaul') || 
+    img.alt?.toLowerCase().includes('uhaul') ||
+    img.title?.toLowerCase().includes('uhaul') ||
+    img.src?.includes('11GxoHDvvscl-vN9FeQ7Byx9mUBgX3OfC') // File ID from Google Drive
+  );
 
   const services = [
     {
@@ -13,7 +24,10 @@ const Services = () => {
       content: (
         <div>
           <div className="img-services">
-            <img src={getImagePath("/images/storeImages/04_uhaul_services.jpg")} alt="uhaul-service-img" />
+            <img 
+              src={uhaulImage?.src || getImagePath("/images/storeImages/04_uhaul_services.jpg")} 
+              alt="uhaul-service-img" 
+            />
           </div>
           <p>Holly Valley is proud to be a U-Haul Neighborhood Dealer, offering convenient truck and trailer rental services to our community.</p>
           <p><strong>Services Available:</strong></p>
