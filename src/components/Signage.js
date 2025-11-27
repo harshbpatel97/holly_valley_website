@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Spinner, Text, VStack, HStack } from '@chakra-ui/react';
+import { Box, Spinner, Text, VStack, HStack, useColorMode, useColorModeValue, IconButton } from '@chakra-ui/react';
+import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 import './Signage.css';
 
 const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadTime, setLastImageLoadTime, onLoad, onError }) => {
@@ -92,7 +93,7 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
         alignItems="center"
         justifyContent="center"
         minH="100vh"
-        bg="black"
+        bg="transparent"
       />
     );
   }
@@ -105,7 +106,7 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
         alignItems="center"
         justifyContent="center"
         minH="100vh"
-        bg="black"
+        bg="transparent"
         color="white"
         p={8}
       >
@@ -149,34 +150,28 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
       justifyContent="center"
       width="100%"
       height="100%"
-      bg="black"
       overflow="hidden"
-      position="relative"
     >
       <img
         key={`image-${index}-${retryCount}`}
         src={imageUrl}
         alt={`Slide ${index + 1}`}
-        className="signage-image"
-        loading="eager"
-        referrerPolicy="no-referrer"
-        style={{
-          maxWidth: '100%',
-          maxHeight: '100%',
-          width: 'auto',
-          height: 'auto',
-          objectFit: 'contain',
-          display: 'block',
-          margin: '0',
-          opacity: imageError ? 0.5 : 1,
-          transition: 'opacity 0.3s ease',
-          boxSizing: 'border-box',
-          objectPosition: 'center center',
-          position: 'relative',
-          // Prevent any clipping - let parent handle centering
-          flexShrink: 0,
-          flexGrow: 0
-        }}
+      className="signage-image"
+      loading="eager"
+      referrerPolicy="no-referrer"
+      style={{
+        maxWidth: '100%',
+        maxHeight: '100%',
+        width: 'auto',
+        height: 'auto',
+        objectFit: 'contain',
+        display: 'block',
+        margin: '0 auto',
+        opacity: imageError ? 0.5 : 1,
+        transition: 'opacity 0.3s ease',
+        boxSizing: 'border-box',
+        objectPosition: 'center center'
+      }}
         onError={(e) => {
           // Try multiple URL format fallbacks for Google Drive
           if (imageUrl && (imageUrl.includes('drive.google.com') || imageUrl.includes('googleusercontent.com'))) {
@@ -286,6 +281,14 @@ const Signage = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const errorCountRef = useRef(0);
   const transitionTimeoutRef = useRef(null);
+  const { colorMode, toggleColorMode } = useColorMode();
+  const bgColor = useColorModeValue('linear-gradient(135deg, #f5f5dc 0%, #e8e8d5 30%, #d4d4c4 60%, #c4c4b0 100%)', 'linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%)');
+  const headerBg = useColorModeValue('rgba(245, 245, 220, 0.92)', 'rgba(26, 32, 44, 0.95)');
+  const footerBg = useColorModeValue('rgba(245, 245, 220, 0.92)', 'rgba(26, 32, 44, 0.95)');
+  const textColor = useColorModeValue('#2d3748', '#e2e8f0');
+  const hoverBg = useColorModeValue('rgba(0, 0, 0, 0.1)', 'rgba(255, 255, 255, 0.1)');
+  const footerTextColor = useColorModeValue('#4a5568', '#cbd5e0');
+  const footerLinkColor = useColorModeValue('#718096', '#a0aec0');
 
   const imageSource = process.env.REACT_APP_SIGNAGE_IMG_REF_LINK;
   const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000', 10);
@@ -447,7 +450,7 @@ const Signage = () => {
         alignItems="center"
         justifyContent="center"
         minH="100vh"
-        bg="black"
+        bg="transparent"
         color="white"
       >
         <Box textAlign="center">
@@ -465,7 +468,7 @@ const Signage = () => {
         alignItems="center"
         justifyContent="center"
         minH="100vh"
-        bg="black"
+        bg="transparent"
         color="white"
         p={8}
       >
@@ -487,7 +490,7 @@ const Signage = () => {
         alignItems="center"
         justifyContent="center"
         minH="100vh"
-        bg="black"
+        bg="transparent"
         color="white"
       >
         <Text fontSize="xl">No images available</Text>
@@ -496,7 +499,7 @@ const Signage = () => {
   }
 
   return (
-    <Box className="signage-container">
+    <Box className="signage-container" style={{ background: bgColor }}>
       {/* Header with Logo - Fixed height */}
       <Box
         position="absolute"
@@ -505,15 +508,14 @@ const Signage = () => {
         width="100%"
         height="120px"
         zIndex="100"
-        bg="rgba(0, 0, 0, 0.8)"
+        bg={headerBg}
         display="flex"
         alignItems="center"
         justifyContent="center"
         px={8}
         boxSizing="border-box"
       >
-        <VStack spacing={2} align="center" width="100%">
-          {/* Logo and Brand Name */}
+        <HStack spacing={6} align="center" justify="space-between" width="100%" maxW="1400px" px={4}>
           <HStack spacing={6} align="center" justify="center">
             <Box flexShrink={0}>
               <img
@@ -531,7 +533,7 @@ const Signage = () => {
             <Text
               fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
               fontWeight="900"
-              color="white"
+              color={textColor}
               letterSpacing="0.1em"
               lineHeight="1.1"
               whiteSpace="nowrap"
@@ -539,7 +541,16 @@ const Signage = () => {
               HOLLY VALLEY
             </Text>
           </HStack>
-        </VStack>
+          <IconButton
+            aria-label="Toggle dark mode"
+            icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+            onClick={toggleColorMode}
+            variant="ghost"
+            size="lg"
+            color={textColor}
+            _hover={{ bg: hoverBg }}
+          />
+        </HStack>
       </Box>
 
       {/* Slideshow Images - Positioned below header */}
@@ -636,7 +647,7 @@ const Signage = () => {
         height="15vh"
         maxHeight="180px"
         zIndex="100"
-        bg="rgba(0, 0, 0, 0.9)"
+        bg={footerBg}
         py={1.5}
         px={8}
         overflowY="auto"
@@ -644,27 +655,27 @@ const Signage = () => {
         <VStack spacing={1} align="center" h="100%" justify="center">
           {/* Contact Info */}
           <HStack spacing={4} align="center">
-            <Text fontSize="xs" color="white">
-              Contact: <a href="tel:13363040094" style={{ color: '#4FD1C7' }}>+1(336)304-0094</a>
+            <Text fontSize="xs" color={textColor}>
+              Contact: <a href="tel:13363040094" style={{ color: '#41A699' }}>+1(336)304-0094</a>
             </Text>
-            <Text fontSize="xs" color="gray.400">|</Text>
-            <Text fontSize="xs" color="white">DBA Holly Valley</Text>
+            <Text fontSize="xs" color={footerLinkColor}>|</Text>
+            <Text fontSize="xs" color={textColor}>DBA Holly Valley</Text>
           </HStack>
 
           {/* Legal Disclaimers - Compact */}
           <VStack spacing={0.5} align="center" maxW="1200px">
             {/* Age Restrictions */}
-            <Text fontSize="xs" color="yellow.400" fontWeight="600" textAlign="center" lineHeight="1.2">
+            <Text fontSize="xs" color="#d69e2e" fontWeight="600" textAlign="center" lineHeight="1.2">
               Age Restricted Products: Tobacco/Alcohol 21+ | Lottery 18+ | Valid ID Required
             </Text>
 
             {/* NC Regulations & ABC Laws Compliance - Compact */}
-            <Text fontSize="9px" color="gray.300" textAlign="center" lineHeight="1.3">
+            <Text fontSize="9px" color={footerTextColor} textAlign="center" lineHeight="1.3">
               <strong>LEGAL NOTICE - NC REGULATIONS & ABC LAWS COMPLIANCE:</strong> This establishment complies with all NC state regulations and ABC laws regarding tobacco products and alcoholic beverages (including cold beer). All advertisements are for informational purposes only. <strong>Tobacco:</strong> 21+ only, valid ID required. <strong>Alcoholic Beverages (Cold Beer):</strong> Regulated by NC ABC Commission, 21+ only, valid ID required. <strong>NC Lottery:</strong> 18+ only, valid ID required. Play responsibly. Gambling problem? Call 1-800-522-4700.
             </Text>
-            <Text fontSize="10px" color="gray.400" textAlign="center" mt={1}>
+            <Text fontSize="10px" color={footerLinkColor} textAlign="center" mt={1}>
               Holly Valley maintains strict compliance with all applicable regulations. 
-              For more information, visit <a href="https://www.abc.nc.gov" target="_blank" rel="noopener noreferrer" style={{ color: '#4FD1C7' }}>abc.nc.gov</a> and <a href="https://www.nclottery.com" target="_blank" rel="noopener noreferrer" style={{ color: '#4FD1C7' }}>nclottery.com</a>
+              For more information, visit <a href="https://www.abc.nc.gov" target="_blank" rel="noopener noreferrer" style={{ color: '#41A699' }}>abc.nc.gov</a> and <a href="https://www.nclottery.com" target="_blank" rel="noopener noreferrer" style={{ color: '#41A699' }}>nclottery.com</a>
             </Text>
           </VStack>
         </VStack>

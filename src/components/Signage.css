@@ -4,7 +4,8 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #000;
+  /* Background color - will be overridden by inline style with dark mode support */
+  background: linear-gradient(135deg, #f5f5dc 0%, #e8e8d5 30%, #d4d4c4 60%, #c4c4b0 100%);
   overflow: hidden;
   z-index: 9999;
   display: flex;
@@ -24,10 +25,12 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  padding: 20px;
+  padding: 30px;
   box-sizing: border-box;
   overflow: hidden;
   z-index: 1;
+  /* Add subtle inner glow */
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
 }
 
 /* Current/active slide - visible and centered */
@@ -73,6 +76,8 @@
   /* If not yet active, ensure it starts from right */
 }
 
+/* Images display directly without glass container */
+
 .signage-image {
   /* Auto-size to fit container while maintaining aspect ratio */
   /* Critical: Use contain to ensure FULL image is visible - never crop */
@@ -83,17 +88,16 @@
   object-fit: contain !important;
   object-position: center center;
   display: block;
-  margin: 0;
+  margin: 0 auto;
   box-sizing: border-box;
-  /* Ensure full image is always visible - prevent any clipping */
   position: relative;
   /* Smooth rendering */
   image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* Force browser to respect contain */
-  flex-shrink: 0;
+  flex-shrink: 1;
   flex-grow: 0;
+  border-radius: 12px;
 }
 
 /* Optimize for TV/FireTV displays (43" TVs typically 1920x1080) */
@@ -133,6 +137,8 @@
   contain: layout style paint;
 }
 
+/* Images display directly without wrapper */
+
 /* Ensure images respect boundaries on all screen sizes */
 @media screen and (max-height: 1080px) {
   .signage-slide {
@@ -140,11 +146,28 @@
     overflow: hidden;
   }
   
+  
   .signage-image {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain !important;
   }
+}
+
+/* Mobile devices */
+@media screen and (max-width: 768px) {
+  .signage-slide {
+    padding: 15px;
+  }
+  
+  
+  .signage-image {
+    border-radius: 10px;
+  }
+}
+
+/* Tablet devices */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
 }
 
 /* Specific optimization for 43" TV (1920x1080) */
@@ -173,7 +196,7 @@
   }
   
   .signage-image {
-    /* Use full available space - padding is handled by parent */
+    /* Use full available space */
     max-width: 100%;
     max-height: 100%;
     width: auto;
