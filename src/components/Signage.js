@@ -279,10 +279,13 @@ const ActiveImageWithThrottle = ({ imageUrl, index, currentIndex, lastImageLoadT
 const Signage = () => {
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [previousIndex, setPreviousIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastImageLoadTime, setLastImageLoadTime] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const errorCountRef = useRef(0);
+  const transitionTimeoutRef = useRef(null);
 
   const imageSource = process.env.REACT_APP_SIGNAGE_IMG_REF_LINK;
   const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000', 10);
@@ -411,10 +414,30 @@ const Signage = () => {
     if (images.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
+      // Start transition animation
+      setIsTransitioning(true);
+      
+      // Update indices - track previous for transition
+      setCurrentIndex((prev) => {
+        setPreviousIndex(prev);
+        return (prev + 1) % images.length;
+      });
+      
+      // Clear transitioning state after animation completes
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+      transitionTimeoutRef.current = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 1500); // Match CSS transition duration (1.5s)
     }, slideDuration);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
   }, [images.length, slideDuration]);
 
   if (loading) {
@@ -532,11 +555,33 @@ const Signage = () => {
       >
         {images.map((imageUrl, index) => {
           const isActive = index === currentIndex;
+          const isPrevious = index === previousIndex;
+          const isNext = index === (currentIndex + 1) % images.length;
+          // Always render current and next slide, and previous during transition
+          const shouldRender = isActive || isNext || (isPrevious && isTransitioning);
+          
+          // Determine transition classes during transition
+          let transitionClass = '';
+          if (isTransitioning) {
+            if (isPrevious && previousIndex !== currentIndex) {
+              // Previous slide is leaving - slide left and fade out
+              transitionClass = 'leaving';
+            } else if (isActive && previousIndex !== currentIndex) {
+              // New slide is entering - slide in from right and fade in
+              transitionClass = 'entering';
+            }
+          }
+          
+          // Build class string
+          let className = 'signage-slide';
+          if (isActive && !isTransitioning) className += ' active';
+          if (isNext && !isActive) className += ' next';
+          if (transitionClass) className += ` ${transitionClass}`;
           
           return (
             <Box
               key={index}
-              className={`signage-slide ${isActive ? 'active' : ''}`}
+              className={className}
               style={{ 
                 position: 'absolute',
                 top: 0,
@@ -551,32 +596,32 @@ const Signage = () => {
                 overflow: 'hidden'
               }}
             >
-                    {isActive && (
-                      <ActiveImageWithThrottle
-                        imageUrl={imageUrl}
-                        index={index}
-                        currentIndex={currentIndex}
-                        lastImageLoadTime={lastImageLoadTime}
-                        setLastImageLoadTime={setLastImageLoadTime}
-                        onLoad={() => {}}
-                        onError={(e) => {
-                          // Track 403 errors from Google Drive URLs (especially expired CDN URLs)
-                          const img = e.target;
-                          if (img && img.src && (img.src.includes('googleusercontent.com') || img.src.includes('drive.google.com'))) {
-                            errorCountRef.current += 1;
-                            
-                            // If multiple errors detected (likely expired URLs), trigger JSON refresh
-                            if (errorCountRef.current >= 3 && imageSource) {
-                              setTimeout(() => {
-                                // Refresh images JSON to get new URLs (in case they were regenerated)
-                                fetchImages(imageSource, true);
-                                errorCountRef.current = 0; // Reset error count
-                              }, 10000); // Wait 10 seconds before refreshing
-                            }
-                          }
-                        }}
-                      />
-                    )}
+              {shouldRender && (
+                <ActiveImageWithThrottle
+                  imageUrl={imageUrl}
+                  index={index}
+                  currentIndex={currentIndex}
+                  lastImageLoadTime={lastImageLoadTime}
+                  setLastImageLoadTime={setLastImageLoadTime}
+                  onLoad={() => {}}
+                  onError={(e) => {
+                    // Track 403 errors from Google Drive URLs (especially expired CDN URLs)
+                    const img = e.target;
+                    if (img && img.src && (img.src.includes('googleusercontent.com') || img.src.includes('drive.google.com'))) {
+                      errorCountRef.current += 1;
+                      
+                      // If multiple errors detected (likely expired URLs), trigger JSON refresh
+                      if (errorCountRef.current >= 3 && imageSource) {
+                        setTimeout(() => {
+                          // Refresh images JSON to get new URLs (in case they were regenerated)
+                          fetchImages(imageSource, true);
+                          errorCountRef.current = 0; // Reset error count
+                        }, 10000); // Wait 10 seconds before refreshing
+                      }
+                    }
+                  }}
+                />
+              )}
             </Box>
           );
         })}

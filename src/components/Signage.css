@@ -18,8 +18,8 @@
   width: 100%;
   height: 100%;
   opacity: 0;
-  transform: scale(1.05);
-  transition: opacity 2s ease-in-out, transform 2s ease-in-out;
+  transform: translateX(100%);
+  transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,13 +27,50 @@
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
+  z-index: 1;
 }
 
+/* Current/active slide - visible and centered */
 .signage-slide.active {
   opacity: 1;
-  transform: scale(1);
-  z-index: 1;
+  transform: translateX(0);
+  z-index: 2;
   pointer-events: auto;
+}
+
+/* Next slide - positioned to the right, ready to slide in */
+.signage-slide.next {
+  opacity: 0;
+  transform: translateX(100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Previous slide - positioned to the left, sliding out */
+.signage-slide.prev {
+  opacity: 0;
+  transform: translateX(-100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* During transition - previous slide moves left and fades out */
+.signage-slide.leaving {
+  opacity: 0 !important;
+  transform: translateX(-100%) !important;
+  z-index: 1;
+}
+
+/* During transition - new slide moves in from right and fades in */
+.signage-slide.entering {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+  z-index: 3;
+}
+
+/* Ensure entering slide starts from right position */
+.signage-slide.entering:not(.active) {
+  /* If not yet active, ensure it starts from right */
 }
 
 .signage-image {
