@@ -5,9 +5,30 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Check URL parameters for initial theme setting
+const getInitialColorMode = () => {
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    const themeParam = urlParams.get('theme') || urlParams.get('mode');
+    if (themeParam) {
+      const normalizedTheme = themeParam.toLowerCase().trim();
+      if (normalizedTheme === 'dark' || normalizedTheme === 'light') {
+        return normalizedTheme;
+      }
+    }
+    
+    // Check localStorage for saved preference
+    const savedTheme = localStorage.getItem('chakra-ui-color-mode');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      return savedTheme;
+    }
+  }
+  return 'light';
+};
+
 const theme = extendTheme({
   config: {
-    initialColorMode: 'light',
+    initialColorMode: getInitialColorMode(),
     useSystemColorMode: false,
   },
 });

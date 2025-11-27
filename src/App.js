@@ -11,6 +11,7 @@ import Contact from './components/Contact';
 import Signage from './components/Signage';
 import SignageAccessDenied from './components/SignageAccessDenied';
 import GoogleAnalytics from './components/GoogleAnalytics';
+import ColorModeSync from './components/ColorModeSync';
 import './App.css';
 
 // Signage route component with token authentication
@@ -89,7 +90,12 @@ function SignageRoute() {
 
   // If no token is configured, allow access (for development/fallback)
   if (!requiredToken) {
-    return <Signage />;
+    return (
+      <>
+        <ColorModeSync />
+        <Signage />
+      </>
+    );
   }
 
   // Check if token is provided and matches
@@ -98,7 +104,12 @@ function SignageRoute() {
   }
 
   // Token is valid, show signage
-  return <Signage />;
+  return (
+    <>
+      <ColorModeSync />
+      <Signage />
+    </>
+  );
 }
 
 function AppContent() {
@@ -142,6 +153,7 @@ function AppContent() {
 
   return (
     <>
+      <ColorModeSync />
       {measurementId && <GoogleAnalytics measurementId={measurementId} />}
       <Box className="App" bg={appBg} color={appColor} minH="100vh">
         {showVerification ? (

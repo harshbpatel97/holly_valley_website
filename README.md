@@ -6,6 +6,7 @@ This is a React conversion of the original Holly Valley static HTML website. The
 
 - **Age Verification**: Age verification modal that appears on first visit
 - **Responsive Design**: Mobile-friendly layout that works on all devices
+- **Dark Mode**: Full dark mode support with toggle button and URL parameter control
 - **Image Slider**: Automatic image carousel on the home page
 - **Accordion Sections**: Collapsible sections for services and products
 - **Image Zoom**: Click to zoom functionality for product images
@@ -20,6 +21,40 @@ This is a React conversion of the original Holly Valley static HTML website. The
 - **Products**: Groceries and soft drinks with image galleries
 - **Contact**: Contact information and location details
 - **Signage** (`/signage`): Digital signage slideshow for FireTV displays (bypasses header, footer, and age verification)
+
+## Dark Mode / Theme Control
+
+The website supports full dark mode with multiple ways to control the theme:
+
+### Toggle Button
+
+- A dark mode toggle button is available in the header (top right)
+- Click the moon icon to switch to dark mode, or the sun icon to switch to light mode
+- Your preference is saved and persists across page reloads
+
+### URL Parameter Control
+
+You can control the theme via URL parameters, which is useful for:
+- Bookmarks with a specific theme
+- Sharing links with a preferred theme
+- Forcing a theme for specific pages or presentations
+
+**Supported URL Parameters:**
+- `?theme=dark` - Switch to dark mode
+- `?theme=light` - Switch to light mode
+- `?mode=dark` - Alternative parameter for dark mode
+- `?mode=light` - Alternative parameter for light mode
+
+**Examples:**
+- `https://yourdomain.com/?theme=dark` - Home page in dark mode
+- `https://yourdomain.com/services?mode=light` - Services page in light mode
+- `https://yourdomain.com/signage?token=xxx&theme=dark` - Signage page in dark mode
+
+**Notes:**
+- URL parameters take precedence over saved preferences
+- The theme persists when navigating between pages
+- Works across all pages on the website
+- URL parameters update localStorage to maintain consistency
 
 ## Getting Started
 
