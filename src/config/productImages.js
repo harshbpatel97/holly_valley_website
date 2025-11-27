@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchImagesFromGoogleDriveFolder, fetchImagesFromGoogleDriveProxy, findSubfolderByName, generateProductFromGoogleDriveImage } from '../utils/googleDriveImages';
+import { fetchImagesFromGoogleDriveFolder, fetchImagesFromGoogleDriveProxy, findSubfolderByName, generateProductFromGoogleDriveImage, normalizeGoogleDriveImageUrl } from '../utils/googleDriveImages';
 
 // Product Images Configuration - Now uses Google Drive
 // Images are fetched from Google Drive folders configured via environment variables
@@ -95,6 +95,7 @@ const loadCategoryImages = async (categoryId) => {
         const imageUrls = await fetchImagesFromGoogleDriveProxy(proxyUrl);
         images = imageUrls.map((url, index) => {
           const name = `Product ${index + 1}`;
+          // normalizeGoogleDriveImageUrl is already called in generateProductFromGoogleDriveImage
           return generateProductFromGoogleDriveImage({ id: `img-${index}`, name, url }, categoryId);
         });
       } catch (err) {
@@ -164,19 +165,57 @@ export const useProductImages = () => {
       try {
         const categoryIds = Object.keys(productCategories);
         const updatedCategories = { ...productCategories };
+        let totalImagesLoaded = 0;
+        const errors = [];
 
         // Load images for each category
         for (const categoryId of categoryIds) {
-          const images = await loadCategoryImages(categoryId);
-          if (images.length > 0) {
-            updatedCategories[categoryId].items = images;
+          try {
+            const images = await loadCategoryImages(categoryId);
+            if (images.length > 0) {
+              // Double-check normalization (in case URLs came from cache or proxy)
+              const normalizedImages = images.map(img => ({
+                ...img,
+                src: normalizeGoogleDriveImageUrl(img.src)
+              }));
+              updatedCategories[categoryId].items = normalizedImages;
+              totalImagesLoaded += normalizedImages.length;
+              console.log(`✓ Loaded ${normalizedImages.length} images for ${categoryId}`);
+              // Verify first image is using thumbnail format
+              if (normalizedImages.length > 0 && !normalizedImages[0].src.includes('drive.google.com/thumbnail')) {
+                console.warn(`⚠ First ${categoryId} image not in thumbnail format: ${normalizedImages[0].src.substring(0, 100)}`);
+              }
+            } else {
+              console.warn(`⚠ No images loaded for ${categoryId}`);
+            }
+          } catch (err) {
+            const errorMsg = `Failed to load ${categoryId}: ${err.message}`;
+            console.error(errorMsg);
+            errors.push(errorMsg);
           }
         }
 
         setCategories(updatedCategories);
+
+        // Set error if no images were loaded at all
+        if (totalImagesLoaded === 0) {
+          const hasMasterFolder = process.env.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID;
+          const hasApiKey = process.env.REACT_APP_GOOGLE_DRIVE_API_KEY && process.env.REACT_APP_GOOGLE_DRIVE_API_KEY.trim() !== '';
+          
+          if (!hasApiKey) {
+            setError('Google Drive API key is missing. Please set REACT_APP_GOOGLE_DRIVE_API_KEY in your .env file and restart the development server.');
+          } else if (!hasMasterFolder && !Object.values(PRODUCT_FOLDERS).some(id => id)) {
+            setError('No Google Drive folder configuration found. Please set REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID or individual folder IDs in your .env file.');
+          } else {
+            setError('No product images found. Please check: 1) Folders exist and are shared publicly, 2) Images are in the correct subfolders, 3) Subfolder names match exactly (Groceries, Soft Drinks, etc.)');
+          }
+        } else if (errors.length > 0) {
+          // Some categories failed but others succeeded
+          console.warn('Some categories failed to load:', errors);
+        }
       } catch (err) {
         console.error('Error loading product images:', err);
-        setError(err.message);
+        setError(err.message || 'Failed to load product images. Please check the browser console for details.');
       } finally {
         setLoading(false);
       }

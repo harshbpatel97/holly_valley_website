@@ -55,11 +55,11 @@ export const useStoreImages = () => {
         // Try proxy URL first if configured
         if (STORE_IMAGES_PROXY_URL) {
           try {
-            const { fetchImagesFromGoogleDriveProxy } = await import('../utils/googleDriveImages');
+            const { fetchImagesFromGoogleDriveProxy, normalizeGoogleDriveImageUrl } = await import('../utils/googleDriveImages');
             const imageUrls = await fetchImagesFromGoogleDriveProxy(STORE_IMAGES_PROXY_URL);
             images = imageUrls.map((url, index) => ({
               id: `store-image-${index}`,
-              src: url,
+              src: normalizeGoogleDriveImageUrl(url), // Normalize to thumbnail format
               alt: `Store Image ${index + 1}`,
               title: `Store Image ${index + 1}`,
               description: `Store image ${index + 1} of Holly Valley`

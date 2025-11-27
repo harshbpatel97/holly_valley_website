@@ -1,12 +1,18 @@
 import React from 'react';
-import { Box, Image, Text, Badge, Stack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Text, Badge, Stack, useColorModeValue } from '@chakra-ui/react';
+import ThrottledImage from './ThrottledImage';
 
-const ProductCard = ({ image, name, description, category, onClick }) => {
+const THROTTLE_DELAY_MS = 0; // No visual stagger - images load concurrently with small delays
+
+const ProductCard = ({ image, name, description, category, onClick, index = 0 }) => {
   // Always call hooks at the top level
   const bg = useColorModeValue('white', 'gray.800');
   const hoverBoxShadow = 'xl';
   const hoverTransform = 'scale(1.03)';
   const textColor = useColorModeValue('gray.600', 'gray.300');
+  
+  // Calculate delay based on index to stagger loading
+  const delay = index * THROTTLE_DELAY_MS;
 
   return (
     <Box
@@ -22,7 +28,16 @@ const ProductCard = ({ image, name, description, category, onClick }) => {
       cursor={onClick ? 'pointer' : 'default'}
       onClick={onClick}
     >
-      <Image src={image} alt={name} objectFit="cover" w="100%" h="140px" />
+      <ThrottledImage 
+        src={image} 
+        alt={name} 
+        objectFit="cover" 
+        w="100%" 
+        h="140px"
+        delay={delay}
+        maxRetries={3}
+        retryDelay={3000}
+      />
       <Box p="3">
         <Stack direction="row" align="center" mb={2}>
           {category && <Badge colorScheme="teal">{category}</Badge>}

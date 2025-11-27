@@ -55,10 +55,17 @@ const Products = () => {
   if (error) {
     return (
       <Box p={8} textAlign="center">
-        <Text color="red.500">Error loading products: {error}</Text>
+        <Text color="red.500" mb={2} fontWeight="bold">Error loading products:</Text>
+        <Text color="red.400" fontSize="sm">{error}</Text>
+        <Text mt={4} fontSize="sm" color={sectionTextColor}>
+          Please check your Google Drive configuration in the .env file.
+        </Text>
       </Box>
     );
   }
+
+  // Check if any products have items
+  const hasProducts = products.some(product => product.items && product.items.length > 0);
 
   return (
     <Box p={{ base: 2, md: 8 }}>
@@ -68,6 +75,14 @@ const Products = () => {
           Holly Valley offers a variety of products ranging from groceries to soft-drinks. A detailed overview of each department is mentioned along with the brands and options available in each category.
         </Text>
       </Box>
+      {!hasProducts && !loading && (
+        <Box p={8} textAlign="center" bg="yellow.50" borderRadius="md" mb={6}>
+          <Text color="orange.600" fontWeight="bold" mb={2}>No product images found</Text>
+          <Text color="orange.500" fontSize="sm">
+            Please check your Google Drive configuration. Open the browser console (F12) for detailed error messages.
+          </Text>
+        </Box>
+      )}
       {products.map((product) => (
         <Box key={product.id} mb={6} borderWidth="1px" borderRadius="lg" boxShadow="md" bg={cardBg}
           _hover={{ boxShadow: 'lg' }}>
@@ -88,17 +103,24 @@ const Products = () => {
           <Collapse in={activeAccordion === product.id} animateOpacity>
             <Box px={6} py={4}>
               <Text mb={4} color={panelTextColor}>{product.description}</Text>
-              <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
-                {product.items.map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    image={item.src}
-                    name={item.caption}
-                    category={product.title}
-                    onClick={() => handleImageClick(item.src, product.id, item.caption)}
-                  />
-                ))}
-              </SimpleGrid>
+              {product.items && product.items.length > 0 ? (
+                <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
+                  {product.items.map((item, index) => (
+                    <ProductCard
+                      key={item.id}
+                      image={item.src}
+                      name={item.caption}
+                      category={product.title}
+                      onClick={() => handleImageClick(item.src, product.id, item.caption)}
+                      index={index}
+                    />
+                  ))}
+                </SimpleGrid>
+              ) : (
+                <Text color={panelTextColor} fontSize="sm" fontStyle="italic">
+                  No images available for this category. Please check your Google Drive folder configuration.
+                </Text>
+              )}
             </Box>
           </Collapse>
         </Box>

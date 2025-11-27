@@ -134,11 +134,33 @@ export const fetchImagesFromGoogleDriveProxy = async (proxyUrl) => {
     const data = await response.json();
     
     // Support both formats: {images: [...]} or [...]
-    const imageUrls = Array.isArray(data) 
-      ? data 
-      : (data.images || []);
+    // Also handle format where each item is {id, name, url} object
+    let imageUrls = [];
+    if (Array.isArray(data)) {
+      imageUrls = data.map(item => {
+        // If item is an object with url property, extract it
+        if (typeof item === 'object' && item.url) {
+          return item.url;
+        }
+        // If item is an object with id, construct thumbnail URL
+        if (typeof item === 'object' && item.id) {
+          return `https://drive.google.com/thumbnail?id=${item.id}&sz=w0`;
+        }
+        // Otherwise assume it's a URL string
+        return item;
+      });
+    } else if (data.images) {
+      imageUrls = data.images.map(item => {
+        if (typeof item === 'object' && item.url) return item.url;
+        if (typeof item === 'object' && item.id) return `https://drive.google.com/thumbnail?id=${item.id}&sz=w0`;
+        return item;
+      });
+    }
 
-    return imageUrls.filter(url => url && typeof url === 'string');
+    // Normalize all URLs to thumbnail format (converts googleusercontent URLs to thumbnail format)
+    return imageUrls
+      .filter(url => url && typeof url === 'string')
+      .map(url => normalizeGoogleDriveImageUrl(url));
   } catch (error) {
     console.error('Error fetching images from Google Drive proxy:', error);
     throw error;
@@ -146,34 +168,61 @@ export const fetchImagesFromGoogleDriveProxy = async (proxyUrl) => {
 };
 
 /**
- * Convert Google Drive image URL to a format that works reliably
- * Handles different Google Drive URL formats
+ * Convert Google Drive image URL to thumbnail format that works reliably
+ * Handles different Google Drive URL formats and converts to thumbnail API format
  * @param {string} imageUrl - Google Drive image URL
- * @returns {string} Normalized image URL
+ * @returns {string} Normalized thumbnail URL
  */
 export const normalizeGoogleDriveImageUrl = (imageUrl) => {
   if (!imageUrl) return '';
   
-  // If already a thumbnail URL, return as is
+  // If already a thumbnail URL, ensure it's in the correct format
   if (imageUrl.includes('drive.google.com/thumbnail')) {
-    return imageUrl;
+    // Remove any query params that might cause issues (like authuser=0)
+    const urlObj = new URL(imageUrl);
+    // Keep only id and sz params, remove others
+    return `https://drive.google.com/thumbnail?id=${urlObj.searchParams.get('id')}&sz=w0`;
   }
   
-  // Extract file ID from various Google Drive URL formats
-  const fileIdMatch = imageUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (fileIdMatch) {
-    const fileId = fileIdMatch[1];
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w0`;
-  }
+  let fileId = null;
   
-  // If URL contains /d/ format: lh3.googleusercontent.com/d/FILE_ID
-  const dMatch = imageUrl.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+  // Try to extract file ID from various formats:
+  
+  // 1. googleusercontent.com/d/FILE_ID format
+  // Example: https://lh3.googleusercontent.com/d/1eddFlAvIn7PIKVXFb71cdlq__0w-tr8Q=w0?authuser=0
+  // The file ID is everything after /d/ until =, ?, &, or end of string
+  // File IDs can contain: letters, numbers, underscores, hyphens
+  const dMatch = imageUrl.match(/googleusercontent\.com\/d\/([^=?&]+)/);
   if (dMatch) {
-    const fileId = dMatch[1];
+    fileId = dMatch[1];
+  }
+  
+  // 2. drive.google.com/file/d/FILE_ID or /uc?id=FILE_ID format
+  if (!fileId) {
+    const fileMatch = imageUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileMatch) {
+      fileId = fileMatch[1];
+    }
+  }
+  
+  // 3. URL with ?id= or &id= parameter
+  if (!fileId) {
+    const idMatch = imageUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (idMatch) {
+      fileId = idMatch[1];
+    }
+  }
+  
+  // 4. If image object has id property, use it directly (for cases where URL doesn't contain ID)
+  // This will be handled by the caller if they pass the file ID separately
+  
+  if (fileId) {
+    // Always use thumbnail format - this is more reliable and less prone to 429 errors
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w0`;
   }
   
-  // Return original if no pattern matches
+  // If we can't extract file ID, return original (might already be a valid URL)
+  console.warn('Could not extract file ID from URL:', imageUrl);
   return imageUrl;
 };
 
