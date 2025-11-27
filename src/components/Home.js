@@ -1,28 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { storeImages, sliderConfig } from '../config/storeImages';
+import { useStoreImages, sliderConfig } from '../config/storeImages';
 import { getImagePath } from '../utils/imageUtils';
+import { Spinner, Box, Text } from '@chakra-ui/react';
 import './Home.css';
 
 const Home = () => {
+  const { storeImages, loading, error } = useStoreImages();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    if (!sliderConfig.autoPlay) return;
+    if (!sliderConfig.autoPlay || loading || storeImages.length === 0) return;
     
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % storeImages.length);
     }, sliderConfig.autoPlayInterval);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [loading, storeImages]);
 
   const nextSlide = () => {
+    if (storeImages.length === 0) return;
     setCurrentSlide((prev) => (prev + 1) % storeImages.length);
   };
 
   const prevSlide = () => {
+    if (storeImages.length === 0) return;
     setCurrentSlide((prev) => (prev - 1 + storeImages.length) % storeImages.length);
   };
+
+  if (loading) {
+    return (
+      <Box p={8} textAlign="center">
+        <Spinner size="xl" />
+        <Text mt={4}>Loading store images...</Text>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={8} textAlign="center">
+        <Text color="red.500">Error loading images: {error}</Text>
+      </Box>
+    );
+  }
+
+  if (storeImages.length === 0) {
+    return (
+      <Box p={8} textAlign="center">
+        <Text>No store images available.</Text>
+      </Box>
+    );
+  }
 
   return (
     <div className="home">
@@ -45,14 +74,14 @@ const Home = () => {
               />
             </div>
           ))}
-          {sliderConfig.showNavigation && (
+          {sliderConfig.showNavigation && storeImages.length > 1 && (
             <>
               <button className="prev" onClick={prevSlide}>&#10094;</button>
               <button className="next" onClick={nextSlide}>&#10095;</button>
             </>
           )}
         </div>
-        {sliderConfig.showDots && (
+        {sliderConfig.showDots && storeImages.length > 1 && (
           <div className="dots">
             {storeImages.map((_, index) => (
               <span

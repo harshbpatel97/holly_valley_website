@@ -95,25 +95,37 @@ Create a `.env` file in the root directory to configure environment variables:
 # Google Analytics ID (optional)
 REACT_APP_GA_ID=
 
-# Image Source for Digital Signage
-# Format options:
-# 1. JSON file URL: /api/signage-images.json or https://yourdomain.com/images.json
-# 2. Google Drive proxy URL: http://localhost:3001/api/googledrive/images?folderId=FOLDER_ID&apiKey=API_KEY
-#    JSON format: ["url1", "url2", ...] or {"images": ["url1", "url2", ...]}
+# Google Drive API Key (required for all image features)
+# Get your API key from: https://console.cloud.google.com/
+# Enable "Drive API" and create an API key
+REACT_APP_GOOGLE_DRIVE_API_KEY=your-api-key-here
+
+# Google Drive Master Folder (Recommended - Simplest Setup)
+# Create one master folder with subfolders for each category
+# Get master folder ID from URL: https://drive.google.com/drive/folders/FOLDER_ID
+REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID=your-master-folder-id
+
+# Optional: Individual Folder IDs (Alternative to master folder)
+# If not using master folder, you can set individual folder IDs for each category:
+# REACT_APP_STORE_IMAGES_FOLDER_ID=your-store-images-folder-id
+# REACT_APP_GROCERIES_FOLDER_ID=your-groceries-folder-id
+# REACT_APP_SOFT_DRINKS_FOLDER_ID=your-soft-drinks-folder-id
+# REACT_APP_ICE_BAGS_FOLDER_ID=your-ice-bags-folder-id
+# REACT_APP_FROZEN_PIZZA_FOLDER_ID=your-frozen-pizza-folder-id
+# REACT_APP_FIREWOOD_FOLDER_ID=your-firewood-folder-id
+# REACT_APP_ICE_CREAM_FOLDER_ID=your-ice-cream-folder-id
+
+# Digital Signage Configuration
 REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
-
-# Slide duration in milliseconds (default: 10000 = 10 seconds)
 REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000
-
-# Auto-refresh interval in days (default: 1 = refresh daily)
-# Images are automatically refreshed to pick up new/removed images
-# Set to refresh once per day by default (value: 1)
 REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS=1
-
-# Access token for signage page (required for security)
-# Access signage via: /signage?token=YOUR_TOKEN_HERE
-# If not set, signage page will be publicly accessible
 REACT_APP_SIGNAGE_TOKEN=your-secret-token-here
+
+# Optional: Proxy URLs (alternative to folder IDs)
+# If you prefer using proxy endpoints instead of direct folder IDs:
+# REACT_APP_STORE_IMAGES_PROXY_URL=/api/googledrive/images?folderId=FOLDER_ID
+# REACT_APP_GROCERIES_PROXY_URL=/api/googledrive/images?folderId=FOLDER_ID
+# (similar pattern for other categories)
 ```
 
 **Note**: Make sure to add `.env` to `.gitignore` to protect sensitive information.
@@ -140,45 +152,155 @@ src/
 │   ├── Signage.js              # Digital signage slideshow for FireTV
 │   └── Signage.css
 ├── config/
-│   ├── storeImages.js          # Store images configuration
-│   └── productImages.js        # Product images configuration
+│   ├── storeImages.js          # Store images configuration (Google Drive)
+│   └── productImages.js        # Product images configuration (Google Drive)
+├── utils/
+│   ├── googleDriveImages.js    # Google Drive image fetching utilities
+│   ├── imageUtils.js           # Image utility functions
+│   └── ga.js                   # Google Analytics utilities
 ├── App.js                      # Main app component with routing
 ├── App.css                     # Global styles
 └── index.js                    # App entry point
+scripts/
+├── generateAllImagesFromGoogleDrive.js  # Generate all image lists from Google Drive
+├── generateSignageImagesGoogleDrive.js  # Generate signage images from Google Drive
+└── verifyGoogleDriveSharing.js          # Verify Google Drive folder sharing
 public/
-├── images/
-│   ├── storeImages/            # Store interior/exterior images
-│   ├── groceries/              # Grocery product images
-│   └── soft-drinks/            # Soft drink product images
+├── api/                        # Generated image JSON files (optional)
+│   ├── store-images.json
+│   ├── groceries-images.json
+│   └── ...
+└── images/                     # Legacy local images (fallback only)
+    └── misc/                   # Static assets (logo, icons, etc.)
 ```
 
-## Image Management Systems
+## Image Management - Google Drive Integration
 
-### Store Images Management
-- **Configuration**: `src/config/storeImages.js`
-- **Directory**: `public/images/storeImages/`
-- **Purpose**: Manages store interior and exterior images for the home page slider
-- **Features**: Easy to add, remove, and reorder images
-- **Documentation**: See comments in configuration file
+All images are now managed through Google Drive, eliminating the need to store images in the repository. This provides:
 
-### Product Images Management
-- **Configuration**: `src/config/productImages.js`
-- **Directories**: 
-  - `public/images/groceries/` (16 products)
-  - `public/images/soft-drinks/` (12 products)
-- **Purpose**: Manages product images for the Products page
-- **Features**: Category-based organization, easy management
-- **Documentation**: See `PRODUCT_IMAGES_README.md` for detailed guide
+- **Centralized Management**: All images in one place (Google Drive)
+- **Easy Updates**: Add/remove images directly from Google Drive interface
+- **No Repository Size**: Images are not stored in git
+- **Automatic Syncing**: Images are fetched dynamically from Google Drive
+- **Better Organization**: Organize images in folders by category
 
-### Quick Image Management
-To add a new product:
-1. Place image in appropriate directory
-2. Add entry to configuration file
-3. Save and refresh
+### Setup Google Drive Images
 
-To remove a product:
-1. Delete entry from configuration
-2. Optionally remove image file
+#### Option 1: Master Folder Structure (Recommended - Simplest)
+
+1. **Create Master Folder:**
+   - Create a single Google Drive folder (e.g., "Holly Valley Images")
+   - This will be your master folder containing all subfolders
+
+2. **Create Subfolders Inside Master Folder:**
+   - Inside the master folder, create these subfolders (exact names):
+     - `Store Images` (for home page slider)
+     - `Groceries`
+     - `Soft Drinks`
+     - `Ice Bags`
+     - `Frozen Pizza`
+     - `Firewood`
+     - `Ice Cream`
+     - `Signage` (for digital signage)
+
+3. **Share Master Folder Publicly:**
+   - Right-click the master folder → "Share"
+   - Set to "Anyone with the link can view"
+   - All subfolders inherit this permission
+
+4. **Get Master Folder ID:**
+   - Open the master folder in Google Drive
+   - Copy the folder ID from the URL: `https://drive.google.com/drive/folders/FOLDER_ID`
+   - Example: If URL is `https://drive.google.com/drive/folders/1ABC123XYZ`, the ID is `1ABC123XYZ`
+
+5. **Set Environment Variables:**
+   - Add to your `.env` file:
+     ```env
+     REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID=1ABC123XYZ
+     REACT_APP_GOOGLE_DRIVE_API_KEY=your-api-key
+     ```
+   - That's it! The system will automatically find all subfolders by name
+
+#### Option 2: Individual Folder IDs (Alternative)
+
+If you prefer separate folders:
+
+1. **Create Separate Folders:**
+   - Create individual folders for each category (same names as above)
+
+2. **Share Each Folder Publicly:**
+   - Right-click each folder → "Share" → "Anyone with the link can view"
+
+3. **Get Folder IDs:**
+   - Open each folder and copy the folder ID from the URL
+
+4. **Set Environment Variables:**
+   - Add individual folder IDs to `.env` file (see Environment Variables section)
+
+#### Get Google Drive API Key
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project or select existing
+3. Enable "Google Drive API"
+4. Go to "Credentials" → "Create Credentials" → "API Key"
+5. Copy the API key and add to `.env` file
+
+### Managing Images
+
+**To Add Images:**
+1. Upload images directly to the appropriate Google Drive folder
+2. Images are automatically fetched and displayed on the website
+3. Use numbered prefixes (01_, 02_, etc.) for ordering
+
+**To Remove Images:**
+1. Delete images from Google Drive folder
+2. They will automatically be removed from the website
+
+**To Reorder Images:**
+1. Rename files in Google Drive with numbers: `01_Image.jpg`, `02_Image.jpg`, etc.
+2. Files are sorted alphabetically by name
+
+**To Update Images:**
+1. Replace the image file in Google Drive with the same name
+2. Or upload a new image and delete the old one
+
+### Generating Image Lists (Optional)
+
+You can pre-generate JSON files for faster loading:
+
+```bash
+npm run generate-all-images-gdrive
+```
+
+This generates JSON files in `public/api/` for all configured categories, which can be served statically for better performance.
+
+### Migration from Local Images
+
+**Before Migration:**
+- Images were stored in `public/images/` folders
+- Required repository updates to change images
+- Increased repository size with image files
+
+**After Migration:**
+- All images are stored in Google Drive folders
+- No images stored in repository (except static assets like logos)
+- Images can be updated directly in Google Drive
+- Automatic fetching on page load
+
+**What to Keep:**
+- `public/images/misc/` - Static assets like logos and icons (keep these in repository)
+- Any other static assets that don't change frequently
+
+**What Can Be Removed:**
+- `public/images/storeImages/` - Now in Google Drive
+- `public/images/groceries/` - Now in Google Drive
+- `public/images/soft-drinks/` - Now in Google Drive
+- `public/images/frozen-pizza/` - Now in Google Drive
+- Other product image folders - Now in Google Drive
+
+**Fallback Behavior:**
+- If Google Drive is not configured, the system falls back to local images in `public/images/`
+- This ensures backward compatibility during migration
 
 ## Digital Signage (FireTV)
 
@@ -197,36 +319,38 @@ The website includes a digital signage feature accessible at `/signage` path, de
 
 **Note:** We use Google Drive for dynamic image loading. See `docs/DEPLOYMENT.md` for deployment setup.
 
-#### Method 1: Using Google Drive (Recommended - Automatic)
+#### Setting Up Signage with Google Drive
 
-1. **Get Google Drive API Key:**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a project and enable "Google Drive API"
-   - Create an API key (see `docs/DEPLOYMENT.md` for detailed instructions)
-
-2. **Share your Google Drive folder:**
-   - Upload images to a folder in Google Drive
+1. **Create and Share Google Drive Folder:**
+   - Create a folder for signage images in Google Drive
+   - Upload all signage images to this folder
    - Right-click the folder → "Share" → "Anyone with the link can view"
    - Copy the folder ID from the URL: `https://drive.google.com/drive/folders/FOLDER_ID`
 
-3. **Generate JSON file:**
+2. **Set Environment Variable:**
+   ```env
+   REACT_APP_GOOGLE_DRIVE_API_KEY=your-api-key
+   REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
+   ```
+   
+   Or use direct folder ID (signage will fetch directly from Google Drive):
+   ```env
+   REACT_APP_GOOGLE_DRIVE_SIGNAGE_FOLDER_ID=your-folder-id
+   ```
+
+3. **Generate Image List (Optional - for static JSON):**
    ```bash
    npm run generate-signage-images-gdrive "FOLDER_ID" public/api/signage-images.json "YOUR_API_KEY"
    ```
 
-4. **Set environment variable:**
-   ```env
-   REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
-   ```
-
-5. **Optionally set slide timing:**
+4. **Optionally Configure Settings:**
    ```env
    REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000  # 10 seconds per slide
    REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS=1  # Refresh daily
    ```
 
-6. **Build and deploy your application**
-7. **Access the signage at:** `https://yourdomain.com/signage`
+5. **Build and deploy your application**
+6. **Access the signage at:** `https://yourdomain.com/signage?token=YOUR_TOKEN`
 
 #### Method 2: Using GitHub Actions (Automatic Updates)
 

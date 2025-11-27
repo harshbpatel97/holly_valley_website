@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { getAllProductCategories, refreshProductImages } from '../config/productImages';
-import { Box, Heading, Text, Collapse, SimpleGrid, useColorModeValue, Image } from '@chakra-ui/react';
+import { useProductImages } from '../config/productImages';
+import { Box, Heading, Text, Collapse, SimpleGrid, useColorModeValue, Image, Spinner } from '@chakra-ui/react';
 import ProductCard from './ProductCard';
 import { track } from '../utils/ga';
 
 const Products = () => {
+  const { categories, loading, error } = useProductImages();
   const [activeAccordion, setActiveAccordion] = useState('groceries');
   const [zoomedImage, setZoomedImage] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   // Always call hooks at the top level
   const sectionTextColor = useColorModeValue('gray.600', 'gray.300');
@@ -17,21 +16,7 @@ const Products = () => {
   const cardBorder = useColorModeValue('gray.100', 'gray.700');
   const panelTextColor = useColorModeValue('gray.700', 'gray.200');
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        setLoading(true);
-        await refreshProductImages();
-        const updatedProducts = getAllProductCategories();
-        setProducts(updatedProducts);
-      } catch (error) {
-        setProducts(getAllProductCategories());
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProducts();
-  }, []);
+  const products = Object.values(categories);
 
   const toggleAccordion = (id) => {
     setActiveAccordion(activeAccordion === id ? null : id);
@@ -60,7 +45,18 @@ const Products = () => {
 
   if (loading) {
     return (
-      <Box p={8}><Text>Loading products...</Text></Box>
+      <Box p={8} textAlign="center">
+        <Spinner size="xl" />
+        <Text mt={4}>Loading products...</Text>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={8} textAlign="center">
+        <Text color="red.500">Error loading products: {error}</Text>
+      </Box>
     );
   }
 

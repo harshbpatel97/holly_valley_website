@@ -1,289 +1,263 @@
-import { getImagePath } from '../utils/imageUtils';
+import { useState, useEffect } from 'react';
+import { fetchImagesFromGoogleDriveFolder, fetchImagesFromGoogleDriveProxy, findSubfolderByName, generateProductFromGoogleDriveImage } from '../utils/googleDriveImages';
 
-// Product Images Configuration
-// All product images are dynamically loaded from a JSON file that lists directory contents
-// To add a new product: Just add the image file to the appropriate directory and update the JSON
-// To remove a product: Just delete the image file and remove from JSON
-// To reorder products: Change the order in the JSON file
+// Product Images Configuration - Now uses Google Drive
+// Images are fetched from Google Drive folders configured via environment variables
 
-// Helper function to generate product properties from filename
-const generateProductFromImage = (filename, categoryPath) => {
-  const nameWithoutExtension = filename.replace(/\.[^/.]+$/, ""); // Remove file extension
-  
-  // Remove numbered prefix if present (e.g., "01 - Bread.jpg" -> "Bread.jpg")
-  const cleanName = nameWithoutExtension.replace(/^\d+\s*-\s*/, "");
-  
-  const id = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-'); // Convert to URL-friendly ID
-  const src = getImagePath(`/images/${categoryPath}/${filename}`);
-  const alt = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  const caption = cleanName; // Use clean filename as caption
-  
-  return { id, src, alt, caption };
+// Support master folder (with subfolders) or individual folder IDs
+const MASTER_FOLDER_ID = process.env.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID; // Master folder containing all subfolders
+
+// Direct folder IDs (fallback if master folder not used)
+const PRODUCT_FOLDERS = {
+  groceries: process.env.REACT_APP_GROCERIES_FOLDER_ID,
+  softdrinks: process.env.REACT_APP_SOFT_DRINKS_FOLDER_ID,
+  icebags: process.env.REACT_APP_ICE_BAGS_FOLDER_ID,
+  frozenpizza: process.env.REACT_APP_FROZEN_PIZZA_FOLDER_ID,
+  firewood: process.env.REACT_APP_FIREWOOD_FOLDER_ID,
+  icecream: process.env.REACT_APP_ICE_CREAM_FOLDER_ID
 };
 
-// Dynamic image loading using fetch to read from JSON file
-const loadImagesFromDirectory = async (categoryPath) => {
-  try {
-    // Fetch the JSON file that contains all image listings
-    const response = await fetch('/api/images.json');
-    
-    if (!response.ok) {
-      return getFallbackImages(categoryPath);
-    }
-    
-    const data = await response.json();
-    const files = data[categoryPath] || [];
-    
-    // Filter for image files and sort them
-    const imageFiles = files
-      .filter(file => /\.(jpg|jpeg|png|webp|gif)$/i.test(file))
-      .sort();
-    
-    // Generate product objects
-    return imageFiles.map(filename => generateProductFromImage(filename, categoryPath));
-  } catch (error) {
-    return getFallbackImages(categoryPath);
-  }
+// Subfolder name mapping for master folder structure
+const PRODUCT_SUBFOLDER_NAMES = {
+  groceries: 'Groceries',
+  softdrinks: 'Soft Drinks',
+  icebags: 'Ice Bags',
+  frozenpizza: 'Frozen Pizza',
+  firewood: 'Firewood',
+  icecream: 'Ice Cream'
 };
 
-// Fallback function for development (when JSON is not available)
-const getFallbackImages = (categoryPath) => {
-  // This is a temporary fallback - in production, you'd have the JSON file
-  const fallbackFiles = {
-    'groceries': [
-      'Bread.jpg',
-      'Cheetos.jpg',
-      'Chocolates.jpg',
-      'Chewing-Gums.jpg',
-      'Skittles.jpg',
-      'Rice Krispies Treats.jpg',
-      'Cleaning Sprays.jpg',
-      'Dawn Liquid Wash.jpg',
-      'Lays.jpg',
-      'Dial Handwash.jpg',
-      'Dog Products.jpg',
-      'Doritos.jpg',
-      'Dove Products.jpg',
-      'Eggs.jpg',
-      'Dairy Products.jpg',
-      'Funyuns.jpg'
-    ],
-    'soft-drinks': [
-      'Coca Cola.jpg',
-      'Pepsi.jpg',
-      'Sprite.jpg',
-      'Fanta.jpg',
-      'Dr Pepper.jpg',
-      'Canada Dry.jpg',
-      'Brisk Tea.jpg',
-      'Starbucks.jpg',
-      'Sunkist.jpg',
-      'Tea.jpg'
-    ],
-    'ice-bags': [
-      'Ice Bag 1.jpg',
-      'Ice Bag 2.jpg',
-      'Ice Bag 3.jpg',
-      'Ice Bag 4.jpg',
-      'Ice Bag 5.jpg'
-    ],
-    'frozen-pizza': [
-      'Frozen Pizza 1.jpg',
-      'Frozen Pizza 2.jpg',
-      'Frozen Pizza 3.jpg',
-      'Frozen Pizza 4.jpg',
-      'Frozen Pizza 5.jpg',
-      'Frozen Pizza 6.jpg'
-    ],
-    'firewood': [
-      'Firewood Bundle 1.jpg',
-      'Firewood Bundle 2.jpg',
-      'Firewood Bundle 3.jpg',
-      'Firewood Bundle 4.jpg',
-      'Firewood Bundle 5.jpg'
-    ],
-    'ice-cream': [
-      'Ice Cream 1.jpg',
-      'Ice Cream 2.jpg',
-      'Ice Cream 3.jpg',
-      'Dippin Dots 1.jpg',
-      'Dippin Dots 2.jpg',
-      'Dippin Dots 3.jpg'
-    ]
+// Proxy URLs (optional - alternative to direct folder IDs)
+const PRODUCT_PROXY_URLS = {
+  groceries: process.env.REACT_APP_GROCERIES_PROXY_URL,
+  softdrinks: process.env.REACT_APP_SOFT_DRINKS_PROXY_URL,
+  icebags: process.env.REACT_APP_ICE_BAGS_PROXY_URL,
+  frozenpizza: process.env.REACT_APP_FROZEN_PIZZA_PROXY_URL,
+  firewood: process.env.REACT_APP_FIREWOOD_PROXY_URL,
+  icecream: process.env.REACT_APP_ICE_CREAM_PROXY_URL
   };
   
-  const files = fallbackFiles[categoryPath] || [];
-  return files.map(filename => generateProductFromImage(filename, categoryPath));
-};
-
-// Create a simple API endpoint for development
-const createImageAPI = () => {
-  // This simulates an API endpoint by reading from a JSON file
-  // In production, you'd have a real server endpoint
-  const apiData = {
-    'groceries': [
-      'Bread.jpg',
-      'Cheetos.jpg',
-      'Chocolates.jpg',
-      'Chewing-Gums.jpg',
-      'Skittles.jpg',
-      'Rice Krispies Treats.jpg',
-      'Cleaning Sprays.jpg',
-      'Dawn Liquid Wash.jpg',
-      'Lays.jpg',
-      'Dial Handwash.jpg',
-      'Dog Products.jpg',
-      'Doritos.jpg',
-      'Dove Products.jpg',
-      'Eggs.jpg',
-      'Dairy Products.jpg',
-      'Funyuns.jpg'
-    ],
-    'soft-drinks': [
-      'Coca Cola.jpg',
-      'Pepsi.jpg',
-      'Sprite.jpg',
-      'Fanta.jpg',
-      'Dr Pepper.jpg',
-      'Canada Dry.jpg',
-      'Brisk Tea.jpg',
-      'Starbucks.jpg',
-      'Sunkist.jpg',
-      'Tea.jpg'
-    ]
-  };
-  
-  // Mock the fetch API for development
-  global.fetch = global.fetch || (async (url) => {
-    const categoryPath = url.split('/').pop();
-    return {
-      ok: true,
-      json: async () => apiData[categoryPath] || []
-    };
-  });
-};
-
-// Initialize the API for development
-createImageAPI();
-
+// Product categories configuration
 export const productCategories = {
   groceries: {
     id: 'groceries',
     title: 'Groceries',
     description: 'All the grocery items are available in single or combo pack depending on the type. Moreover, we do carry different brands of the items. For more information, visit the local store.',
-    items: getFallbackImages('groceries') // Start with fallback, will be updated dynamically
+    items: []
   },
   softdrinks: {
     id: 'softdrinks',
     title: 'Soft Drinks',
     description: 'We offer a wide variety of soft drinks, sodas, and beverages from popular brands. All beverages are available in different sizes and flavors.',
-    items: getFallbackImages('soft-drinks') // Start with fallback, will be updated dynamically
+    items: []
   },
   icebags: {
     id: 'icebags',
     title: 'Ice Bags',
     description: 'We carry various sizes of ice bags for your convenience. Perfect for parties, events, or everyday use. Available in different quantities.',
-    items: getFallbackImages('ice-bags') // Start with fallback, will be updated dynamically
+    items: []
   },
   frozenpizza: {
     id: 'frozenpizza',
     title: 'Frozen Pizza',
     description: 'A selection of frozen pizzas from popular brands. Available in different sizes and flavors including cheese, pepperoni, and specialty varieties.',
-    items: getFallbackImages('frozen-pizza') // Start with fallback, will be updated dynamically
+    items: []
   },
   firewood: {
     id: 'firewood',
     title: 'Firewood Bundles',
     description: 'Quality firewood bundles for your fireplace, fire pit, or wood stove. Available in various sizes and quantities. Perfect for heating and outdoor activities.',
-    items: getFallbackImages('firewood') // Start with fallback, will be updated dynamically
+    items: []
   },
   icecream: {
     id: 'icecream',
     title: 'Ice Cream & Dippin Dots',
     description: 'We carry a wide variety of ice cream brands and frozen treats including Good Humor, Ben & Jerry\'s, Magnum, Talenti, Popsicle, Klondike, Breyers, Mars, Rich\'s Ice Cream, Dippin Dots, and many more. Available in different sizes and flavors. Perfect for hot days and sweet cravings.',
-    items: getFallbackImages('ice-cream') // Start with fallback, will be updated dynamically
+    items: []
   }
 };
 
-// Helper function to get all product categories
+/**
+ * Load images for a specific category from Google Drive
+ * @param {string} categoryId - Category ID (groceries, softdrinks, etc.)
+ * @returns {Promise<Array>} Array of product image objects
+ */
+const loadCategoryImages = async (categoryId) => {
+  let folderId = PRODUCT_FOLDERS[categoryId];
+  const proxyUrl = PRODUCT_PROXY_URLS[categoryId];
+
+  try {
+    let images = [];
+
+    // Try proxy URL first if configured
+    if (proxyUrl) {
+      try {
+        const imageUrls = await fetchImagesFromGoogleDriveProxy(proxyUrl);
+        images = imageUrls.map((url, index) => {
+          const name = `Product ${index + 1}`;
+          return generateProductFromGoogleDriveImage({ id: `img-${index}`, name, url }, categoryId);
+        });
+      } catch (err) {
+        console.warn(`Failed to fetch ${categoryId} from proxy, trying direct API:`, err);
+      }
+    }
+
+    // Check if API key is available
+    const hasApiKey = process.env.REACT_APP_GOOGLE_DRIVE_API_KEY && process.env.REACT_APP_GOOGLE_DRIVE_API_KEY.trim() !== '';
+    
+    // If no direct folder ID, try to find subfolder in master folder
+    if (!folderId && MASTER_FOLDER_ID && hasApiKey) {
+      const subfolderName = PRODUCT_SUBFOLDER_NAMES[categoryId];
+      if (subfolderName) {
+        try {
+          folderId = await findSubfolderByName(MASTER_FOLDER_ID, subfolderName);
+        } catch (err) {
+          if (err.message && err.message.includes('API key')) {
+            console.error(`API key error for ${categoryId}:`, err.message);
+          } else {
+            console.warn(`Failed to find ${categoryId} subfolder in master folder:`, err);
+          }
+        }
+      }
+    }
+
+    // Try direct Google Drive API if folder ID is available
+    if (images.length === 0 && folderId) {
+      if (!hasApiKey) {
+        console.warn(`Skipping ${categoryId}: API key is missing`);
+        return [];
+      }
+      try {
+        const driveImages = await fetchImagesFromGoogleDriveFolder(folderId);
+        images = driveImages.map(image => generateProductFromGoogleDriveImage(image, categoryId));
+      } catch (err) {
+        if (err.message && err.message.includes('API key')) {
+          console.error(`API key error for ${categoryId}:`, err.message);
+        } else {
+          console.error(`Failed to fetch ${categoryId} images from Google Drive:`, err);
+        }
+        return [];
+      }
+    }
+
+    return images;
+  } catch (error) {
+    console.error(`Error loading ${categoryId} images:`, error);
+    return [];
+  }
+};
+
+/**
+ * Hook to fetch all product images from Google Drive
+ * @returns {Object} {categories, loading, error}
+ */
+export const useProductImages = () => {
+  const [categories, setCategories] = useState(productCategories);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadAllProductImages = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const categoryIds = Object.keys(productCategories);
+        const updatedCategories = { ...productCategories };
+
+        // Load images for each category
+        for (const categoryId of categoryIds) {
+          const images = await loadCategoryImages(categoryId);
+          if (images.length > 0) {
+            updatedCategories[categoryId].items = images;
+          }
+        }
+
+        setCategories(updatedCategories);
+      } catch (err) {
+        console.error('Error loading product images:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAllProductImages();
+  }, []);
+
+  return { categories, loading, error };
+};
+
+/**
+ * Function to refresh all product images (for manual refresh)
+ */
+export const refreshProductImages = async () => {
+  try {
+    const categoryIds = Object.keys(productCategories);
+
+    for (const categoryId of categoryIds) {
+      const images = await loadCategoryImages(categoryId);
+      if (images.length > 0) {
+        productCategories[categoryId].items = images;
+      }
+    }
+  } catch (error) {
+    console.error('Error refreshing product images:', error);
+  }
+};
+
+/**
+ * Helper function to get all product categories
+ */
 export const getAllProductCategories = () => {
   return Object.values(productCategories);
 };
 
-// Helper function to get a specific category
+/**
+ * Helper function to get a specific category
+ */
 export const getProductCategory = (categoryId) => {
   return productCategories[categoryId];
 };
 
-// Function to refresh images dynamically
-export const refreshProductImages = async () => {
-  try {
-    const groceries = await loadImagesFromDirectory('groceries');
-    const softdrinks = await loadImagesFromDirectory('soft-drinks');
-    const icebags = await loadImagesFromDirectory('ice-bags');
-    const frozenpizza = await loadImagesFromDirectory('frozen-pizza');
-    const firewood = await loadImagesFromDirectory('firewood');
-    const icecream = await loadImagesFromDirectory('ice-cream');
-    
-    productCategories.groceries.items = groceries;
-    productCategories.softdrinks.items = softdrinks;
-    productCategories.icebags.items = icebags;
-    productCategories.frozenpizza.items = frozenpizza;
-    productCategories.firewood.items = firewood;
-    productCategories.icecream.items = icecream;
-    
-  } catch (error) {
-  }
-};
-
 // Instructions for managing product images:
 /*
-DYNAMIC SYSTEM: All product images are dynamically loaded from a JSON file
+GOOGLE DRIVE SYSTEM: All product images are now stored in Google Drive
 
 SETUP:
-1. The system reads from public/api/images.json
-2. This JSON file lists all images in each directory
-3. When you add/remove images, just update the JSON file
+1. Create Google Drive folders for each product category
+2. Upload product images to their respective folders
+3. Share each folder: Right-click → Share → "Anyone with the link can view"
+4. Copy folder IDs from URLs: https://drive.google.com/drive/folders/FOLDER_ID
+5. Set environment variables for each category:
+   
+   REACT_APP_GROCERIES_FOLDER_ID=YOUR_GROCERIES_FOLDER_ID
+   REACT_APP_SOFT_DRINKS_FOLDER_ID=YOUR_SOFT_DRINKS_FOLDER_ID
+   REACT_APP_ICE_BAGS_FOLDER_ID=YOUR_ICE_BAGS_FOLDER_ID
+   REACT_APP_FROZEN_PIZZA_FOLDER_ID=YOUR_FROZEN_PIZZA_FOLDER_ID
+   REACT_APP_FIREWOOD_FOLDER_ID=YOUR_FIREWOOD_FOLDER_ID
+   REACT_APP_ICE_CREAM_FOLDER_ID=YOUR_ICE_CREAM_FOLDER_ID
+
+OR use proxy URLs:
+   REACT_APP_GROCERIES_PROXY_URL=/api/googledrive/images?folderId=YOUR_FOLDER_ID
+   (same pattern for other categories)
 
 To ADD a new product:
-1. Place the product image in the appropriate directory:
-   - Groceries: public/images/groceries/
-   - Soft Drinks: public/images/soft-drinks/
-2. Name the file exactly as you want it to appear as the caption
-   - Example: "New Snack Brand.jpg" will display as "New Snack Brand"
-3. Add the filename to the appropriate array in public/api/images.json
-4. The system will automatically detect and include the new image
+1. Upload the image to the appropriate Google Drive folder
+2. Images are automatically fetched and displayed
+3. Use descriptive filenames (e.g., "Bread.jpg", "Coca Cola.jpg")
 
 To REMOVE a product:
-1. Delete the image file from the directory
-2. Remove the filename from the JSON file
-3. The system will automatically remove it from the display
+1. Delete the image from Google Drive folder
+2. It will automatically be removed from the display
 
 To REORDER products:
-1. Simply change the order of filenames in the JSON file
-2. The display order will automatically reflect the new arrangement
-
-To ADD a new category:
-1. Create a new directory in public/images/
-2. Add a new category object to productCategories
-3. Add the category to public/api/images.json
-4. Include: id, title, description, and items: await loadImagesFromDirectory('new-category')
-
-RECOMMENDED NAMING CONVENTIONS:
-- Image files: Use proper case for display (e.g., 'New Snack Brand.jpg', 'Energy Drink.jpg')
-- The system will automatically convert to URL-friendly IDs
-- Captions will match the filename exactly
-
-EXAMPLE ADDING NEW PRODUCT:
-1. Add "Energy Drink.jpg" to public/images/soft-drinks/
-2. Add 'Energy Drink.jpg' to the "soft-drinks" array in public/api/images.json
-3. System automatically generates all properties
+1. Rename files with numbers: 01_Bread.jpg, 02_Cheetos.jpg, etc.
+2. Files are sorted alphabetically by name
 
 BENEFITS:
-- Dynamic: No manual array maintenance in code
-- File system driven: Just add/remove files and update JSON
-- No configuration errors: Impossible to have mismatched files
-- Easy ordering: Just reorder in JSON
-- Zero code changes: System handles everything automatically
-- JSON-based: Easy to edit and maintain
-*/ 
+- No need to store images in repository
+- Easy to manage via Google Drive web interface
+- Automatic updates when images are added/removed
+- Centralized image storage
+*/
