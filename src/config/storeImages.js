@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchImagesFromGoogleDriveFolder, fetchImagesFromGoogleDriveProxy, findSubfolderByName, generateStoreImageFromGoogleDrive } from '../utils/googleDriveImages';
+import { fetchImagesFromGoogleDriveFolder, findSubfolderByName, generateStoreImageFromGoogleDrive } from '../utils/googleDriveImages';
 
 // Store Images Configuration - Now uses Google Drive
 // Images are fetched from Google Drive folder configured via environment variable
@@ -136,7 +136,8 @@ export const useStoreImages = () => {
     };
 
     loadStoreImages();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // error is intentionally excluded - it's set within loadStoreImages
 
   return { storeImages, loading, error };
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Spinner, Text, VStack, HStack, useColorMode, useColorModeValue, IconButton } from '@chakra-ui/react';
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 import './Signage.css';
@@ -290,106 +290,14 @@ const Signage = () => {
   const footerTextColor = useColorModeValue('#4a5568', '#cbd5e0');
   const footerLinkColor = useColorModeValue('#718096', '#a0aec0');
 
-  // Support both old JSON file approach and new Google Drive master folder approach
-  const imageSource = process.env.REACT_APP_SIGNAGE_IMG_REF_LINK;
+  // Use Google Drive master folder approach
   const MASTER_FOLDER_ID = process.env.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID;
   const SIGNAGE_FOLDER_ID = process.env.REACT_APP_SIGNAGE_FOLDER_ID;
   const SIGNAGE_SUBFOLDER_NAME = 'Signage';
   const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000', 10);
   // Convert days to milliseconds: 1 day = 24 * 60 * 60 * 1000 = 86400000 ms
-  const refreshIntervalDays = parseInt(process.env.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1', 10);
+  const refreshIntervalDays = parseInt(process.env.REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS || '1', 10);
   const refreshInterval = refreshIntervalDays * 24 * 60 * 60 * 1000;
-
-  const fetchImages = useCallback(async (source, isRefresh = false) => {
-    try {
-      if (!isRefresh) {
-        setLoading(true);
-        setError(null);
-      }
-
-      if (source.endsWith('.json') || (source.includes('/api/') && source.includes('.json'))) {
-        const response = await fetch(source);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch JSON file: ${response.status} ${response.statusText}`);
-        }
-        const data = await response.json();
-        const imageUrls = Array.isArray(data) 
-          ? data.filter(url => url && typeof url === 'string')
-          : (data.images || []).filter(url => url && typeof url === 'string');
-        
-        if (imageUrls.length === 0) {
-          if (!isRefresh) {
-            setError('No images found in JSON file. Please ensure the file contains an array of image URLs.');
-            setLoading(false);
-          }
-          return;
-        }
-
-        setImages(imageUrls);
-        setCurrentIndex(0);
-        setLoading(false);
-        return;
-      }
-
-      if (source.includes('googledrive') || source.includes('folderId')) {
-        const response = await fetch(source);
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || errorData.error || `Failed to fetch from Google Drive: ${response.status} ${response.statusText}`);
-        }
-        const data = await response.json();
-        const imageUrls = Array.isArray(data.images) 
-          ? data.images.filter(url => url && typeof url === 'string')
-          : [];
-        
-        if (imageUrls.length === 0) {
-          if (!isRefresh) {
-            setError('No images found in Google Drive folder. Please ensure the folder is shared publicly and contains images.');
-            setLoading(false);
-          }
-          return;
-        }
-        
-        setImages(imageUrls);
-        setCurrentIndex(0);
-        if (!isRefresh) {
-          setLoading(false);
-        }
-        return;
-      }
-
-      const response = await fetch(source);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch from source: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      const imageUrls = Array.isArray(data) 
-        ? data.filter(url => url && typeof url === 'string')
-        : (data.images || []).filter(url => url && typeof url === 'string');
-      
-      if (imageUrls.length === 0) {
-        if (!isRefresh) {
-          setError('No images found. Please ensure the source provides an array of image URLs or use a JSON file.');
-          setLoading(false);
-        }
-        return;
-      }
-
-      setImages(imageUrls);
-      setCurrentIndex(0);
-      if (!isRefresh) {
-        setLoading(false);
-      }
-    } catch (err) {
-      const errorMessage = err.message || 'Unknown error occurred';
-      
-      if (!isRefresh) {
-        setError(`Failed to load images: ${errorMessage}`);
-        setLoading(false);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     let refreshTimer = null;
@@ -469,16 +377,9 @@ const Signage = () => {
         }
       }
 
-      // Fallback to JSON file approach (legacy)
-      if (imageSource) {
-        fetchImages(imageSource, false);
-        if (isMounted) {
-          refreshTimer = setInterval(() => {
-            fetchImages(imageSource, true);
-          }, refreshInterval);
-        }
-      } else if (isMounted) {
-        setError('Image source not configured. Please set REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID (recommended) or REACT_APP_SIGNAGE_IMG_REF_LINK (legacy JSON file) environment variable.');
+      // No fallback - require Google Drive configuration
+      if (isMounted) {
+        setError('Google Drive configuration not found. Please set REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID (recommended) or REACT_APP_SIGNAGE_FOLDER_ID environment variable.');
         setLoading(false);
       }
     };
@@ -491,7 +392,7 @@ const Signage = () => {
         clearInterval(refreshTimer);
       }
     };
-  }, [MASTER_FOLDER_ID, SIGNAGE_FOLDER_ID, imageSource, refreshInterval, fetchImages]);
+  }, [MASTER_FOLDER_ID, SIGNAGE_FOLDER_ID, refreshInterval]);
 
   useEffect(() => {
     // Disable scrolling on body when signage is active
@@ -566,7 +467,7 @@ const Signage = () => {
           <Text fontSize="2xl" mb={4} color="red.400">Error</Text>
           <Text fontSize="lg">{error}</Text>
           <Text fontSize="sm" mt={4} color="gray.400">
-            Please configure REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID (recommended) or REACT_APP_SIGNAGE_IMG_REF_LINK (legacy JSON file) environment variable.
+            Please configure REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID (recommended) or REACT_APP_SIGNAGE_FOLDER_ID environment variable.
           </Text>
         </Box>
       </Box>
@@ -711,12 +612,35 @@ const Signage = () => {
                     if (img && img.src && (img.src.includes('googleusercontent.com') || img.src.includes('drive.google.com'))) {
                       errorCountRef.current += 1;
                       
-                      // If multiple errors detected (likely expired URLs), trigger JSON refresh
-                      if (errorCountRef.current >= 3 && imageSource) {
+                      // If multiple errors detected (likely expired URLs), trigger refresh from Google Drive
+                      if (errorCountRef.current >= 3) {
                         setTimeout(() => {
-                          // Refresh images JSON to get new URLs (in case they were regenerated)
-                          fetchImages(imageSource, true);
-                          errorCountRef.current = 0; // Reset error count
+                          // Reload images from Google Drive to get fresh URLs
+                          const reloadImages = async () => {
+                            try {
+                              const { fetchImagesFromGoogleDriveFolder, findSubfolderByName } = await import('../utils/googleDriveImages');
+                              const hasApiKey = process.env.REACT_APP_GOOGLE_DRIVE_API_KEY && process.env.REACT_APP_GOOGLE_DRIVE_API_KEY.trim() !== '';
+                              
+                              if (hasApiKey) {
+                                let folderId = SIGNAGE_FOLDER_ID;
+                                if (!folderId && MASTER_FOLDER_ID) {
+                                  folderId = await findSubfolderByName(MASTER_FOLDER_ID, SIGNAGE_SUBFOLDER_NAME);
+                                }
+                                
+                                if (folderId) {
+                                  const driveImages = await fetchImagesFromGoogleDriveFolder(folderId);
+                                  const imageUrls = driveImages.map(img => img.url);
+                                  if (imageUrls.length > 0) {
+                                    setImages(imageUrls);
+                                    errorCountRef.current = 0; // Reset error count
+                                  }
+                                }
+                              }
+                            } catch (err) {
+                              console.error('Error reloading images:', err);
+                            }
+                          };
+                          reloadImages();
                         }, 10000); // Wait 10 seconds before refreshing
                       }
                     }

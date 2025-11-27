@@ -5,10 +5,11 @@ on:
     branches: [ master ]
     tags: [ "v*", "release-*" ]
   workflow_dispatch:
-  # Run daily at 2 AM UTC to check if deployment is needed based on REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS
+  # Run daily at 2 AM UTC to check if deployment is needed based on REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS
   # Format: minute hour day month weekday
   # To change time: UTC 2 AM = 9 PM EST previous day, 6 PM PST previous day
-  # Note: Actual deployment only happens if REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS has passed since last deployment
+  # Note: Actual deployment only happens if REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS has passed since last deployment
+  # This refreshes all images (store, products, signage) from Google Drive master folder
   schedule:
     - cron: '0 2 * * *'  # 2 AM UTC daily
 
@@ -24,9 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REACT_APP_GA_ID: ${{ secrets.REACT_APP_GA_ID }}
-      REACT_APP_SIGNAGE_IMG_REF_LINK: /api/signage-images.json
+      REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID: ${{ secrets.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID }}
+      REACT_APP_GOOGLE_DRIVE_API_KEY: ${{ secrets.REACT_APP_GOOGLE_DRIVE_API_KEY }}
       REACT_APP_SIGNAGE_SLIDE_DURATION_MS: ${{ secrets.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000' }}
-      REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS: ${{ secrets.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1' }}
+      REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS: ${{ secrets.REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS || '1' }}
       REACT_APP_SIGNAGE_TOKEN: ${{ secrets.REACT_APP_SIGNAGE_TOKEN }}
     steps:
       - name: Checkout
@@ -36,7 +38,7 @@ jobs:
         id: check-interval
         if: github.event_name == 'schedule'
         env:
-          REFRESH_INTERVAL_DAYS: ${{ secrets.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1' }}
+          REFRESH_INTERVAL_DAYS: ${{ secrets.REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS || '1' }}
         run: |
           # For scheduled runs, check if enough time has passed since last deployment
           # Get last commit date that was a deployment
@@ -85,29 +87,33 @@ jobs:
         if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         run: npm install --no-audit --no-fund
 
-      - name: Generate signage images from Google Drive
+      - name: Generate all images from Google Drive master folder
         if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         env:
-          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-          GOOGLE_DRIVE_API_KEY: ${{ secrets.GOOGLE_DRIVE_API_KEY }}
+          REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID: ${{ secrets.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID }}
+          REACT_APP_GOOGLE_DRIVE_API_KEY: ${{ secrets.REACT_APP_GOOGLE_DRIVE_API_KEY }}
+          GOOGLE_DRIVE_MASTER_FOLDER_ID: ${{ secrets.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID }}
+          GOOGLE_DRIVE_API_KEY: ${{ secrets.REACT_APP_GOOGLE_DRIVE_API_KEY }}
         run: |
-          if [ -z "$GOOGLE_DRIVE_FOLDER_ID" ] || [ -z "$GOOGLE_DRIVE_API_KEY" ]; then
-            echo "Warning: Google Drive secrets are not set - skipping image update"
-            echo "Signage will use existing public/api/signage-images.json if available"
+          if [ -z "$REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID" ] || [ -z "$REACT_APP_GOOGLE_DRIVE_API_KEY" ]; then
+            echo "Warning: Google Drive master folder secrets are not set - skipping image update"
+            echo "Images will use existing JSON files in public/api/ if available"
             exit 0
           fi
-          echo "Fetching latest images from Google Drive..."
-          npm run generate-signage-images-gdrive "$GOOGLE_DRIVE_FOLDER_ID" public/api/signage-images.json "$GOOGLE_DRIVE_API_KEY"
-          echo "✓ Successfully updated signage images from Google Drive"
+          echo "Fetching latest images from Google Drive master folder..."
+          echo "Master folder ID: $REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID"
+          npm run generate-all-images-gdrive
+          echo "✓ Successfully updated all images from Google Drive master folder"
 
       - name: Build
         if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         run: npm run build
         env:
           REACT_APP_GA_ID: ${{ secrets.REACT_APP_GA_ID }}
-          REACT_APP_SIGNAGE_IMG_REF_LINK: /api/signage-images.json
+          REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID: ${{ secrets.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID }}
+          REACT_APP_GOOGLE_DRIVE_API_KEY: ${{ secrets.REACT_APP_GOOGLE_DRIVE_API_KEY }}
           REACT_APP_SIGNAGE_SLIDE_DURATION_MS: ${{ secrets.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000' }}
-          REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS: ${{ secrets.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1' }}
+          REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS: ${{ secrets.REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS || '1' }}
           REACT_APP_SIGNAGE_TOKEN: ${{ secrets.REACT_APP_SIGNAGE_TOKEN }}
 
       - name: Deploy to GitHub Pages

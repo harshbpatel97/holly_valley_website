@@ -13,7 +13,7 @@ import { useSearchParams, useLocation } from 'react-router-dom';
  * - URL parameter takes precedence and updates localStorage
  */
 const ColorModeSync = () => {
-  const { colorMode, setColorMode } = useColorMode();
+  const { setColorMode } = useColorMode();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const lastProcessedRef = useRef('');

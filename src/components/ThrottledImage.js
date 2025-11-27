@@ -22,16 +22,14 @@ const ThrottledImage = ({
   ...imageProps 
 }) => {
   const [imageSrc, setImageSrc] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line no-unused-vars
+  const [loading, setLoading] = useState(true); // setLoading is used, but loading state is checked via !imageSrc
   const [error, setError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const retryTimeoutRef = useRef(null);
   const blobUrlRef = useRef(null);
   const abortControllerRef = useRef(null);
   const isLoadingRef = useRef(false); // Track if we're currently loading
-
-  // Detect mobile device
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   useEffect(() => {
     // Cleanup on unmount or src change

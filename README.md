@@ -116,9 +116,8 @@ REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID=your-master-folder-id
 # REACT_APP_ICE_CREAM_FOLDER_ID=your-ice-cream-folder-id
 
 # Digital Signage Configuration
-REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
 REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000
-REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS=1
+REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS=7
 REACT_APP_SIGNAGE_TOKEN=your-secret-token-here
 
 # Optional: Proxy URLs (alternative to folder IDs)
@@ -330,23 +329,12 @@ The website includes a digital signage feature accessible at `/signage` path, de
 2. **Set Environment Variable:**
    ```env
    REACT_APP_GOOGLE_DRIVE_API_KEY=your-api-key
-   REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
    ```
    
-   Or use direct folder ID (signage will fetch directly from Google Drive):
-   ```env
-   REACT_APP_GOOGLE_DRIVE_SIGNAGE_FOLDER_ID=your-folder-id
-   ```
-
-3. **Generate Image List (Optional - for static JSON):**
-   ```bash
-   npm run generate-signage-images-gdrive "FOLDER_ID" public/api/signage-images.json "YOUR_API_KEY"
-   ```
-
-4. **Optionally Configure Settings:**
+3. **Optionally Configure Settings:**
    ```env
    REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000  # 10 seconds per slide
-   REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS=1  # Refresh daily
+   REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS=7  # Refresh weekly
    ```
 
 5. **Build and deploy your application**
@@ -358,26 +346,22 @@ GitHub Actions automatically updates images and deploys:
 
 **Automatic Updates:**
 - **On every push** to `master` - Fetches latest images and deploys immediately
-- **Daily at 2 AM UTC** - Checks if deployment needed based on `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS`
+- **Daily at 2 AM UTC** - Checks if deployment needed based on `REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS`
 - **Manual trigger** - Click "Run workflow" in Actions tab for on-demand updates (bypasses interval check)
 
 **Interval-based deployments:**
-- Set `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` secret to control how often scheduled deployments happen
+- Set `REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS` secret to control how often scheduled deployments happen
 - `1` = Daily deployments, `7` = Weekly deployments, etc.
 - Push and manual triggers always deploy immediately regardless of interval
 
 **Setup:**
 1. **Add GitHub Secrets:**
    - Go to Settings → Secrets and variables → Actions
-   - Add `GOOGLE_DRIVE_FOLDER_ID` (your folder ID)
-   - Add `GOOGLE_DRIVE_API_KEY` (your API key)
+   - Add `REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID` (your master folder ID)
+   - Add `REACT_APP_GOOGLE_DRIVE_API_KEY` (your API key)
+   - Optionally add `REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS` (default: 1)
 
-2. **Set environment variable:**
-   ```env
-   REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
-   ```
-
-3. **Deploy:** Every deployment automatically fetches latest images from Google Drive!
+2. **Deploy:** Every deployment automatically fetches latest images from Google Drive master folder!
 
 **To change daily schedule:** Edit `.github/workflows/deploy.yml` cron expression (default: 2 AM UTC daily)
 
@@ -385,29 +369,15 @@ See `docs/DEPLOYMENT.md` for detailed deployment and GitHub Actions setup instru
 
 #### Method 3: Manual JSON File
 
-Create a JSON file manually with your image URLs:
-
-```json
-[
-  "https://direct-url-to-image-1.jpg",
-  "https://direct-url-to-image-2.jpg",
-  "https://direct-url-to-image-3.jpg"
-]
-```
-
-Save it as `public/api/signage-images.json` and set:
-```env
-REACT_APP_SIGNAGE_IMG_REF_LINK=/api/signage-images.json
-```
-
 ### Troubleshooting
 
 If images don't load:
-1. Check that `REACT_APP_SIGNAGE_IMG_REF_LINK` is set correctly in your `.env` file
-2. Verify the JSON file contains valid image URLs
-3. Ensure images are accessible (not behind authentication)
-4. Check browser console for detailed error messages
-5. For Google Drive: Ensure folder is shared publicly and API key is valid
+1. Check that `REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID` is set correctly in your `.env` file
+2. Ensure `REACT_APP_GOOGLE_DRIVE_API_KEY` is set and valid
+3. Verify the master folder contains a "Signage" subfolder with images
+4. Ensure images are accessible (folder shared publicly)
+5. Check browser console for detailed error messages
+6. For Google Drive: Ensure folder is shared publicly and API key has Drive API enabled
 
 ## Technologies Used
 

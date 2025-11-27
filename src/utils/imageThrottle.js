@@ -28,6 +28,8 @@ const processQueue = () => {
     lastLoadStartTime = now + delay;
 
     // Start the load after the delay
+    // Note: activeLoads is intentionally accessed from closure - it's a module-level variable
+    // eslint-disable-next-line no-loop-func
     setTimeout(() => {
       try {
         // Execute the load function
