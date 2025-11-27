@@ -102,7 +102,7 @@ const folderConfig = {
     category: 'Ice Cream'
   },
   signage: {
-    folderId: process.env.GOOGLE_DRIVE_SIGNAGE_FOLDER_ID || process.env.REACT_APP_SIGNAGE_IMG_REF_LINK,
+    folderId: process.env.GOOGLE_DRIVE_SIGNAGE_FOLDER_ID || process.env.REACT_APP_SIGNAGE_FOLDER_ID,
     subfolderName: 'Signage',
     outputFile: 'public/api/signage-images.json',
     category: 'Signage'
@@ -196,22 +196,33 @@ function fetchGoogleDriveFolder(folderId, apiKey) {
 async function generateImageList(category, config) {
   let folderId = config.folderId;
   
-  // If no direct folder ID but master folder is configured, find subfolder by name
-  if (!folderId && MASTER_FOLDER_ID && config.subfolderName) {
+  // If master folder is configured, prioritize finding subfolder by name
+  // This allows master folder to override individual folder IDs
+  if (MASTER_FOLDER_ID && config.subfolderName) {
     try {
       console.log(`   Looking for subfolder "${config.subfolderName}" in master folder...`);
-      folderId = await findSubfolderByName(MASTER_FOLDER_ID, config.subfolderName, apiKey);
-      if (folderId) {
+      const subfolderId = await findSubfolderByName(MASTER_FOLDER_ID, config.subfolderName, apiKey);
+      if (subfolderId) {
         console.log(`   ✓ Found subfolder: ${config.subfolderName}`);
+        folderId = subfolderId; // Use subfolder from master folder (overrides direct folder ID)
       } else {
         console.log(`   ⚠️  Subfolder "${config.subfolderName}" not found in master folder`);
+        if (!folderId) {
+          console.log(`   ⏭️  Skipping ${config.category} (subfolder not found and no direct folder ID)`);
+          return;
+        }
+        console.log(`   Using direct folder ID as fallback`);
       }
     } catch (err) {
       console.log(`   ⚠️  Error finding subfolder: ${err.message}`);
+      if (!folderId) {
+        console.log(`   ⏭️  Skipping ${config.category} (error finding subfolder and no direct folder ID)`);
+        return;
+      }
+      console.log(`   Using direct folder ID as fallback`);
     }
-  }
-  
-  if (!folderId) {
+  } else if (!folderId) {
+    // No master folder and no direct folder ID
     console.log(`⏭️  Skipping ${config.category} (no folder ID configured)`);
     return;
   }

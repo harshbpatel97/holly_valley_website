@@ -290,7 +290,11 @@ const Signage = () => {
   const footerTextColor = useColorModeValue('#4a5568', '#cbd5e0');
   const footerLinkColor = useColorModeValue('#718096', '#a0aec0');
 
+  // Support both old JSON file approach and new Google Drive master folder approach
   const imageSource = process.env.REACT_APP_SIGNAGE_IMG_REF_LINK;
+  const MASTER_FOLDER_ID = process.env.REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID;
+  const SIGNAGE_FOLDER_ID = process.env.REACT_APP_SIGNAGE_FOLDER_ID;
+  const SIGNAGE_SUBFOLDER_NAME = 'Signage';
   const slideDuration = parseInt(process.env.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000', 10);
   // Convert days to milliseconds: 1 day = 24 * 60 * 60 * 1000 = 86400000 ms
   const refreshIntervalDays = parseInt(process.env.REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS || '1', 10);
@@ -388,20 +392,106 @@ const Signage = () => {
   }, []);
 
   useEffect(() => {
-    if (!imageSource) {
-      setError('Image source not configured. Please set REACT_APP_SIGNAGE_IMG_REF_LINK environment variable.');
-      setLoading(false);
-      return;
-    }
+    let refreshTimer = null;
+    let isMounted = true;
 
-    fetchImages(imageSource, false);
+    const loadSignageImages = async () => {
+      // Try Google Drive master folder approach first (preferred)
+      if (MASTER_FOLDER_ID || SIGNAGE_FOLDER_ID) {
+        try {
+          const { fetchImagesFromGoogleDriveFolder, findSubfolderByName } = await import('../utils/googleDriveImages');
+          const hasApiKey = process.env.REACT_APP_GOOGLE_DRIVE_API_KEY && process.env.REACT_APP_GOOGLE_DRIVE_API_KEY.trim() !== '';
+          
+          if (!hasApiKey) {
+            if (isMounted) {
+              setError('Google Drive API key is missing. Please set REACT_APP_GOOGLE_DRIVE_API_KEY in your .env file and restart the development server.');
+              setLoading(false);
+            }
+            return;
+          }
 
-    const refreshTimer = setInterval(() => {
-      fetchImages(imageSource, true);
-    }, refreshInterval);
+          let folderId = SIGNAGE_FOLDER_ID;
+          
+          // If no direct folder ID, try to find subfolder in master folder
+          if (!folderId && MASTER_FOLDER_ID) {
+            try {
+              folderId = await findSubfolderByName(MASTER_FOLDER_ID, SIGNAGE_SUBFOLDER_NAME);
+            } catch (err) {
+              console.error('Failed to find signage subfolder:', err);
+              if (isMounted) {
+                setError(err.message);
+                setLoading(false);
+              }
+              return;
+            }
+          }
 
-    return () => clearInterval(refreshTimer);
-  }, [imageSource, refreshInterval, fetchImages]);
+          if (folderId) {
+            try {
+              const driveImages = await fetchImagesFromGoogleDriveFolder(folderId);
+              const imageUrls = driveImages.map(img => img.url);
+              if (isMounted) {
+                if (imageUrls.length > 0) {
+                  setImages(imageUrls);
+                  setCurrentIndex(0);
+                  setLoading(false);
+                  
+                  // Set up refresh interval for Google Drive
+                  refreshTimer = setInterval(async () => {
+                    try {
+                      const refreshedImages = await fetchImagesFromGoogleDriveFolder(folderId);
+                      const refreshedUrls = refreshedImages.map(img => img.url);
+                      if (refreshedUrls.length > 0 && isMounted) {
+                        setImages(refreshedUrls);
+                      }
+                    } catch (err) {
+                      console.error('Error refreshing signage images:', err);
+                    }
+                  }, refreshInterval);
+                } else {
+                  setError('No images found in Signage folder.');
+                  setLoading(false);
+                }
+              }
+              return;
+            } catch (err) {
+              console.error('Failed to fetch signage images from Google Drive:', err);
+              if (isMounted) {
+                setError(err.message);
+                setLoading(false);
+              }
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('Error loading Google Drive utilities:', err);
+          // Fall through to try JSON file approach
+        }
+      }
+
+      // Fallback to JSON file approach (legacy)
+      if (imageSource) {
+        fetchImages(imageSource, false);
+        if (isMounted) {
+          refreshTimer = setInterval(() => {
+            fetchImages(imageSource, true);
+          }, refreshInterval);
+        }
+      } else if (isMounted) {
+        setError('Image source not configured. Please set REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID (recommended) or REACT_APP_SIGNAGE_IMG_REF_LINK (legacy JSON file) environment variable.');
+        setLoading(false);
+      }
+    };
+
+    loadSignageImages();
+
+    return () => {
+      isMounted = false;
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+      }
+    };
+  }, [MASTER_FOLDER_ID, SIGNAGE_FOLDER_ID, imageSource, refreshInterval, fetchImages]);
 
   useEffect(() => {
     // Disable scrolling on body when signage is active
@@ -476,7 +566,7 @@ const Signage = () => {
           <Text fontSize="2xl" mb={4} color="red.400">Error</Text>
           <Text fontSize="lg">{error}</Text>
           <Text fontSize="sm" mt={4} color="gray.400">
-            Please configure REACT_APP_SIGNAGE_IMG_REF_LINK with a JSON file URL or Google Drive proxy URL.
+            Please configure REACT_APP_GOOGLE_DRIVE_MASTER_FOLDER_ID (recommended) or REACT_APP_SIGNAGE_IMG_REF_LINK (legacy JSON file) environment variable.
           </Text>
         </Box>
       </Box>
