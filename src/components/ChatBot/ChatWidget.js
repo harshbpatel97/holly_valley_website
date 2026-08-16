@@ -158,7 +158,7 @@ const ChatWidget = () => {
   const inputBorder = useColorModeValue('gray.300', '#27354F');
   const fabBg = useColorModeValue('brand.500', 'brand.500');
 
-  const handleSendMessage = async (queryText) => {
+  const handleSendMessage = async (queryText, isQuickAction = false) => {
     const textToSend = (queryText || inputMessage).trim();
     if (!textToSend || isLoading) return;
 
@@ -186,37 +186,38 @@ const ChatWidget = () => {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const currentHistory = [...messages, userMsg];
+    setMessages(currentHistory);
     setSessionCount((prev) => prev + 1);
     setInputMessage('');
     setIsLoading(true);
 
-    // 1. First check instant local knowledge base ($0 cost, 0ms latency)
-    const localMatch = getLocalResponse(textToSend);
+    // 1. If triggered by 1-tap quick action chip, check instant local knowledge base ($0, 0ms)
+    if (isQuickAction) {
+      const localMatch = getLocalResponse(textToSend);
+      if (localMatch) {
+        track('chatbot_query', {
+          query_type: 'local_instant',
+          source: 'local_knowledge',
+          prompt_length: textToSend.length,
+        });
 
-    if (localMatch) {
-      track('chatbot_query', {
-        query_type: 'local_instant',
-        source: 'local_knowledge',
-        prompt_length: textToSend.length,
-      });
-
-      // Simulate quick natural pause for realistic UI feel
-      setTimeout(() => {
-        const botMsg = {
-          id: `bot-${Date.now()}`,
-          sender: 'assistant',
-          text: localMatch.text,
-          actions: localMatch.actions,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-        setMessages((prev) => [...prev, botMsg]);
-        setIsLoading(false);
-      }, 350);
-      return;
+        setTimeout(() => {
+          const botMsg = {
+            id: `bot-${Date.now()}`,
+            sender: 'assistant',
+            text: localMatch.text,
+            actions: localMatch.actions,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages((prev) => [...prev, botMsg]);
+          setIsLoading(false);
+        }, 250);
+        return;
+      }
     }
 
-    // 2. If a backend API is configured via environment variables, try calling it
+    // 2. If a backend API is configured via environment variables, call Gemini via Cloudflare
     const chatApiUrl = process.env.REACT_APP_CHAT_API_URL;
     if (chatApiUrl) {
       try {
@@ -225,6 +226,7 @@ const ChatWidget = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: textToSend,
+            history: messages,
             storeStatus: storeStatus.statusText,
           }),
         });
@@ -242,7 +244,10 @@ const ChatWidget = () => {
             id: `bot-${Date.now()}`,
             sender: 'assistant',
             text: data.reply || "I'm happy to help with any questions about Holly Valley Grocery & Services!",
-            actions: data.actions || [],
+            actions: data.actions || [
+              { label: '📞 Call Store', url: `tel:${STORE_INFO.phoneClean}`, isExternal: true },
+              { label: '📍 Directions', url: STORE_INFO.googleMapsUrl, isExternal: true },
+            ],
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           };
           setMessages((prev) => [...prev, botMsg]);
@@ -254,11 +259,11 @@ const ChatWidget = () => {
       }
     }
 
-    // 3. If a direct Gemini API key is configured (ideal for local testing), call Gemini directly
+    // 3. Direct Gemini API call for local testing or custom endpoint
     const geminiApiKey = process.env.REACT_APP_GEMINI_API_KEY;
     if (geminiApiKey) {
       try {
-        const reply = await callGeminiDirect(textToSend, storeStatus.statusText, geminiApiKey);
+        const reply = await callGeminiDirect(textToSend, messages, storeStatus.statusText, geminiApiKey);
         if (reply) {
           track('chatbot_query', {
             query_type: 'gemini_ai_direct',
@@ -285,9 +290,10 @@ const ChatWidget = () => {
       }
     }
 
-    // 4. Graceful Smart Fallback (100% $0 cost)
+    // 4. Local Knowledge & Graceful Fallback
+    const localMatch = getLocalResponse(textToSend);
     track('chatbot_query', {
-      query_type: 'fallback_directory',
+      query_type: localMatch ? 'local_fallback' : 'directory_fallback',
       source: 'fallback',
       prompt_length: textToSend.length,
     });
@@ -296,8 +302,10 @@ const ChatWidget = () => {
       const fallbackMsg = {
         id: `bot-${Date.now()}`,
         sender: 'assistant',
-        text: `Thanks for reaching out! Holly Valley is located at **${STORE_INFO.address}**.\n\nFor specific inventory items or immediate assistance, our team is happy to help over the phone during regular store hours (**${storeStatus.todaySchedule}** today).`,
-        actions: [
+        text: localMatch
+          ? localMatch.text
+          : `Thanks for reaching out! Holly Valley is located at **${STORE_INFO.address}**.\n\nFor specific inventory items or immediate assistance, our team is happy to help over the phone during regular store hours (**${storeStatus.todaySchedule}** today).`,
+        actions: localMatch ? localMatch.actions : [
           { label: '📞 Call Store', url: `tel:${STORE_INFO.phoneClean}`, isExternal: true },
           { label: '📍 Get Directions', url: STORE_INFO.googleMapsUrl, isExternal: true },
           { label: '🚚 U-Haul Rentals', url: STORE_INFO.uhaulUrl, isExternal: true },
@@ -306,7 +314,7 @@ const ChatWidget = () => {
       };
       setMessages((prev) => [...prev, fallbackMsg]);
       setIsLoading(false);
-    }, 450);
+    }, 350);
   };
 
   const handleClearHistory = () => {

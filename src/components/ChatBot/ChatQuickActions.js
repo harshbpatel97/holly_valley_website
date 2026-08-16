@@ -40,7 +40,7 @@ const ChatQuickActions = ({ onSelectAction, disabled }) => {
             _active={{
               transform: 'translateY(0)',
             }}
-            onClick={() => onSelectAction(action.prompt)}
+            onClick={() => onSelectAction(action.prompt, true)}
             isDisabled={disabled}
           >
             {action.label}
