@@ -71,7 +71,7 @@ jobs:
         if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Cache npm
