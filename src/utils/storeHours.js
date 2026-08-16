@@ -17,7 +17,7 @@ export const STORE_SCHEDULE = [
 
 export const getStoreStatus = () => {
   try {
-    // Eastern Time (America/New_York)
+    // Determine current time in Eastern Time (America/New_York)
     const now = new Date();
     const formatter = new Intl.DateTimeFormat('en-US', {
       timeZone: 'America/New_York',
@@ -54,19 +54,19 @@ export const getStoreStatus = () => {
     if (isOpen) {
       const minutesRemaining = closeMinutes - currentMinutes;
       if (minutesRemaining <= 60) {
-        statusText = `Open Now • Closes in ${minutesRemaining} mins (${today.text.split('–')[1]?.trim() || today.text})`;
+        statusText = `Open Now • Closes in ${minutesRemaining} mins (${today.text.split('–')[1].trim()})`;
         badgeText = `Closes in ${minutesRemaining}m`;
       } else {
-        statusText = `Open Now • Closes at ${today.text.split('–')[1]?.trim() || today.text}`;
+        statusText = `Open Now • Closes at ${today.text.split('–')[1].trim()}`;
         badgeText = 'Open Now';
       }
     } else {
       if (currentMinutes < openMinutes) {
-        statusText = `Closed • Opens at ${today.text.split('–')[0]?.trim() || today.text}`;
+        statusText = `Closed • Opens at ${today.text.split('–')[0].trim()}`;
         badgeText = 'Closed';
       } else {
         const nextDay = STORE_SCHEDULE[(dayIndex + 1) % 7];
-        statusText = `Closed • Opens tomorrow at ${nextDay.text.split('–')[0]?.trim() || nextDay.text}`;
+        statusText = `Closed • Opens tomorrow at ${nextDay.text.split('–')[0].trim()}`;
         badgeText = 'Closed';
       }
     }
