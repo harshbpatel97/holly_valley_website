@@ -221,9 +221,9 @@ export const getLocalResponse = (query) => {
 /**
  * Direct Gemini API call for local testing or custom endpoint
  */
-export const callGeminiDirect = async (message, storeStatus, apiKey) => {
+export const callGeminiDirect = async (message, history = [], storeStatus = 'Open', apiKey) => {
   const systemInstruction = `
-You are the official friendly virtual assistant for "Holly Valley Grocery & Services" (Wilkesboro Convenience Store & Authorized U-Haul Dealer).
+You are the official AI assistant for "Holly Valley Grocery & Services" (Wilkesboro / Moravian Falls Convenience Store & Authorized U-Haul Dealer).
 Location: 2730 NC Hwy 18 S, Moravian Falls, NC 28654 (Wilkes County, NC, conveniently located on Highway 18 South near Wilkesboro).
 Phone Number: (336) 304-0094.
 
@@ -238,8 +238,8 @@ Verified Services & Offerings:
    - Official Authorized Neighborhood Dealer in Moravian Falls, NC.
    - Equipment: Moving trucks (10', 15', 20', 26'), utility trailers, cargo trailers with ramps, vehicle tow dollies, and auto transports.
    - Moving supplies: Boxes, bubble wrap, packing tape, and mattress covers.
-   - 24/7 Mobile Pick Up & Drop Off available.
-   - Direct reservation link: https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/
+   - 24/7 Mobile Pick Up & Drop Off available online at: ${STORE_INFO.uhaulUrl}
+   - Phone counter reservations at (336) 304-0094.
 
 2. NC Education Lottery:
    - Official authorized retailer for Draw Games (Powerball, Mega Millions, Lucky for Life, Carolina Cash 5, Pick 3, Pick 4) and $1-$30 instant Scratch-Offs.
@@ -264,12 +264,30 @@ Verified Services & Offerings:
    - On-site low-fee cash ATM for instant withdrawals.
    - Secure Bitcoin / cryptocurrency kiosk.
 
-Response Guidelines:
-- Keep answers concise, warm, helpful, and under 120-150 words.
+Conversational Guidelines:
+- Tone: Friendly, conversational, warm, and helpful (local North Carolina community hospitality).
+- Keep answers direct and concise (2 to 5 sentences or short bullet points).
+- Suggest relevant store items when asked for ideas, recommendations, or trip preparations.
 - If asked about hot cooked restaurant food or gas pumps, clarify that Holly Valley is a convenience store and grocery specializing in packaged foods, cold drinks, snacks, lottery, and U-Haul rentals.
-- For specific item stock inquiries or custom rental bookings, provide our store phone number (336) 304-0094.
-- Provide a welcoming, local North Carolina community tone.
+- When appropriate, share our phone number (336) 304-0094 or store address.
 `;
+
+  const contents = [];
+  const recentHistory = Array.isArray(history) ? history.slice(-6) : [];
+  for (const item of recentHistory) {
+    if (item.text && (item.sender === 'user' || item.sender === 'assistant' || item.role === 'user' || item.role === 'model')) {
+      const role = (item.sender === 'user' || item.role === 'user') ? 'user' : 'model';
+      contents.push({
+        role,
+        parts: [{ text: item.text.slice(0, 400) }],
+      });
+    }
+  }
+
+  contents.push({
+    role: 'user',
+    parts: [{ text: message.slice(0, 400) }],
+  });
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
@@ -277,15 +295,10 @@ Response Guidelines:
     system_instruction: {
       parts: [{ text: systemInstruction }],
     },
-    contents: [
-      {
-        role: 'user',
-        parts: [{ text: message.slice(0, 500) }],
-      },
-    ],
+    contents,
     generationConfig: {
-      maxOutputTokens: 250,
-      temperature: 0.2,
+      maxOutputTokens: 350,
+      temperature: 0.7,
     },
   };
 

@@ -1,4 +1,4 @@
-import { getLocalResponse, STORE_INFO } from './chatKnowledge';
+import { getLocalResponse, callGeminiDirect, STORE_INFO } from './chatKnowledge';
 
 describe('ChatBot Knowledge Engine', () => {
   test('returns store hours and schedule for hours query', () => {
@@ -38,5 +38,43 @@ describe('ChatBot Knowledge Engine', () => {
     expect(res).not.toBeNull();
     expect(res.text).toContain(STORE_INFO.address);
     expect(res.actions.some((a) => a.url === STORE_INFO.googleMapsUrl)).toBe(true);
+  });
+
+  test('callGeminiDirect sends multi-turn history and message to Gemini API', async () => {
+    const mockReply = 'We have cold Monster and Red Bull drinks in stock!';
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        candidates: [
+          {
+            content: {
+              parts: [{ text: mockReply }],
+            },
+          },
+        ],
+      }),
+    });
+
+    const history = [
+      { sender: 'user', text: 'Do you carry energy drinks?' },
+      { sender: 'assistant', text: 'Yes, we carry a wide variety of energy drinks.' },
+    ];
+
+    const result = await callGeminiDirect(
+      'Which brands do you have?',
+      history,
+      'Open Now',
+      'test-api-key'
+    );
+
+    expect(result).toBe(mockReply);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    const calledBody = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(calledBody.contents.length).toBe(3); // 2 history items + 1 current message
+    expect(calledBody.contents[0].role).toBe('user');
+    expect(calledBody.contents[1].role).toBe('model');
+    expect(calledBody.contents[2].role).toBe('user');
+    expect(calledBody.generationConfig.temperature).toBe(0.7);
   });
 });
