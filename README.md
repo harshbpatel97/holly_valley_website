@@ -13,6 +13,7 @@ This is a React conversion of the original Holly Valley static HTML website. The
 - **Navigation**: Dropdown navigation with active state indicators
 - **Routing**: Client-side routing between pages
 - **Dynamic Image Management**: Easy-to-manage image systems for store and product images
+- **AI Store Assistant (Chatbot)**: Intelligent, 100% $0-cost virtual assistant for store hours, live open/closed status, U-Haul truck reservations, NC Lottery, EBT/SNAP payments, rate limiting, and Google Analytics tracking
 
 ## Pages
 
@@ -120,14 +121,15 @@ REACT_APP_SIGNAGE_SLIDE_DURATION_MS=10000
 REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS=7
 REACT_APP_SIGNAGE_TOKEN=your-secret-token-here
 
-# Optional: Proxy URLs (alternative to folder IDs)
-# If you prefer using proxy endpoints instead of direct folder IDs:
-# REACT_APP_STORE_IMAGES_PROXY_URL=/api/googledrive/images?folderId=FOLDER_ID
-# REACT_APP_GROCERIES_PROXY_URL=/api/googledrive/images?folderId=FOLDER_ID
-# (similar pattern for other categories)
+# AI Store Assistant (Optional - $0 Cost)
+# Connects the frontend to your free Cloudflare Worker / Gemini proxy
+REACT_APP_CHAT_API_URL=https://chatbot.hollyvalley-cstore.workers.dev
+
+# Optional: Direct Gemini API key for local sandbox testing
+# REACT_APP_GEMINI_API_KEY=your-gemini-key-here
 ```
 
-**Note**: Make sure to add `.env` to `.gitignore` to protect sensitive information.
+**Note**: Make sure to add `.env` to `.gitignore` to protect sensitive information. See [`docs/AI_CHATBOT_SETUP.md`](docs/AI_CHATBOT_SETUP.md) for full chatbot architecture.
 
 ## Project Structure
 
@@ -136,6 +138,11 @@ src/
 ├── components/
 │   ├── AgeVerification.js      # Age verification modal
 │   ├── AgeVerification.css
+│   ├── ChatBot/                # AI Store Assistant Widget
+│   │   ├── ChatWidget.js       # Expandable chat UI & session state
+│   │   ├── ChatQuickActions.js # 1-tap quick action inquiry chips
+│   │   ├── chatKnowledge.js    # In-browser zero-latency knowledge engine
+│   │   └── ChatBot.css         # Chat drawer scrollbar & animation styles
 │   ├── Header.js               # Navigation header
 │   ├── Header.css
 │   ├── Footer.js               # Site footer
@@ -154,12 +161,16 @@ src/
 │   ├── storeImages.js          # Store images configuration (Google Drive)
 │   └── productImages.js        # Product images configuration (Google Drive)
 ├── utils/
+│   ├── storeHours.js           # Live Eastern Time store schedule calculator
 │   ├── googleDriveImages.js    # Google Drive image fetching utilities
 │   ├── imageUtils.js           # Image utility functions
-│   └── ga.js                   # Google Analytics utilities
+│   └── ga.js                   # Google Analytics & Chatbot event tracking
 ├── App.js                      # Main app component with routing
 ├── App.css                     # Global styles
 └── index.js                    # App entry point
+serverless/
+└── cloudflare-worker.js        # 100% Free Tier Cloudflare Worker proxy for Gemini 2.5 Flash
+wrangler.toml                   # Cloudflare Worker deployment configuration
 scripts/
 ├── generateAllImagesFromGoogleDrive.js  # Generate all image lists from Google Drive
 ├── generateSignageImagesGoogleDrive.js  # Generate signage images from Google Drive
@@ -167,6 +178,7 @@ scripts/
 public/
 ├── api/                        # Generated image JSON files (optional)
 │   ├── store-images.json
+│   ├── signage-images.json
 │   ├── groceries-images.json
 │   └── ...
 └── images/                     # Legacy local images (fallback only)
