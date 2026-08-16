@@ -8,26 +8,24 @@ import reportWebVitals from './reportWebVitals';
 
 // Google Analytics runtime injection
 const GA_ID = process.env.REACT_APP_GA_ID;
-function injectGoogleAnalytics(measurementId) {
-  if (!measurementId) return;
-  if (window.gtag) return; // avoid duplicate injection
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-  document.head.appendChild(script);
 
-  const inline = document.createElement('script');
-  inline.innerHTML = `
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);} 
-    gtag('js', new Date());
-    gtag('config', '${measurementId}');
-  `;
-  document.head.appendChild(inline);
-}
+if (typeof window !== 'undefined') {
+  window.dataLayer = window.dataLayer || [];
+  if (!window.gtag) {
+    window.gtag = function () {
+      window.dataLayer.push(arguments);
+    };
+  }
 
-if (typeof window !== 'undefined' && GA_ID) {
-  injectGoogleAnalytics(GA_ID);
+  if (GA_ID) {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    document.head.appendChild(script);
+
+    window.gtag('js', new Date());
+    window.gtag('config', GA_ID, { send_page_view: true });
+  }
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

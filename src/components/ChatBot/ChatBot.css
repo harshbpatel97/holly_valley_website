@@ -1,11 +1,13 @@
-/* Custom smooth scrollbar for message container */
+/* Custom smooth scrollbar & mobile momentum scrolling for message container */
 .chat-message-container {
   scrollbar-width: thin;
   scrollbar-color: rgba(13, 148, 136, 0.3) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .chat-message-container::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 
 .chat-message-container::-webkit-scrollbar-track {
@@ -19,4 +21,20 @@
 
 .chat-message-container::-webkit-scrollbar-thumb:hover {
   background-color: rgba(13, 148, 136, 0.6);
+}
+
+/* Horizontal scroll bar hiding for quick action chips */
+.chat-quick-actions-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.chat-quick-actions-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure touch targets have active feedback on mobile */
+.chat-action-btn:active {
+  transform: scale(0.96);
 }

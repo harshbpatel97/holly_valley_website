@@ -335,7 +335,12 @@ const ChatWidget = () => {
   };
 
   return (
-    <Box position="fixed" bottom={{ base: '20px', md: '28px' }} right={{ base: '16px', md: '28px' }} zIndex={1000}>
+    <Box
+      position="fixed"
+      bottom={{ base: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', md: '28px' }}
+      right={{ base: '16px', md: '28px' }}
+      zIndex={1000}
+    >
       {/* Floating Action Button */}
       <Tooltip label={isOpen ? 'Close Assistant' : 'Ask Holly AI'} placement="left" hasArrow>
         <Box position="relative">
@@ -344,8 +349,8 @@ const ChatWidget = () => {
             bg={fabBg}
             color="white"
             borderRadius="full"
-            w={{ base: '54px', md: '60px' }}
-            h={{ base: '54px', md: '60px' }}
+            w={{ base: '52px', md: '60px' }}
+            h={{ base: '52px', md: '60px' }}
             p={0}
             boxShadow="0 8px 24px rgba(13, 148, 136, 0.4)"
             _hover={{
@@ -384,12 +389,13 @@ const ChatWidget = () => {
       <Collapse in={isOpen} animateOpacity>
         <Box
           position="fixed"
-          bottom={{ base: '84px', md: '98px' }}
-          right={{ base: '12px', md: '28px' }}
-          w={{ base: 'calc(100vw - 24px)', sm: '380px', md: '410px' }}
-          maxW="430px"
-          h={{ base: '520px', md: '560px' }}
-          maxH="calc(100vh - 120px)"
+          bottom={{ base: 'calc(env(safe-area-inset-bottom, 0px) + 74px)', md: '98px' }}
+          right={{ base: '8px', sm: '16px', md: '28px' }}
+          left={{ base: '8px', sm: 'auto' }}
+          w={{ base: 'calc(100vw - 16px)', sm: '380px', md: '410px' }}
+          maxW={{ base: 'calc(100vw - 16px)', sm: '420px' }}
+          h={{ base: 'min(530px, calc(100dvh - 90px))', md: '560px' }}
+          maxH={{ base: 'calc(100dvh - 84px)', md: 'calc(100vh - 120px)' }}
           bg={cardBg}
           border="1px solid"
           borderColor={cardBorder}
@@ -614,6 +620,7 @@ const ChatWidget = () => {
                     : 'Ask about hours, U-Haul, lottery, EBT...'
                 }
                 size="sm"
+                fontSize={{ base: '16px', md: 'sm' }}
                 borderRadius="xl"
                 bg={inputBg}
                 borderColor={inputBorder}

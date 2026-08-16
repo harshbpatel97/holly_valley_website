@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wrap, WrapItem, Button, useColorModeValue } from '@chakra-ui/react';
+import { Box, HStack, Button, useColorModeValue } from '@chakra-ui/react';
 import { QUICK_ACTIONS } from './chatKnowledge';
 
 const ChatQuickActions = ({ onSelectAction, disabled }) => {
@@ -9,10 +9,16 @@ const ChatQuickActions = ({ onSelectAction, disabled }) => {
   const chipColor = useColorModeValue('gray.700', 'gray.200');
 
   return (
-    <Wrap spacing={1.5} px={3} py={2}>
-      {QUICK_ACTIONS.map((action) => (
-        <WrapItem key={action.id}>
+    <Box
+      px={3}
+      py={2}
+      overflowX="auto"
+      className="chat-quick-actions-scroll"
+    >
+      <HStack spacing={1.5} minW="max-content">
+        {QUICK_ACTIONS.map((action) => (
           <Button
+            key={action.id}
             size="xs"
             variant="outline"
             borderRadius="full"
@@ -23,7 +29,8 @@ const ChatQuickActions = ({ onSelectAction, disabled }) => {
             fontSize="xs"
             px={2.5}
             py={1}
-            height="auto"
+            height="26px"
+            flexShrink={0}
             _hover={{
               bg: chipHoverBg,
               borderColor: 'brand.400',
@@ -38,9 +45,9 @@ const ChatQuickActions = ({ onSelectAction, disabled }) => {
           >
             {action.label}
           </Button>
-        </WrapItem>
-      ))}
-    </Wrap>
+        ))}
+      </HStack>
+    </Box>
   );
 };
 
