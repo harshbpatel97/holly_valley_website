@@ -221,12 +221,13 @@ const ChatWidget = () => {
     const chatApiUrl = process.env.REACT_APP_CHAT_API_URL;
     if (chatApiUrl) {
       try {
+        const conversationHistory = messages.filter((m) => m.id !== 'init-1' && m.id !== 'greeting');
         const response = await fetch(chatApiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: textToSend,
-            history: messages,
+            history: conversationHistory,
             storeStatus: storeStatus.statusText,
           }),
         });

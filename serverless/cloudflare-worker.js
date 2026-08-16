@@ -159,26 +159,44 @@ export default {
         );
       }
 
-      // 2. Build Multi-Turn Chat Contents for Gemini
+      // 2. Build Multi-Turn Chat Contents for Gemini (Must start with role 'user')
       const contents = [];
+      let lastRole = null;
 
-      // Include previous turns (limit to last 6 messages to keep context fast and focused)
       const recentHistory = history.slice(-6);
       for (const item of recentHistory) {
-        if (item.text && (item.sender === 'user' || item.sender === 'assistant' || item.role === 'user' || item.role === 'model')) {
-          const role = (item.sender === 'user' || item.role === 'user') ? 'user' : 'model';
-          contents.push({
-            role,
-            parts: [{ text: item.text.slice(0, 400) }],
-          });
+        if (!item.text) continue;
+        const role = (item.sender === 'user' || item.role === 'user') ? 'user' : 'model';
+
+        // Gemini requires the first turn to be 'user'
+        if (contents.length === 0 && role !== 'user') {
+          continue;
         }
+
+        // Avoid consecutive identical roles
+        if (role === lastRole) {
+          continue;
+        }
+
+        contents.push({
+          role,
+          parts: [{ text: item.text.slice(0, 400) }],
+        });
+        lastRole = role;
       }
 
       // Append current user message
-      contents.push({
-        role: 'user',
-        parts: [{ text: sanitizedMessage }],
-      });
+      if (lastRole === 'user') {
+        contents[contents.length - 1] = {
+          role: 'user',
+          parts: [{ text: sanitizedMessage }],
+        };
+      } else {
+        contents.push({
+          role: 'user',
+          parts: [{ text: sanitizedMessage }],
+        });
+      }
 
       // 3. Call Google Gemini 1.5 Flash API (Official GA Free Tier Model)
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
@@ -221,6 +239,7 @@ export default {
         JSON.stringify({
           reply: `Thanks for reaching out! Holly Valley is located at 2730 NC Hwy 18 S, Moravian Falls, NC. You can call us directly at (336) 304-0094.`,
           source: 'worker_fallback',
+          debug_error: err.message,
         }),
         { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
