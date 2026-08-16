@@ -141,7 +141,7 @@ function AppContent() {
     setShowVerification(true);
   };
 
-  const appBg = useColorModeValue('gray.50', 'gray.900');
+  const appBg = useColorModeValue('lightBg.base', 'darkBg.base');
   const appColor = useColorModeValue('gray.800', 'gray.100');
 
   const measurementId = process.env.REACT_APP_GA_ID;

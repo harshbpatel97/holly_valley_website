@@ -1,37 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ChakraProvider, extendTheme, ColorModeScript } from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import './index.css';
 import App from './App';
+import theme from './theme';
 import reportWebVitals from './reportWebVitals';
-
-// Check URL parameters for initial theme setting
-const getInitialColorMode = () => {
-  if (typeof window !== 'undefined') {
-    const urlParams = new URLSearchParams(window.location.search);
-    const themeParam = urlParams.get('theme') || urlParams.get('mode');
-    if (themeParam) {
-      const normalizedTheme = themeParam.toLowerCase().trim();
-      if (normalizedTheme === 'dark' || normalizedTheme === 'light') {
-        return normalizedTheme;
-      }
-    }
-    
-    // Check localStorage for saved preference
-    const savedTheme = localStorage.getItem('chakra-ui-color-mode');
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-      return savedTheme;
-    }
-  }
-  return 'light';
-};
-
-const theme = extendTheme({
-  config: {
-    initialColorMode: getInitialColorMode(),
-    useSystemColorMode: false,
-  },
-});
 
 // Google Analytics runtime injection
 const GA_ID = process.env.REACT_APP_GA_ID;
