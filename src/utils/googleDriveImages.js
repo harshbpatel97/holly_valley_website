@@ -106,7 +106,7 @@ export const fetchImagesFromGoogleDriveFolder = async (folderId, apiKey = null) 
       .map(file => ({
         id: file.id,
         name: file.name,
-        url: `https://drive.google.com/thumbnail?id=${file.id}&sz=w0`
+        url: `https://drive.google.com/thumbnail?id=${file.id}&sz=w800`
       }))
       .sort((a, b) => a.name.localeCompare(b.name)); // Sort by name for consistent ordering
 
@@ -144,7 +144,7 @@ export const fetchImagesFromGoogleDriveProxy = async (proxyUrl) => {
         }
         // If item is an object with id, construct thumbnail URL
         if (typeof item === 'object' && item.id) {
-          return `https://drive.google.com/thumbnail?id=${item.id}&sz=w0`;
+          return `https://drive.google.com/thumbnail?id=${item.id}&sz=w800`;
         }
         // Otherwise assume it's a URL string
         return item;
@@ -152,7 +152,7 @@ export const fetchImagesFromGoogleDriveProxy = async (proxyUrl) => {
     } else if (data.images) {
       imageUrls = data.images.map(item => {
         if (typeof item === 'object' && item.url) return item.url;
-        if (typeof item === 'object' && item.id) return `https://drive.google.com/thumbnail?id=${item.id}&sz=w0`;
+        if (typeof item === 'object' && item.id) return `https://drive.google.com/thumbnail?id=${item.id}&sz=w800`;
         return item;
       });
     }
@@ -181,7 +181,7 @@ export const normalizeGoogleDriveImageUrl = (imageUrl) => {
     // Remove any query params that might cause issues (like authuser=0)
     const urlObj = new URL(imageUrl);
     // Keep only id and sz params, remove others
-    return `https://drive.google.com/thumbnail?id=${urlObj.searchParams.get('id')}&sz=w0`;
+    return `https://drive.google.com/thumbnail?id=${urlObj.searchParams.get('id')}&sz=w800`;
   }
   
   let fileId = null;
@@ -218,7 +218,7 @@ export const normalizeGoogleDriveImageUrl = (imageUrl) => {
   
   if (fileId) {
     // Always use thumbnail format - this is more reliable and less prone to 429 errors
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w0`;
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
   }
   
   // If we can't extract file ID, return original (might already be a valid URL)
@@ -259,7 +259,7 @@ export const generateStoreImageFromGoogleDrive = (image, index) => {
   // Generate ID from filename
   const id = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-');
   const src = normalizeGoogleDriveImageUrl(image.url);
-  const title = cleanName.replace(/[-_]/g, ' ');
+  const title = cleanName.replace(/[-_]/g, ' ').toUpperCase();
   const alt = title;
   const description = `${title} of Holly Valley store`;
   
