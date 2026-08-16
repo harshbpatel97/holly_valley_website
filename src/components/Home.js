@@ -290,22 +290,6 @@ const Home = () => {
                             objectFit: 'cover',
                           }}
                         />
-                        <Box
-                          position="absolute"
-                          bottom={0}
-                          left={0}
-                          right={0}
-                          p={4}
-                          bgGradient="linear(to-t, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)"
-                          color="white"
-                        >
-                          <Text fontWeight="800" fontSize="sm" textTransform="uppercase" letterSpacing="0.06em">
-                            {slide.title || 'HOLLY VALLEY STORE VIEW'}
-                          </Text>
-                          <Text fontSize="xs" opacity={0.85} textTransform="uppercase" letterSpacing="0.05em">
-                            MORAVIAN FALLS, NC
-                          </Text>
-                        </Box>
                       </Box>
                     ))}
 
@@ -353,9 +337,15 @@ const Home = () => {
                         <HStack
                           position="absolute"
                           bottom={3}
-                          right={4}
+                          left="50%"
+                          transform="translateX(-50%)"
                           spacing={1.5}
                           zIndex={2}
+                          bg="rgba(0, 0, 0, 0.35)"
+                          backdropFilter="blur(6px)"
+                          px={2.5}
+                          py={1}
+                          borderRadius="full"
                         >
                           {storeImages.map((_, idx) => (
                             <Box
@@ -367,6 +357,7 @@ const Home = () => {
                               cursor="pointer"
                               transition="all 0.3s ease"
                               onClick={() => setCurrentSlide(idx)}
+                              aria-label={`Go to slide ${idx + 1}`}
                             />
                           ))}
                         </HStack>
