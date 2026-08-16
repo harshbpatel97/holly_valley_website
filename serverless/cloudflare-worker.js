@@ -10,6 +10,13 @@
  * - ALLOWED_ORIGIN: "*" (or "https://wilkes-cstore.com")
  */
 
+const STORE_INFO = {
+  name: 'Holly Valley Grocery & Services',
+  address: '2730 NC Hwy 18 S, Moravian Falls, NC 28654',
+  phone: '(336) 304-0094',
+  uhaulUrl: 'https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/',
+};
+
 const SYSTEM_INSTRUCTION = `
 You are the official friendly virtual assistant for "Holly Valley Grocery & Services" (Wilkesboro Convenience Store & Authorized U-Haul Dealer).
 Location: 2730 NC Hwy 18 S, Moravian Falls, NC 28654 (Wilkes County, NC, conveniently located on Highway 18 South near Wilkesboro).
@@ -56,6 +63,49 @@ Response Guidelines:
 - For specific item stock inquiries or custom rental bookings, provide our store phone number (336) 304-0094.
 - Provide a welcoming, local North Carolina community tone.
 `;
+
+// Fast Local Store Knowledge Matcher (0 API Cost - Avoids calling Gemini for known store queries)
+function getQuickStoreAnswer(query, liveStatus) {
+  const q = query.toLowerCase().trim();
+
+  // Hours & Schedule
+  if (q.includes('hour') || q.includes('open') || q.includes('close') || q.includes('schedule') || q.includes('time')) {
+    return `Holly Valley is open 7 days a week!\n\n• Monday – Saturday: 8:00 AM – 8:00 PM\n• Sunday: 11:00 AM – 7:30 PM (Eastern Time)\n\nCurrent Status: ${liveStatus || 'Open'}\n\nCall us anytime at (336) 304-0094!`;
+  }
+
+  // U-Haul Rentals
+  if (q.includes('uhaul') || q.includes('u-haul') || q.includes('truck') || q.includes('trailer') || q.includes('moving') || q.includes('tow')) {
+    return `Holly Valley is an Authorized U-Haul Neighborhood Dealer in Moravian Falls, NC! 🚚\n\nWe offer moving trucks (10', 15', 20', 26'), cargo/utility trailers, towing dollies, and moving boxes/supplies.\n\nReserve online 24/7 at:\n${STORE_INFO.uhaulUrl}\nOr call us at (336) 304-0094.`;
+  }
+
+  // Payments / EBT
+  if (q.includes('ebt') || q.includes('snap') || q.includes('food stamp') || q.includes('apple pay') || q.includes('google pay') || q.includes('payment') || q.includes('credit')) {
+    return `We accept all major payment methods:\n• EBT / SNAP (for eligible grocery/food items)\n• Apple Pay, Google Pay, Samsung Pay (Contactless)\n• Visa, MasterCard, Discover, Amex, & Debit\n• Cash\n• On-site ATM and Bitcoin terminal available!`;
+  }
+
+  // Lottery
+  if (q.includes('lottery') || q.includes('powerball') || q.includes('mega million') || q.includes('scratch') || q.includes('cash 5')) {
+    return `🎟️ We are an authorized NC Education Lottery retailer carrying Powerball, Mega Millions, Cash 5, Pick 3/4, and $1-$30 instant Scratch-Offs.\n\n⚠️ State Law Requirement: You must be at least 18 years old with valid photo ID to purchase lottery tickets.`;
+  }
+
+  // Location / Address / Directions
+  if (q.includes('address') || q.includes('location') || q.includes('where') || q.includes('direction') || q.includes('map') || q.includes('highway') || q.includes('hwy')) {
+    return `📍 Holly Valley Location:\n2730 NC Hwy 18 S, Moravian Falls, NC 28654\n(Conveniently located on Hwy 18 South near Wilkesboro)\n\n📞 Phone: (336) 304-0094`;
+  }
+
+  // Phone / Contact
+  if (q.includes('phone') || q.includes('call') || q.includes('contact') || q.includes('number')) {
+    return `You can reach Holly Valley directly at (336) 304-0094 during regular store hours (Mon-Sat 8AM-8PM, Sun 11AM-7:30PM).`;
+  }
+
+  // Tobacco / Alcohol Age Rules
+  if (q.includes('beer') || q.includes('alcohol') || q.includes('wine') || q.includes('tobacco') || q.includes('cigarette') || q.includes('vape')) {
+    return `State Law Notice: You must be at least 21 years old with a valid government photo ID to purchase beer, wine, tobacco, or vape products at Holly Valley.`;
+  }
+
+  // No match -> Needs Generative AI (Gemini)
+  return null;
+}
 
 // In-Memory IP Rate Limiter: Max 8 requests per minute per IP
 const ipRateMap = new Map();
@@ -129,8 +179,17 @@ export default {
         });
       }
 
-      // Input sanitization: limit character length to prevent token abuse
+      // Input sanitization: limit character length
       const sanitizedMessage = message.trim().slice(0, 350);
+
+      // 2. Fast Local Knowledge Check (Avoids calling Gemini if we already know the answer)
+      const localAnswer = getQuickStoreAnswer(sanitizedMessage, storeStatus);
+      if (localAnswer) {
+        return new Response(
+          JSON.stringify({ reply: localAnswer }),
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
+      }
 
       if (!env.GEMINI_API_KEY) {
         return new Response(
@@ -141,7 +200,7 @@ export default {
         );
       }
 
-      // Call Google Gemini API (Free Tier)
+      // 3. Call Google Gemini API (Only for complex/creative questions not covered above)
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
 
       const geminiPayload = {
