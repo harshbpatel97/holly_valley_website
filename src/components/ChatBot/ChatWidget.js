@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { getStoreStatus } from '../../utils/storeHours';
-import { STORE_INFO, getLocalResponse } from './chatKnowledge';
+import { STORE_INFO, getLocalResponse, callGeminiDirect } from './chatKnowledge';
 import ChatQuickActions from './ChatQuickActions';
 import './ChatBot.css';
 
@@ -211,7 +211,32 @@ const ChatWidget = () => {
       }
     }
 
-    // 3. Graceful Smart Fallback (100% $0 cost)
+    // 3. If a direct Gemini API key is configured (ideal for local testing), call Gemini directly
+    const geminiApiKey = process.env.REACT_APP_GEMINI_API_KEY;
+    if (geminiApiKey) {
+      try {
+        const reply = await callGeminiDirect(textToSend, storeStatus.statusText, geminiApiKey);
+        if (reply) {
+          const botMsg = {
+            id: `bot-${Date.now()}`,
+            sender: 'assistant',
+            text: reply,
+            actions: [
+              { label: '📞 Call Store', url: `tel:${STORE_INFO.phoneClean}`, isExternal: true },
+              { label: '📍 Directions', url: STORE_INFO.googleMapsUrl, isExternal: true },
+            ],
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages((prev) => [...prev, botMsg]);
+          setIsLoading(false);
+          return;
+        }
+      } catch (err) {
+        // Fallback to local assistant logic if Gemini fails
+      }
+    }
+
+    // 4. Graceful Smart Fallback (100% $0 cost)
     setTimeout(() => {
       const fallbackMsg = {
         id: `bot-${Date.now()}`,
