@@ -57,6 +57,35 @@ Response Guidelines:
 - Provide a welcoming, local North Carolina community tone.
 `;
 
+// In-Memory IP Rate Limiter: Max 8 requests per minute per IP
+const ipRateMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_IP = 8; // Max 8 requests / minute / IP
+
+function isRateLimited(clientIp) {
+  const now = Date.now();
+  const timestamps = ipRateMap.get(clientIp) || [];
+  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+
+  if (recent.length >= MAX_REQUESTS_PER_IP) {
+    return true;
+  }
+
+  recent.push(now);
+  ipRateMap.set(clientIp, recent);
+
+  // Periodic cleanup if map grows
+  if (ipRateMap.size > 1000) {
+    for (const [ip, tsList] of ipRateMap.entries()) {
+      if (tsList.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) {
+        ipRateMap.delete(ip);
+      }
+    }
+  }
+
+  return false;
+}
+
 export default {
   async fetch(request, env) {
     // Handle CORS preflight
@@ -80,6 +109,17 @@ export default {
     }
 
     try {
+      // 1. IP Rate Limiting Check
+      const clientIp = request.headers.get('CF-Connecting-IP') || 'anonymous';
+      if (isRateLimited(clientIp)) {
+        return new Response(
+          JSON.stringify({
+            reply: `You have reached the maximum message limit for now. For immediate help, please call Holly Valley directly at (336) 304-0094 or visit us in Moravian Falls, NC!`,
+          }),
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
+      }
+
       const { message, storeStatus } = await request.json();
 
       if (!message || typeof message !== 'string') {
@@ -88,6 +128,9 @@ export default {
           headers: { 'Content-Type': 'application/json', ...corsHeaders },
         });
       }
+
+      // Input sanitization: limit character length to prevent token abuse
+      const sanitizedMessage = message.trim().slice(0, 350);
 
       if (!env.GEMINI_API_KEY) {
         return new Response(
@@ -108,12 +151,12 @@ export default {
         contents: [
           {
             role: 'user',
-            parts: [{ text: message.slice(0, 500) }],
+            parts: [{ text: sanitizedMessage }],
           },
         ],
         generationConfig: {
           maxOutputTokens: 250,
-          temperature: 0.2, // Slightly lower temperature for higher accuracy and factual consistency
+          temperature: 0.2,
         },
       };
 

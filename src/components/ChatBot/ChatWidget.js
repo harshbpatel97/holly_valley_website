@@ -89,6 +89,8 @@ const renderFormattedText = (text) => {
   });
 };
 
+const MAX_SESSION_MESSAGES = 15;
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
@@ -98,6 +100,14 @@ const ChatWidget = () => {
       return saved ? JSON.parse(saved) : [INITIAL_MESSAGE];
     } catch {
       return [INITIAL_MESSAGE];
+    }
+  });
+  const [sessionCount, setSessionCount] = useState(() => {
+    try {
+      const count = sessionStorage.getItem('holly_chat_count');
+      return count ? parseInt(count, 10) : 0;
+    } catch {
+      return 0;
     }
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -112,14 +122,15 @@ const ChatWidget = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Save messages to sessionStorage
+  // Save messages and count to sessionStorage
   useEffect(() => {
     try {
       sessionStorage.setItem('holly_chat_messages', JSON.stringify(messages));
+      sessionStorage.setItem('holly_chat_count', sessionCount.toString());
     } catch (e) {
       // Ignore session storage quota errors
     }
-  }, [messages]);
+  }, [messages, sessionCount]);
 
   // Auto-scroll to bottom of chat
   const scrollToBottom = () => {
@@ -150,6 +161,22 @@ const ChatWidget = () => {
     const textToSend = (queryText || inputMessage).trim();
     if (!textToSend || isLoading) return;
 
+    // Check session rate limit
+    if (sessionCount >= MAX_SESSION_MESSAGES) {
+      const limitMsg = {
+        id: `limit-${Date.now()}`,
+        sender: 'assistant',
+        text: `You have reached the maximum message limit for this session. For any further questions or immediate assistance, please call our store directly at **${STORE_INFO.phone}**!`,
+        actions: [
+          { label: '📞 Call Store', url: `tel:${STORE_INFO.phoneClean}`, isExternal: true },
+          { label: '📍 Get Directions', url: STORE_INFO.googleMapsUrl, isExternal: true },
+        ],
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, limitMsg]);
+      return;
+    }
+
     const userMsg = {
       id: `user-${Date.now()}`,
       sender: 'user',
@@ -158,6 +185,7 @@ const ChatWidget = () => {
     };
 
     setMessages((prev) => [...prev, userMsg]);
+    setSessionCount((prev) => prev + 1);
     setInputMessage('');
     setIsLoading(true);
 
@@ -256,8 +284,10 @@ const ChatWidget = () => {
 
   const handleClearHistory = () => {
     setMessages([INITIAL_MESSAGE]);
+    setSessionCount(0);
     try {
       sessionStorage.removeItem('holly_chat_messages');
+      sessionStorage.removeItem('holly_chat_count');
     } catch {
       // Ignore
     }
@@ -525,14 +555,21 @@ const ChatWidget = () => {
 
           {/* Quick Action Suggestions */}
           <Box borderTop="1px solid" borderColor={cardBorder} bg={cardBg}>
-            <ChatQuickActions onSelectAction={handleSendMessage} disabled={isLoading} />
+            <ChatQuickActions
+              onSelectAction={handleSendMessage}
+              disabled={isLoading || sessionCount >= MAX_SESSION_MESSAGES}
+            />
           </Box>
 
           {/* Footer Input */}
           <Box p={3} borderTop="1px solid" borderColor={cardBorder} bg={cardBg}>
             <HStack spacing={2}>
               <Input
-                placeholder="Ask about hours, U-Haul, lottery, EBT..."
+                placeholder={
+                  sessionCount >= MAX_SESSION_MESSAGES
+                    ? 'Limit reached • Call (336) 304-0094'
+                    : 'Ask about hours, U-Haul, lottery, EBT...'
+                }
                 size="sm"
                 borderRadius="xl"
                 bg={inputBg}
@@ -541,7 +578,7 @@ const ChatWidget = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                isDisabled={isLoading}
+                isDisabled={isLoading || sessionCount >= MAX_SESSION_MESSAGES}
               />
               <IconButton
                 size="sm"
@@ -550,12 +587,14 @@ const ChatWidget = () => {
                 icon={<SendIcon />}
                 aria-label="Send message"
                 onClick={() => handleSendMessage()}
-                isDisabled={!inputMessage.trim() || isLoading}
+                isDisabled={!inputMessage.trim() || isLoading || sessionCount >= MAX_SESSION_MESSAGES}
               />
             </HStack>
             <Flex justify="space-between" align="center" mt={1.5} px={1}>
               <Text fontSize="2xs" color="gray.400">
-                100% Free Store Guide
+                {sessionCount >= MAX_SESSION_MESSAGES
+                  ? 'Session limit reached (15/15)'
+                  : `100% Free Guide • (${sessionCount}/${MAX_SESSION_MESSAGES})`}
               </Text>
               <ChakraLink
                 href={`tel:${STORE_INFO.phoneClean}`}
