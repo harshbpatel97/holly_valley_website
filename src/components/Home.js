@@ -42,7 +42,8 @@ const servicesHighlights = [
     icon: '🚚',
     title: 'U-Haul Truck & Trailer',
     description: 'Official Neighborhood Dealer offering moving trucks, cargo trailers, and moving supplies.',
-    link: '/services',
+    link: 'https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/',
+    isExternal: true,
     tag: 'Authorized Dealer',
   },
   {
@@ -84,6 +85,7 @@ const Home = () => {
   const heroGradient = useColorModeValue('linear(to-b, brand.50, transparent)', 'linear(to-b, rgba(13, 148, 136, 0.1), transparent)');
   const todayScheduleBg = useColorModeValue('brand.50', 'rgba(13, 148, 136, 0.15)');
   const carouselPlaceholderBg = useColorModeValue('gray.100', '#0E1626');
+  const uhaulColor = useColorModeValue('#D9480F', '#FF7A45');
 
   // Auto-play carousel
   useEffect(() => {
@@ -201,13 +203,17 @@ const Home = () => {
                 </Button>
 
                 <Button
-                  as={Link}
-                  to="/services"
+                  as="a"
+                  href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   size="lg"
                   variant="ghost"
-                  colorScheme="brand"
+                  colorScheme="orange"
+                  color={uhaulColor}
                   px={5}
                   rightIcon={<Box as="span">🚚</Box>}
+                  onClick={() => track('uhaul_booking_click', { destination: 'https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/', location: 'home_hero' })}
                 >
                   Rent U-Haul
                 </Button>
@@ -436,19 +442,37 @@ const Home = () => {
                 </Text>
               </Box>
 
-              <ChakraLink
-                as={Link}
-                to={item.link}
-                fontSize="xs"
-                fontWeight="700"
-                color={accentTeal}
-                _hover={{ textDecoration: 'underline' }}
-                display="inline-flex"
-                alignItems="center"
-                gap={1}
-              >
-                Learn More <span>→</span>
-              </ChakraLink>
+              {item.isExternal ? (
+                <ChakraLink
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  fontSize="xs"
+                  fontWeight="700"
+                  color={accentTeal}
+                  _hover={{ textDecoration: 'underline' }}
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={1}
+                  onClick={() => track('uhaul_booking_click', { destination: item.link, location: 'home_card' })}
+                >
+                  Book Online <span>↗</span>
+                </ChakraLink>
+              ) : (
+                <ChakraLink
+                  as={Link}
+                  to={item.link}
+                  fontSize="xs"
+                  fontWeight="700"
+                  color={accentTeal}
+                  _hover={{ textDecoration: 'underline' }}
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={1}
+                >
+                  Learn More <span>→</span>
+                </ChakraLink>
+              )}
             </Box>
           ))}
         </SimpleGrid>

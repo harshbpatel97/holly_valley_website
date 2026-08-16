@@ -115,6 +115,16 @@ const Footer = () => {
               >
                 Contact & Directions
               </ChakraLink>
+              <ChakraLink
+                href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/"
+                isExternal
+                color="brand.500"
+                fontWeight="600"
+                _hover={{ color: linkHoverColor, textDecoration: 'underline' }}
+                onClick={() => onNavClick('U-Haul Online', 'https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/')}
+              >
+                Reserve U-Haul Online ↗
+              </ChakraLink>
             </VStack>
           </VStack>
 

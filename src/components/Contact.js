@@ -35,7 +35,21 @@ const faqs = [
   },
   {
     q: 'How do I reserve a U-Haul moving truck or trailer?',
-    a: 'You can reserve online 24/7 through our official U-Haul dealer page, or call our store directly during business hours at (336) 304-0094.',
+    a: (
+      <>
+        You can reserve online 24/7 through our{' '}
+        <ChakraLink
+          href="https://www.uhaul.com/Locations/Truck-Rentals-near-Moravian-Falls-NC-28654/017013/"
+          target="_blank"
+          rel="noopener noreferrer"
+          color="brand.500"
+          fontWeight="bold"
+        >
+          official U-Haul location page ↗
+        </ChakraLink>
+        , or call our store directly during business hours at (336) 304-0094.
+      </>
+    ),
   },
   {
     q: 'What are the age requirements for lottery, alcohol, and tobacco?',
