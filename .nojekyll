@@ -1,0 +1,2 @@
+# This file tells GitHub Pages not to use Jekyll processing
+# This is needed for React apps to work properly on GitHub Pages 
