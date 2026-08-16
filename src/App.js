@@ -12,6 +12,7 @@ import Signage from './components/Signage';
 import SignageAccessDenied from './components/SignageAccessDenied';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import ColorModeSync from './components/ColorModeSync';
+import ChatWidget from './components/ChatBot/ChatWidget';
 import './App.css';
 
 // Signage route component with token authentication
@@ -172,6 +173,7 @@ function AppContent() {
               </Routes>
             </main>
             <Footer />
+            <ChatWidget />
           </>
         )}
       </Box>

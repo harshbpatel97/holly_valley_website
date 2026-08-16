@@ -19,7 +19,12 @@ Go to **Settings** → **Secrets and variables** → **Actions** → **New repos
 - `GOOGLE_DRIVE_API_KEY` - Your Google Drive API key
 - `REACT_APP_SIGNAGE_TOKEN` - Secret token for accessing the signage page (e.g., `your-secret-token-123`)
 
-**Optional:**
+**Optional (AI Chatbot & Cloudflare Automated Deployments):**
+- `REACT_APP_CHAT_API_URL` - Cloudflare Worker URL (e.g., `https://chatbot.hollyvalley-cstore.workers.dev`)
+- `CLOUDFLARE_API_TOKEN` - Cloudflare API token for automatic worker deployments on `git push`
+- `CLOUDFLARE_ACCOUNT_ID` - Cloudflare Account ID
+
+**Optional (General):**
 - `REACT_APP_GA_ID` - Google Analytics tracking ID (e.g., `G-XXXXXXXXXX`)
 - `REACT_APP_SIGNAGE_SLIDE_DURATION_MS` - Slide duration in milliseconds (default: `10000`)
 - `REACT_APP_SIGNAGE_REFRESH_INTERVAL_DAYS` - Refresh interval in days (default: `1`)

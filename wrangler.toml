@@ -1,0 +1,6 @@
+name = "chatbot"
+main = "serverless/cloudflare-worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://wilkes-cstore.com"

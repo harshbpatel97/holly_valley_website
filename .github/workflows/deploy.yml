@@ -115,6 +115,7 @@ jobs:
           REACT_APP_SIGNAGE_SLIDE_DURATION_MS: ${{ secrets.REACT_APP_SIGNAGE_SLIDE_DURATION_MS || '10000' }}
           REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS: ${{ secrets.REACT_APP_GOOGLE_DRIVE_FETCH_INTERVAL_DAYS || '1' }}
           REACT_APP_SIGNAGE_TOKEN: ${{ secrets.REACT_APP_SIGNAGE_TOKEN }}
+          REACT_APP_CHAT_API_URL: ${{ secrets.REACT_APP_CHAT_API_URL || 'https://chatbot.hollyvalley-cstore.workers.dev' }}
 
       - name: Deploy to GitHub Pages
         if: github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true'
@@ -124,6 +125,16 @@ jobs:
           publish_dir: ./build
           force_orphan: true
 
+      - name: Deploy Cloudflare Worker (AI Chatbot)
+        if: (github.event_name != 'schedule' || steps.check-interval.outputs.should_deploy == 'true') && env.CLOUDFLARE_API_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
       - name: Skip deployment - interval not reached
         if: github.event_name == 'schedule' && steps.check-interval.outputs.should_deploy == 'false'
         run: echo "Skipping deployment - refresh interval not yet reached"
+

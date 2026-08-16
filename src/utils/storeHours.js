@@ -26,7 +26,7 @@ export const getStoreStatus = () => {
       minute: 'numeric',
       hour12: false,
     });
-    
+
     const parts = formatter.formatToParts(now);
     let hour = 0;
     let minute = 0;

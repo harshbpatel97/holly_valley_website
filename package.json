@@ -37,7 +37,8 @@
     "verify-gdrive-sharing": "node scripts/verifyGoogleDriveSharing.js",
     "prebuild": "npm run sync-images",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "deploy-worker": "npx wrangler deploy"
   },
   "eslintConfig": {
     "extends": [

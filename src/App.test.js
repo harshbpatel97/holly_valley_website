@@ -1,8 +1,14 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { STORE_SCHEDULE, getStoreStatus } from './utils/storeHours';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+describe('App & Store Utilities', () => {
+  test('store schedule is defined for 7 days', () => {
+    expect(STORE_SCHEDULE).toHaveLength(7);
+  });
+
+  test('getStoreStatus returns store status object', () => {
+    const status = getStoreStatus();
+    expect(status).toHaveProperty('isOpen');
+    expect(status).toHaveProperty('statusText');
+    expect(status).toHaveProperty('todaySchedule');
+  });
 });
