@@ -49,10 +49,33 @@ REACT_APP_CHAT_API_URL=https://your-worker-subdomain.workers.dev
 
 ---
 
+## Automated Deployments (Zero Copy-Pasting)
+
+### Method A: 1-Command CLI Deployment
+Whenever you edit `serverless/cloudflare-worker.js`, you can deploy it in one command:
+```bash
+npm run deploy-worker
+```
+*(The first time you run this, it will prompt you to authorize your Cloudflare account in your browser once).*
+
+### Method B: Automatic GitHub Actions CI/CD (On `git push`)
+To have GitHub Actions automatically deploy the worker every time you push code to GitHub:
+1. In your [Cloudflare Dashboard](https://dash.cloudflare.com/), go to **My Profile** -> **API Tokens** -> **Create Token** -> Use the **Edit Cloudflare Workers** template.
+2. Copy your **Account ID** from your Cloudflare Worker overview page.
+3. In your GitHub repository, go to **Settings** -> **Secrets and variables** -> **Actions** and add:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+
+Whenever you `git push` to `master`, GitHub Actions will build the site and deploy the updated worker automatically!
+
+---
+
 ## Key Files Reference
 
+- **Wrangler Configuration**: [`wrangler.toml`](../wrangler.toml)
 - **Chatbot UI Widget**: [`src/components/ChatBot/ChatWidget.js`](../src/components/ChatBot/ChatWidget.js)
 - **Quick Action Chips**: [`src/components/ChatBot/ChatQuickActions.js`](../src/components/ChatBot/ChatQuickActions.js)
 - **Local Knowledge Engine**: [`src/components/ChatBot/chatKnowledge.js`](../src/components/ChatBot/chatKnowledge.js)
 - **Store Hours Utility**: [`src/utils/storeHours.js`](../src/utils/storeHours.js)
 - **Worker Proxy Script**: [`serverless/cloudflare-worker.js`](../serverless/cloudflare-worker.js)
+- **CI/CD Workflow**: [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml)
