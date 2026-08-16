@@ -273,21 +273,42 @@ Conversational Guidelines:
 `;
 
   const contents = [];
+  let lastRole = null;
+
   const recentHistory = Array.isArray(history) ? history.slice(-6) : [];
   for (const item of recentHistory) {
-    if (item.text && (item.sender === 'user' || item.sender === 'assistant' || item.role === 'user' || item.role === 'model')) {
-      const role = (item.sender === 'user' || item.role === 'user') ? 'user' : 'model';
-      contents.push({
-        role,
-        parts: [{ text: item.text.slice(0, 400) }],
-      });
+    if (!item.text) continue;
+    const role = (item.sender === 'user' || item.role === 'user') ? 'user' : 'model';
+
+    // First turn must be 'user'
+    if (contents.length === 0 && role !== 'user') {
+      continue;
     }
+
+    // Avoid consecutive identical roles
+    if (role === lastRole) {
+      continue;
+    }
+
+    contents.push({
+      role,
+      parts: [{ text: item.text.slice(0, 400) }],
+    });
+    lastRole = role;
   }
 
-  contents.push({
-    role: 'user',
-    parts: [{ text: message.slice(0, 400) }],
-  });
+  // Append current user message
+  if (lastRole === 'user') {
+    contents[contents.length - 1] = {
+      role: 'user',
+      parts: [{ text: message.slice(0, 400) }],
+    };
+  } else {
+    contents.push({
+      role: 'user',
+      parts: [{ text: message.slice(0, 400) }],
+    });
+  }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
