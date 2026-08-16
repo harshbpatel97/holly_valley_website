@@ -165,6 +165,7 @@ export default {
         return new Response(
           JSON.stringify({
             reply: `You have reached the maximum message limit for now. For immediate help, please call Holly Valley directly at (336) 304-0094 or visit us in Moravian Falls, NC!`,
+            source: 'rate_limited',
           }),
           { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         );
@@ -186,7 +187,7 @@ export default {
       const localAnswer = getQuickStoreAnswer(sanitizedMessage, storeStatus);
       if (localAnswer) {
         return new Response(
-          JSON.stringify({ reply: localAnswer }),
+          JSON.stringify({ reply: localAnswer, source: 'local_worker' }),
           { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         );
       }
@@ -195,6 +196,7 @@ export default {
         return new Response(
           JSON.stringify({
             reply: `Holly Valley is located at 2730 NC Hwy 18 S, Moravian Falls, NC 28654. You can call us at (336) 304-0094!`,
+            source: 'no_api_key',
           }),
           { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         );
@@ -235,13 +237,14 @@ export default {
         'Feel free to visit us or call (336) 304-0094 for more details!';
 
       return new Response(
-        JSON.stringify({ reply }),
+        JSON.stringify({ reply, source: 'gemini' }),
         { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     } catch (err) {
       return new Response(
         JSON.stringify({
           reply: `Thanks for reaching out! You can call Holly Valley at (336) 304-0094 or visit us at 2730 NC Hwy 18 S, Moravian Falls, NC.`,
+          source: 'worker_fallback',
         }),
         { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );

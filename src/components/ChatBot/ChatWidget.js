@@ -20,6 +20,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { getStoreStatus } from '../../utils/storeHours';
 import { STORE_INFO, getLocalResponse, callGeminiDirect } from './chatKnowledge';
+import { track } from '../../utils/ga';
 import ChatQuickActions from './ChatQuickActions';
 import './ChatBot.css';
 
@@ -163,6 +164,7 @@ const ChatWidget = () => {
 
     // Check session rate limit
     if (sessionCount >= MAX_SESSION_MESSAGES) {
+      track('chatbot_rate_limited', { session_count: sessionCount });
       const limitMsg = {
         id: `limit-${Date.now()}`,
         sender: 'assistant',
@@ -193,6 +195,12 @@ const ChatWidget = () => {
     const localMatch = getLocalResponse(textToSend);
 
     if (localMatch) {
+      track('chatbot_query', {
+        query_type: 'local_instant',
+        source: 'local_knowledge',
+        prompt_length: textToSend.length,
+      });
+
       // Simulate quick natural pause for realistic UI feel
       setTimeout(() => {
         const botMsg = {
@@ -223,6 +231,13 @@ const ChatWidget = () => {
 
         if (response.ok) {
           const data = await response.json();
+          const responseSource = data.source || 'cloudflare';
+          track('chatbot_query', {
+            query_type: responseSource === 'gemini' ? 'gemini_ai' : (responseSource === 'local_worker' ? 'cloudflare_local' : 'cloudflare_proxy'),
+            source: responseSource,
+            prompt_length: textToSend.length,
+          });
+
           const botMsg = {
             id: `bot-${Date.now()}`,
             sender: 'assistant',
@@ -245,6 +260,12 @@ const ChatWidget = () => {
       try {
         const reply = await callGeminiDirect(textToSend, storeStatus.statusText, geminiApiKey);
         if (reply) {
+          track('chatbot_query', {
+            query_type: 'gemini_ai_direct',
+            source: 'gemini_direct',
+            prompt_length: textToSend.length,
+          });
+
           const botMsg = {
             id: `bot-${Date.now()}`,
             sender: 'assistant',
@@ -265,6 +286,12 @@ const ChatWidget = () => {
     }
 
     // 4. Graceful Smart Fallback (100% $0 cost)
+    track('chatbot_query', {
+      query_type: 'fallback_directory',
+      source: 'fallback',
+      prompt_length: textToSend.length,
+    });
+
     setTimeout(() => {
       const fallbackMsg = {
         id: `bot-${Date.now()}`,
@@ -283,6 +310,7 @@ const ChatWidget = () => {
   };
 
   const handleClearHistory = () => {
+    track('chatbot_clear_history');
     setMessages([INITIAL_MESSAGE]);
     setSessionCount(0);
     try {
@@ -291,6 +319,12 @@ const ChatWidget = () => {
     } catch {
       // Ignore
     }
+  };
+
+  const handleToggleChat = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    track(nextState ? 'chatbot_opened' : 'chatbot_closed');
   };
 
   const handleKeyDown = (e) => {
@@ -306,7 +340,7 @@ const ChatWidget = () => {
       <Tooltip label={isOpen ? 'Close Assistant' : 'Ask Holly AI'} placement="left" hasArrow>
         <Box position="relative">
           <Button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleToggleChat}
             bg={fabBg}
             color="white"
             borderRadius="full"
@@ -471,7 +505,10 @@ const ChatWidget = () => {
                                   variant="outline"
                                   borderRadius="full"
                                   fontSize="xs"
-                                  onClick={() => handleSendMessage(act.prompt)}
+                                  onClick={() => {
+                                    track('chatbot_action_click', { action_label: act.label, action_type: 'quick_prompt' });
+                                    handleSendMessage(act.prompt);
+                                  }}
                                 >
                                   {act.label}
                                 </Button>
@@ -491,6 +528,9 @@ const ChatWidget = () => {
                                   borderRadius="full"
                                   fontSize="xs"
                                   _hover={{ textDecoration: 'none' }}
+                                  onClick={() => {
+                                    track('chatbot_action_click', { action_label: act.label, url: act.url });
+                                  }}
                                 >
                                   {act.label}
                                 </Button>
@@ -506,7 +546,10 @@ const ChatWidget = () => {
                                 variant="solid"
                                 borderRadius="full"
                                 fontSize="xs"
-                                onClick={() => setIsOpen(false)}
+                                onClick={() => {
+                                  track('chatbot_action_click', { action_label: act.label, url: act.url });
+                                  setIsOpen(false);
+                                }}
                               >
                                 {act.label}
                               </Button>
