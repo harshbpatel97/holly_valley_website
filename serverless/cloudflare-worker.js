@@ -3,7 +3,7 @@
  * 
  * Free Tier Limits:
  * - Cloudflare Workers: 100,000 requests / day (Free)
- * - Google Gemini 2.5 Flash: 1,500 requests / day (Free via Google AI Studio)
+ * - Google Gemini 1.5 Flash: 1,500 requests / day (Free via Google AI Studio)
  * 
  * Environment Variables / Secrets in Cloudflare Dashboard:
  * - GEMINI_API_KEY: (Get for free at https://aistudio.google.com/)
@@ -97,8 +97,15 @@ export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '*';
     const allowedOrigin = env.ALLOWED_ORIGIN || '*';
+    const isAllowed =
+      allowedOrigin === '*' ||
+      allowedOrigin === origin ||
+      origin.includes('localhost') ||
+      origin.includes('wilkes-cstore.com') ||
+      origin.includes('github.io');
+
     const corsHeaders = {
-      'Access-Control-Allow-Origin': allowedOrigin === '*' ? origin : allowedOrigin,
+      'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
@@ -173,8 +180,8 @@ export default {
         parts: [{ text: sanitizedMessage }],
       });
 
-      // 3. Call Google Gemini 2.5 Flash API (Free Tier)
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
+      // 3. Call Google Gemini 1.5 Flash API (Official GA Free Tier Model)
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
 
       const geminiPayload = {
         system_instruction: {
@@ -194,7 +201,9 @@ export default {
       });
 
       if (!aiResponse.ok) {
-        throw new Error(`Gemini API error: ${aiResponse.status}`);
+        const errorDetails = await aiResponse.text();
+        console.error(`Gemini API Error (${aiResponse.status}):`, errorDetails);
+        throw new Error(`Gemini API Error (${aiResponse.status}): ${errorDetails}`);
       }
 
       const aiData = await aiResponse.json();
@@ -207,6 +216,7 @@ export default {
         { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     } catch (err) {
+      console.error('Worker fetch error:', err.message);
       return new Response(
         JSON.stringify({
           reply: `Thanks for reaching out! Holly Valley is located at 2730 NC Hwy 18 S, Moravian Falls, NC. You can call us directly at (336) 304-0094.`,
