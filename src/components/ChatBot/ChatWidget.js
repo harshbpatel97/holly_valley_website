@@ -20,7 +20,16 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { getStoreStatus } from '../../utils/storeHours';
 import { STORE_INFO, getLocalResponse, callGeminiDirect } from './chatKnowledge';
-import { track } from '../../utils/ga';
+import {
+  trackChatbotOpen,
+  trackChatbotClose,
+  trackChatbotQuery,
+  trackChatbotResponse,
+  trackChatbotActionClick,
+  trackChatbotLead,
+  trackChatbotRateLimited,
+  trackChatbotClear,
+} from '../../utils/ga';
 import ChatQuickActions from './ChatQuickActions';
 import './ChatBot.css';
 
@@ -92,6 +101,21 @@ const renderFormattedText = (text) => {
 
 const MAX_SESSION_MESSAGES = 15;
 
+/**
+ * Categorizes a query into a high-level store topic for analytics
+ */
+const detectTopic = (query) => {
+  const q = (query || '').toLowerCase();
+  if (q.includes('hour') || q.includes('open') || q.includes('close') || q.includes('schedule') || q.includes('time') || q.includes('today')) return 'hours';
+  if (q.includes('uhaul') || q.includes('u-haul') || q.includes('truck') || q.includes('trailer') || q.includes('rent') || q.includes('towing') || q.includes('van')) return 'uhaul';
+  if (q.includes('ebt') || q.includes('snap') || q.includes('food stamp') || q.includes('payment') || q.includes('card') || q.includes('apple pay') || q.includes('pay') || q.includes('atm') || q.includes('bitcoin')) return 'payments';
+  if (q.includes('lottery') || q.includes('powerball') || q.includes('scratch') || q.includes('ticket') || q.includes('lotto')) return 'lottery';
+  if (q.includes('beer') || q.includes('alcohol') || q.includes('tobacco') || q.includes('vape') || q.includes('cigarette') || q.includes('age') || q.includes('id')) return 'age_policy';
+  if (q.includes('address') || q.includes('location') || q.includes('where') || q.includes('direction') || q.includes('map') || q.includes('moravian') || q.includes('wilkes')) return 'location';
+  if (q.includes('product') || q.includes('grocery') || q.includes('drink') || q.includes('snack') || q.includes('food') || q.includes('ice')) return 'products';
+  return 'general';
+};
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
@@ -105,31 +129,22 @@ const ChatWidget = () => {
   });
   const [sessionCount, setSessionCount] = useState(() => {
     try {
-      const count = sessionStorage.getItem('holly_chat_count');
-      return count ? parseInt(count, 10) : 0;
+      const saved = sessionStorage.getItem('holly_chat_count');
+      return saved ? parseInt(saved, 10) : 0;
     } catch {
       return 0;
     }
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [storeStatus, setStoreStatus] = useState(getStoreStatus());
   const messagesEndRef = useRef(null);
 
-  // Update store status every minute
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setStoreStatus(getStoreStatus());
-    }, 60000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Save messages and count to sessionStorage
+  // Sync state to sessionStorage
   useEffect(() => {
     try {
       sessionStorage.setItem('holly_chat_messages', JSON.stringify(messages));
       sessionStorage.setItem('holly_chat_count', sessionCount.toString());
-    } catch (e) {
-      // Ignore session storage quota errors
+    } catch {
+      // Ignore storage errors in private browsing
     }
   }, [messages, sessionCount]);
 
@@ -142,11 +157,13 @@ const ChatWidget = () => {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isLoading]);
 
-  // Theme color tokens
-  const cardBg = useColorModeValue('white', '#131C2E');
-  const cardBorder = useColorModeValue('gray.200', '#27354F');
+  const storeStatus = getStoreStatus();
+
+  // Color mode tokens
+  const cardBg = useColorModeValue('white', '#0E1726');
+  const cardBorder = useColorModeValue('gray.200', '#1E293B');
   const headerBg = useColorModeValue('brand.500', '#0F766E');
   const bodyBg = useColorModeValue('gray.50', '#0B0F17');
   const assistantBubbleBg = useColorModeValue('white', '#1E293B');
@@ -158,13 +175,13 @@ const ChatWidget = () => {
   const inputBorder = useColorModeValue('gray.300', '#27354F');
   const fabBg = useColorModeValue('brand.500', 'brand.500');
 
-  const handleSendMessage = async (queryText, isQuickAction = false) => {
+  const handleSendMessage = async (queryText, isQuickAction = false, actionMeta = null) => {
     const textToSend = (queryText || inputMessage).trim();
     if (!textToSend || isLoading) return;
 
     // Check session rate limit
     if (sessionCount >= MAX_SESSION_MESSAGES) {
-      track('chatbot_rate_limited', { session_count: sessionCount });
+      trackChatbotRateLimited(sessionCount);
       const limitMsg = {
         id: `limit-${Date.now()}`,
         sender: 'assistant',
@@ -178,6 +195,8 @@ const ChatWidget = () => {
       setMessages((prev) => [...prev, limitMsg]);
       return;
     }
+
+    const topic = (actionMeta && actionMeta.id) || detectTopic(textToSend);
 
     const userMsg = {
       id: `user-${Date.now()}`,
@@ -196,10 +215,12 @@ const ChatWidget = () => {
     if (isQuickAction) {
       const localMatch = getLocalResponse(textToSend);
       if (localMatch) {
-        track('chatbot_query', {
-          query_type: 'local_instant',
+        trackChatbotQuery({
+          query: textToSend,
+          queryType: 'quick_action',
           source: 'local_knowledge',
-          prompt_length: textToSend.length,
+          topic: topic,
+          promptLength: textToSend.length,
         });
 
         setTimeout(() => {
@@ -212,6 +233,13 @@ const ChatWidget = () => {
           };
           setMessages((prev) => [...prev, botMsg]);
           setIsLoading(false);
+          trackChatbotResponse({
+            responseSource: 'local_knowledge',
+            responseType: 'instant_local',
+            topic: topic,
+            responseLength: localMatch.text.length,
+            hasCta: !!(localMatch.actions && localMatch.actions.length > 0),
+          });
         }, 250);
         return;
       }
@@ -235,10 +263,12 @@ const ChatWidget = () => {
         if (response.ok) {
           const data = await response.json();
           const responseSource = data.source || 'cloudflare';
-          track('chatbot_query', {
-            query_type: responseSource === 'gemini' ? 'gemini_ai' : (responseSource === 'local_worker' ? 'cloudflare_local' : 'cloudflare_proxy'),
+          trackChatbotQuery({
+            query: textToSend,
+            queryType: isQuickAction ? 'quick_action' : 'user_input',
             source: responseSource,
-            prompt_length: textToSend.length,
+            topic: topic,
+            promptLength: textToSend.length,
           });
 
           const botMsg = {
@@ -253,6 +283,13 @@ const ChatWidget = () => {
           };
           setMessages((prev) => [...prev, botMsg]);
           setIsLoading(false);
+          trackChatbotResponse({
+            responseSource: responseSource,
+            responseType: 'ai_cloud',
+            topic: topic,
+            responseLength: (botMsg.text || '').length,
+            hasCta: !!(botMsg.actions && botMsg.actions.length > 0),
+          });
           return;
         }
       } catch (err) {
@@ -266,10 +303,12 @@ const ChatWidget = () => {
       try {
         const reply = await callGeminiDirect(textToSend, messages, storeStatus.statusText, geminiApiKey);
         if (reply) {
-          track('chatbot_query', {
-            query_type: 'gemini_ai_direct',
+          trackChatbotQuery({
+            query: textToSend,
+            queryType: isQuickAction ? 'quick_action' : 'user_input',
             source: 'gemini_direct',
-            prompt_length: textToSend.length,
+            topic: topic,
+            promptLength: textToSend.length,
           });
 
           const botMsg = {
@@ -284,6 +323,13 @@ const ChatWidget = () => {
           };
           setMessages((prev) => [...prev, botMsg]);
           setIsLoading(false);
+          trackChatbotResponse({
+            responseSource: 'gemini_direct',
+            responseType: 'ai_direct',
+            topic: topic,
+            responseLength: reply.length,
+            hasCta: true,
+          });
           return;
         }
       } catch (err) {
@@ -293,10 +339,12 @@ const ChatWidget = () => {
 
     // 4. Local Knowledge & Graceful Fallback
     const localMatch = getLocalResponse(textToSend);
-    track('chatbot_query', {
-      query_type: localMatch ? 'local_fallback' : 'directory_fallback',
-      source: 'fallback',
-      prompt_length: textToSend.length,
+    trackChatbotQuery({
+      query: textToSend,
+      queryType: isQuickAction ? 'quick_action' : 'user_input',
+      source: localMatch ? 'local_fallback' : 'directory_fallback',
+      topic: topic,
+      promptLength: textToSend.length,
     });
 
     setTimeout(() => {
@@ -315,11 +363,18 @@ const ChatWidget = () => {
       };
       setMessages((prev) => [...prev, fallbackMsg]);
       setIsLoading(false);
+      trackChatbotResponse({
+        responseSource: localMatch ? 'local_fallback' : 'directory_fallback',
+        responseType: localMatch ? 'local_knowledge' : 'directory_info',
+        topic: topic,
+        responseLength: fallbackMsg.text.length,
+        hasCta: true,
+      });
     }, 350);
   };
 
   const handleClearHistory = () => {
-    track('chatbot_clear_history');
+    trackChatbotClear();
     setMessages([INITIAL_MESSAGE]);
     setSessionCount(0);
     try {
@@ -333,7 +388,11 @@ const ChatWidget = () => {
   const handleToggleChat = () => {
     const nextState = !isOpen;
     setIsOpen(nextState);
-    track(nextState ? 'chatbot_opened' : 'chatbot_closed');
+    if (nextState) {
+      trackChatbotOpen('fab');
+    } else {
+      trackChatbotClose();
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -521,7 +580,10 @@ const ChatWidget = () => {
                                   borderRadius="full"
                                   fontSize="xs"
                                   onClick={() => {
-                                    track('chatbot_action_click', { action_label: act.label, action_type: 'quick_prompt' });
+                                    trackChatbotActionClick({
+                                      actionLabel: act.label,
+                                      actionType: 'embedded_prompt',
+                                    });
                                     handleSendMessage(act.prompt);
                                   }}
                                 >
@@ -530,11 +592,14 @@ const ChatWidget = () => {
                               );
                             }
                             if (act.isExternal) {
+                              const isPhone = act.url && act.url.startsWith('tel:');
+                              const isDirections = act.url && (act.url.includes('maps') || act.url.includes('google.com/maps') || act.url.includes('apple.com'));
+                              const isUhaul = act.url && act.url.includes('uhaul');
                               return (
                                 <Button
                                   as={ChakraLink}
                                   href={act.url}
-                                  target={act.url.startsWith('tel:') ? '_self' : '_blank'}
+                                  target={isPhone ? '_self' : '_blank'}
                                   rel="noopener noreferrer"
                                   key={actIdx}
                                   size="xs"
@@ -544,7 +609,14 @@ const ChatWidget = () => {
                                   fontSize="xs"
                                   _hover={{ textDecoration: 'none' }}
                                   onClick={() => {
-                                    track('chatbot_action_click', { action_label: act.label, url: act.url });
+                                    trackChatbotActionClick({
+                                      actionLabel: act.label,
+                                      actionType: isPhone ? 'phone_call' : (isDirections ? 'directions' : (isUhaul ? 'uhaul_booking' : 'external_link')),
+                                      destinationUrl: act.url,
+                                    });
+                                    if (isPhone) trackChatbotLead('phone_call', { phone: STORE_INFO.phoneClean });
+                                    if (isDirections) trackChatbotLead('directions', { destination: 'store_location' });
+                                    if (isUhaul) trackChatbotLead('uhaul_booking', { destination: act.url });
                                   }}
                                 >
                                   {act.label}
@@ -562,7 +634,11 @@ const ChatWidget = () => {
                                 borderRadius="full"
                                 fontSize="xs"
                                 onClick={() => {
-                                  track('chatbot_action_click', { action_label: act.label, url: act.url });
+                                  trackChatbotActionClick({
+                                    actionLabel: act.label,
+                                    actionType: 'internal_navigation',
+                                    destinationUrl: act.url,
+                                  });
                                   setIsOpen(false);
                                 }}
                               >
@@ -614,7 +690,7 @@ const ChatWidget = () => {
           {/* Quick Action Suggestions */}
           <Box borderTop="1px solid" borderColor={cardBorder} bg={cardBg}>
             <ChatQuickActions
-              onSelectAction={handleSendMessage}
+              onSelectAction={(prompt, isQuick, actionMeta) => handleSendMessage(prompt, isQuick, actionMeta)}
               disabled={isLoading || sessionCount >= MAX_SESSION_MESSAGES}
             />
           </Box>
