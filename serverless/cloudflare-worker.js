@@ -198,14 +198,14 @@ export default {
         });
       }
 
-      // 3. Call Google Gemini API (tries verified models: gemini-2.5-flash, gemini-flash-latest, etc.)
+      // 3. Call Google Gemini API (gemini-3.7-flash, gemini-3.5-flash, gemini-3.1-pro-preview, etc.)
       const candidateModels = [
-        { apiVer: 'v1beta', name: 'gemini-2.5-flash' },
-        { apiVer: 'v1beta', name: 'gemini-flash-latest' },
-        { apiVer: 'v1beta', name: 'gemini-2.5-flash-lite' },
         { apiVer: 'v1beta', name: 'gemini-3.7-flash' },
+        { apiVer: 'v1beta', name: 'gemini-3.5-flash' },
+        { apiVer: 'v1beta', name: 'gemini-3.1-pro-preview' },
+        { apiVer: 'v1beta', name: 'gemini-3.1-flash-lite' },
+        { apiVer: 'v1beta', name: 'gemini-flash-latest' },
         { apiVer: 'v1beta', name: 'gemini-pro-latest' },
-        { apiVer: 'v1beta', name: 'gemini-2.5-pro' },
       ];
       let aiData = null;
       let lastError = null;
