@@ -198,8 +198,15 @@ export default {
         });
       }
 
-      // 3. Call Google Gemini API (gemini-2.0-flash with automatic fallback)
-      const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-2.5-flash', 'gemini-1.5-flash'];
+      // 3. Call Google Gemini API (tries gemini-2.0-flash, gemini-1.5-flash, gemini-1.5-flash-latest, etc.)
+      const candidateModels = [
+        { apiVer: 'v1beta', name: 'gemini-2.0-flash' },
+        { apiVer: 'v1beta', name: 'gemini-1.5-flash' },
+        { apiVer: 'v1beta', name: 'gemini-1.5-flash-latest' },
+        { apiVer: 'v1beta', name: 'gemini-1.5-flash-8b' },
+        { apiVer: 'v1', name: 'gemini-1.5-flash' },
+        { apiVer: 'v1beta', name: 'gemini-pro' },
+      ];
       let aiData = null;
       let lastError = null;
 
@@ -214,9 +221,9 @@ export default {
         },
       };
 
-      for (const model of candidateModels) {
+      for (const { apiVer, name } of candidateModels) {
         try {
-          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+          const geminiUrl = `https://generativelanguage.googleapis.com/${apiVer}/models/${name}:generateContent?key=${env.GEMINI_API_KEY}`;
           const aiResponse = await fetch(geminiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -228,15 +235,28 @@ export default {
             break;
           } else {
             const errorDetails = await aiResponse.text();
-            lastError = `Model ${model} failed (${aiResponse.status}): ${errorDetails}`;
-            console.warn(lastError);
+            lastError = `Model ${apiVer}/${name} failed (${aiResponse.status}): ${errorDetails}`;
           }
         } catch (fetchErr) {
           lastError = fetchErr.message;
         }
       }
 
+      // If all candidate models returned 404, query the Google API key's model service to diagnose
       if (!aiData) {
+        try {
+          const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${env.GEMINI_API_KEY}`);
+          if (listRes.ok) {
+            const listData = await listRes.json();
+            const availableNames = (listData.models || []).map((m) => m.name.replace('models/', '')).join(', ');
+            lastError += ` | Available models for this API key: [${availableNames}]`;
+          } else {
+            const listErr = await listRes.text();
+            lastError += ` | Key verification failed: ${listErr}`;
+          }
+        } catch (diagErr) {
+          // Ignore secondary diagnostic error
+        }
         throw new Error(lastError || 'All Gemini model candidates failed');
       }
 
