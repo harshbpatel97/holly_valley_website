@@ -214,6 +214,52 @@ export const getLocalResponse = (query) => {
     };
   }
 
+  // Off-topic / Math / Non-Store Guardrail (Zero-latency deflection)
+  const mathRegex = /^\s*[\d\.]+\s*[\+\-\*\/\^\%]+\s*[\d\.]+\s*$/;
+  const isOffTopic = (
+    mathRegex.test(q) ||
+    q.includes('write code') ||
+    q.includes('write python') ||
+    q.includes('write javascript') ||
+    q.includes('write a script') ||
+    q.includes('write a poem') ||
+    q.includes('write an essay') ||
+    q.includes('write a letter') ||
+    q.includes('solve this') ||
+    q.includes('calculate') ||
+    q.includes('what is the capital') ||
+    q.includes('who is the president') ||
+    q.includes('translate this') ||
+    q.includes('homework') ||
+    q.includes('explain quantum')
+  );
+
+  // Prompt injection detection
+  const isPromptInjection = (
+    q.includes('ignore previous') ||
+    q.includes('ignore all') ||
+    q.includes('ignore your') ||
+    q.includes('forget your instructions') ||
+    q.includes('you are now') ||
+    q.includes('act as') ||
+    q.includes('pretend you are') ||
+    q.includes('disregard') ||
+    q.includes('jailbreak') ||
+    q.includes('new persona') ||
+    q.includes('override system')
+  );
+
+  if (isOffTopic || isPromptInjection) {
+    return {
+      text: `I am specifically here to help with **Holly Valley Grocery & Services** in Moravian Falls, NC (including our store hours, U-Haul rentals, groceries, cold drinks, lottery, and EBT payments).\n\nHow can I help you with our store today?`,
+      actions: [
+        { label: '🕒 Store Hours', prompt: 'What are your hours today?' },
+        { label: '🚚 Rent a U-Haul', prompt: 'How do I rent a U-Haul truck or trailer?' },
+        { label: '💳 EBT & Payments', prompt: 'Do you take EBT / SNAP and contactless payments?' },
+      ],
+    };
+  }
+
   // Fallback if not matched
   return null;
 };
@@ -264,11 +310,12 @@ Verified Services & Offerings:
    - On-site low-fee cash ATM for instant withdrawals.
    - Secure Bitcoin / cryptocurrency kiosk.
 
-Conversational Guidelines:
+Conversational Guidelines & Domain Guardrails:
+- Strict Store Focus: You are exclusively the assistant for "Holly Valley Grocery & Services" in Moravian Falls, NC.
+- ONLY answer questions related to Holly Valley: store hours, U-Haul truck and trailer rentals, inventory, drinks, groceries, snacks, lottery, EBT/payments, directions, contact info, and store policies.
+- STRICT OFF-TOPIC REFUSAL: If the user asks off-topic questions (such as math calculations like '2+2', writing code/scripts, homework, general world trivia, politics, philosophy, or unrelated topics), NEVER solve or answer the off-topic request. Politely decline and redirect them back to store services: "I am specifically dedicated to helping with Holly Valley Grocery & Services in Moravian Falls, NC (such as store hours, U-Haul rentals, groceries, lottery, and payments). How can I assist you with our store today?"
 - Tone: Friendly, conversational, warm, and helpful (local North Carolina community hospitality).
 - Keep answers direct and concise (2 to 5 sentences or short bullet points).
-- Suggest relevant store items when asked for ideas, recommendations, or trip preparations.
-- If asked about hot cooked restaurant food or gas pumps, clarify that Holly Valley is a convenience store and grocery specializing in packaged foods, cold drinks, snacks, lottery, and U-Haul rentals.
 - When appropriate, share our phone number (336) 304-0094 or store address.
 `;
 
