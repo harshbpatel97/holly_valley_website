@@ -1,12 +1,24 @@
 import React from 'react';
 import { Box, HStack, Button, useColorModeValue } from '@chakra-ui/react';
 import { QUICK_ACTIONS } from './chatKnowledge';
+import { trackChatbotActionClick } from '../../utils/ga';
 
 const ChatQuickActions = ({ onSelectAction, disabled }) => {
   const chipBg = useColorModeValue('gray.100', 'rgba(255, 255, 255, 0.08)');
   const chipHoverBg = useColorModeValue('brand.50', 'rgba(13, 148, 136, 0.2)');
   const chipBorder = useColorModeValue('gray.200', 'rgba(255, 255, 255, 0.12)');
   const chipColor = useColorModeValue('gray.700', 'gray.200');
+
+  const handleChipClick = (action) => {
+    trackChatbotActionClick({
+      actionLabel: action.label,
+      actionType: 'quick_chip',
+      actionId: action.id,
+    });
+    if (onSelectAction) {
+      onSelectAction(action.prompt, true, action);
+    }
+  };
 
   return (
     <Box
@@ -40,7 +52,7 @@ const ChatQuickActions = ({ onSelectAction, disabled }) => {
             _active={{
               transform: 'translateY(0)',
             }}
-            onClick={() => onSelectAction(action.prompt, true)}
+            onClick={() => handleChipClick(action)}
             isDisabled={disabled}
           >
             {action.label}

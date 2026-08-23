@@ -5,6 +5,7 @@ import './index.css';
 import App from './App';
 import theme from './theme';
 import reportWebVitals from './reportWebVitals';
+import { isGaDebugMode } from './utils/ga';
 
 // Google Analytics runtime injection
 const GA_ID = process.env.REACT_APP_GA_ID;
@@ -24,7 +25,10 @@ if (typeof window !== 'undefined') {
     document.head.appendChild(script);
 
     window.gtag('js', new Date());
-    window.gtag('config', GA_ID, { send_page_view: true });
+    window.gtag('config', GA_ID, {
+      send_page_view: true,
+      ...(isGaDebugMode() ? { debug_mode: true } : {}),
+    });
   }
 }
 

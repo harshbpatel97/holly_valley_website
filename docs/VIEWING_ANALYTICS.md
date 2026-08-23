@@ -386,13 +386,88 @@ Your signage page tracks the following events:
 
 ---
 
+## AI Store Assistant (Chatbot) Analytics
+
+The Holly Valley AI Assistant tracks rich real-time interaction, conversational, and conversion metrics in GA4.
+
+### Chatbot Events Tracked
+
+1. **`chatbot_opened`** - User opened the chat widget
+   - `event_category`: "Chatbot"
+   - `event_label`: "Chat Widget Opened"
+   - `open_source`: "fab"
+
+2. **`chatbot_closed`** - User minimized / closed the chat widget
+   - `event_category`: "Chatbot"
+   - `event_label`: "Chat Widget Closed"
+
+3. **`chatbot_query`** - User sent a message or clicked a quick prompt
+   - `event_category`: "Chatbot"
+   - `event_label`: Topic category or query preview (e.g., "hours", "uhaul", "lottery")
+   - `query_topic`: `"hours"` | `"uhaul"` | `"payments"` | `"lottery"` | `"location"` | `"age_policy"` | `"products"` | `"general"`
+   - `query_type`: `"quick_action"` | `"user_input"` | `"embedded_prompt"`
+   - `source`: `"local_knowledge"` | `"cloudflare_proxy"` | `"gemini_ai"` | `"local_fallback"` | `"directory_fallback"`
+   - `search_term`: First 100 characters of the user prompt
+   - `prompt_length`: Character length of the prompt
+
+4. **`chatbot_response`** - Bot delivered a response to the user
+   - `event_category`: "Chatbot"
+   - `event_label`: Topic or response type
+   - `response_source`: `"local_knowledge"` | `"cloudflare"` | `"gemini_direct"` | `"local_fallback"`
+   - `response_type`: `"instant_local"` | `"ai_cloud"` | `"ai_direct"` | `"directory_info"`
+   - `response_topic`: Intent topic
+   - `response_length`: Character length of generated reply
+   - `has_cta`: `true`/`false` (whether action buttons were included)
+
+5. **`chatbot_action_click`** - User clicked an action button or quick action chip
+   - `event_category`: "Chatbot"
+   - `event_label`: Action button text (e.g., "📞 Call Store", "📍 Get Directions")
+   - `action_type`: `"quick_chip"` | `"phone_call"` | `"directions"` | `"uhaul_booking"` | `"internal_navigation"` | `"embedded_prompt"`
+   - `action_id`: Chip ID (e.g., "hours", "uhaul", "payments", "lottery")
+   - `url`: Target URL or phone number
+
+6. **High-Intent Lead Conversions (`chatbot_lead_*`)**:
+   - **`chatbot_lead_phone_call`** - User clicked to call the store from the chatbot
+   - **`chatbot_lead_directions`** - User clicked for GPS directions from the chatbot
+   - **`chatbot_lead_uhaul_booking`** - User clicked through to the official U-Haul reservation portal
+
+7. **`chatbot_rate_limited`** - Session message limit reached (15 messages)
+   - `event_category`: "Chatbot"
+   - `session_count`: Current count
+
+8. **`chatbot_clear_history`** - User reset chat conversation
+   - `event_category`: "Chatbot"
+
+---
+
+## Real-Time Testing with GA4 DebugView
+
+To see all events fire in real time with complete parameter breakdown:
+
+1. **Activate Debug Mode in Any Browser**:
+   - Open your site with the debug parameter:
+     `https://your-domain.com/?debug_ga=true` (or `http://localhost:3000/?debug_ga=true`)
+   - Or open DevTools Console (`F12` or `Cmd+Option+I`) and run:
+     ```js
+     localStorage.setItem('debug_ga', 'true'); location.reload();
+     ```
+2. **View Live Events in Google Analytics**:
+   - Go to [analytics.google.com](https://analytics.google.com) → **Admin** (bottom left gear icon).
+   - Under **Data display**, click **DebugView**.
+   - You will see a live timeline of every click, chatbot query, response, and conversion with all parameters!
+3. **View in DevTools Console**:
+   - When debug mode is active, every event is cleanly logged in your browser console:
+     `📊 [GA4 Event] chatbot_query { query_topic: "hours", ... }`
+
+---
+
 ## Troubleshooting
 
 ### Events Not Showing Up
 
 1. **Check Measurement ID**
-   - Verify `REACT_APP_GA_ID` is set correctly in your `.env` file
-   - Check browser console for any errors
+   - Verify `REACT_APP_GA_ID` is set correctly in your `.env` file (e.g. `G-Z52L7DLEN1`).
+   - Check browser console for `📊 [GA4 Event]` logs.
 
 2. **Verify Tracking Code**
    - Open browser DevTools → Network tab
@@ -400,33 +475,37 @@ Your signage page tracks the following events:
    - Look for requests to `google-analytics.com/g/collect`
    - This confirms events are being sent
 
-3. **Check Event Parameters**
-   - In Google Analytics → **Reports** → **Realtime** → **Events**
-   - Events appear within seconds
-   - If not appearing, check browser console for errors
-
-4. **Ad Blockers**
-   - Some ad blockers may block Google Analytics
-   - Test in incognito mode or disable ad blocker
-
-### IP Address Not Showing
-
-1. **IP Fetch May Fail**
-   - If `api.ipify.org` is blocked, IP won't be captured
-   - Check browser console for fetch errors
-   - IP is optional, so events will still be tracked without it
-
-2. **View in Event Parameters**
-   - IP addresses are stored as event parameters
-   - Click on an event → Scroll to "Event parameters" section
-   - Look for `ip_address` parameter
+3. **Check Ad Blockers & Privacy Shields**
+   - Ad blockers (uBlock, AdBlock Plus) and browser shields (Brave Shields, Safari Content Blockers) will block requests to Google Analytics.
+   - Test in an incognito window with extensions disabled or allow `googletagmanager.com` / `google-analytics.com`.
 
 ---
 
-## Quick Reference: Event Names
+## Quick Reference: All Event Names
 
-- **`signage_access_granted`** - Successful access (granted)
-- **`signage_access_denied`** - Access denied (blocked)
+- **Signage Events**:
+  - `signage_access_granted`
+  - `signage_access_denied`
 
-All events include `ip_address` parameter (when available) for security review purposes.
+- **Chatbot Events**:
+  - `chatbot_opened`
+  - `chatbot_closed`
+  - `chatbot_query`
+  - `chatbot_response`
+  - `chatbot_action_click`
+  - `chatbot_lead_phone_call`
+  - `chatbot_lead_directions`
+  - `chatbot_lead_uhaul_booking`
+  - `chatbot_rate_limited`
+  - `chatbot_clear_history`
+
+- **Navigation & Store Events**:
+  - `phone_click`
+  - `directions_click`
+  - `uhaul_booking_click`
+  - `nav_link_click`
+  - `copy_address_click`
+  - `product_category_open`
+  - `product_image_zoom`
+
 
