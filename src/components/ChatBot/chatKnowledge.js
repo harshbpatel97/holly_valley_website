@@ -215,7 +215,7 @@ export const getLocalResponse = (query) => {
   }
 
   // Off-topic / Math / Non-Store Guardrail (Zero-latency deflection)
-  const mathRegex = /^\s*[\d\.]+\s*[\+\-\*\/\^\%]+\s*[\d\.]+\s*$/;
+  const mathRegex = /^\s*[\d.]+\s*[+\-*/^%]+\s*[\d.]+\s*$/;
   const isOffTopic = (
     mathRegex.test(q) ||
     q.includes('write code') ||
