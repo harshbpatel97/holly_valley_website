@@ -263,37 +263,51 @@ const ChatWidget = () => {
         if (response.ok) {
           const data = await response.json();
           const responseSource = data.source || 'cloudflare';
-          trackChatbotQuery({
-            query: textToSend,
-            queryType: isQuickAction ? 'quick_action' : 'user_input',
-            source: responseSource,
-            topic: topic,
-            promptLength: textToSend.length,
-          });
 
-          const botMsg = {
-            id: `bot-${Date.now()}`,
-            sender: 'assistant',
-            text: data.reply || "I'm happy to help with any questions about Holly Valley Grocery & Services!",
-            actions: data.actions || [
-              { label: '📞 Call Store', url: `tel:${STORE_INFO.phoneClean}`, isExternal: true },
-              { label: '📍 Directions', url: STORE_INFO.googleMapsUrl, isExternal: true },
-            ],
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          };
-          setMessages((prev) => [...prev, botMsg]);
-          setIsLoading(false);
-          trackChatbotResponse({
-            responseSource: responseSource,
-            responseType: 'ai_cloud',
-            topic: topic,
-            responseLength: (botMsg.text || '').length,
-            hasCta: !!(botMsg.actions && botMsg.actions.length > 0),
-          });
-          return;
+          // If the worker successfully generated a genuine AI reply
+          if (responseSource === 'gemini' && data.reply) {
+            trackChatbotQuery({
+              query: textToSend,
+              queryType: isQuickAction ? 'quick_action' : 'user_input',
+              source: 'gemini_cloud',
+              topic: topic,
+              promptLength: textToSend.length,
+            });
+
+            const botMsg = {
+              id: `bot-${Date.now()}`,
+              sender: 'assistant',
+              text: data.reply,
+              actions: data.actions || [
+                { label: '📞 Call Store', url: `tel:${STORE_INFO.phoneClean}`, isExternal: true },
+                { label: '📍 Directions', url: STORE_INFO.googleMapsUrl, isExternal: true },
+              ],
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            };
+            setMessages((prev) => [...prev, botMsg]);
+            setIsLoading(false);
+            trackChatbotResponse({
+              responseSource: 'gemini_cloud',
+              responseType: 'ai_cloud',
+              topic: topic,
+              responseLength: (botMsg.text || '').length,
+              hasCta: !!(botMsg.actions && botMsg.actions.length > 0),
+            });
+            return;
+          }
+
+          // If the worker had a Gemini error or lacks an API key, log diagnostic and fall through to local knowledge
+          if (typeof console !== 'undefined' && console.warn) {
+            console.warn(
+              '⚠️ [Chatbot Worker Notice]:',
+              data.debug_error || `Worker source '${responseSource}' (missing GEMINI_API_KEY in Cloudflare or API error). Falling back to smart local knowledge.`
+            );
+          }
         }
       } catch (err) {
-        // Fallback to local assistant logic if backend fails
+        if (typeof console !== 'undefined' && console.warn) {
+          console.warn('⚠️ [Chatbot Fetch Warning]: Backend API unreachable. Falling back to local assistant knowledge.', err.message);
+        }
       }
     }
 

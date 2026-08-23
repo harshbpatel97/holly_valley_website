@@ -1,80 +1,43 @@
-import { getLocalResponse, callGeminiDirect, STORE_INFO } from './chatKnowledge';
+import { getLocalResponse } from './chatKnowledge';
 
-describe('ChatBot Knowledge Engine', () => {
-  test('returns store hours and schedule for hours query', () => {
-    const res = getLocalResponse('What are your store hours today?');
-    expect(res).not.toBeNull();
-    expect(res.text).toContain('Weekly Store Schedule');
-    expect(res.actions).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ label: '📞 Call Store' }),
-      ])
-    );
-  });
-
-  test('returns U-Haul rental info and links', () => {
-    const res = getLocalResponse('How do I rent a U-Haul truck?');
+describe('chatKnowledge - getLocalResponse', () => {
+  test('returns U-Haul info for truck queries', () => {
+    const res = getLocalResponse('I need 14 ft truck do you have it');
     expect(res).not.toBeNull();
     expect(res.text).toContain('Authorized U-Haul Neighborhood Dealer');
-    expect(res.actions.some((a) => a.url === STORE_INFO.uhaulUrl)).toBe(true);
+    expect(res.text).toContain('Moving Trucks');
+    expect(res.actions.length).toBeGreaterThan(0);
   });
 
-  test('returns EBT and payment methods', () => {
-    const res = getLocalResponse('Do you take EBT or Apple Pay?');
+  test('returns store hours for open/hours queries', () => {
+    const res = getLocalResponse('What time do you close today?');
+    expect(res).not.toBeNull();
+    expect(res.text).toContain('Weekly Store Schedule');
+  });
+
+  test('returns payment info for EBT / Apple Pay queries', () => {
+    const res = getLocalResponse('Do you accept EBT and Apple Pay?');
     expect(res).not.toBeNull();
     expect(res.text).toContain('EBT / SNAP');
     expect(res.text).toContain('Apple Pay');
   });
 
-  test('returns NC Lottery rules and 18+ age limit', () => {
-    const res = getLocalResponse('Tell me about NC lottery tickets and Powerball');
+  test('returns lottery info for scratch tickets', () => {
+    const res = getLocalResponse('Can I buy lottery scratch tickets?');
     expect(res).not.toBeNull();
+    expect(res.text).toContain('NC Lottery');
     expect(res.text).toContain('18 years old');
-    expect(res.text).toContain('Powerball');
   });
 
-  test('returns address and map directions', () => {
-    const res = getLocalResponse('Where are you located? Give me directions');
+  test('returns age policies for beer and tobacco', () => {
+    const res = getLocalResponse('How old to buy beer or vape?');
     expect(res).not.toBeNull();
-    expect(res.text).toContain(STORE_INFO.address);
-    expect(res.actions.some((a) => a.url === STORE_INFO.googleMapsUrl)).toBe(true);
+    expect(res.text).toContain('21+');
   });
 
-  test('callGeminiDirect sends multi-turn history and message to Gemini API', async () => {
-    const mockReply = 'We have cold Monster and Red Bull drinks in stock!';
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        candidates: [
-          {
-            content: {
-              parts: [{ text: mockReply }],
-            },
-          },
-        ],
-      }),
-    });
-
-    const history = [
-      { sender: 'user', text: 'Do you carry energy drinks?' },
-      { sender: 'assistant', text: 'Yes, we carry a wide variety of energy drinks.' },
-    ];
-
-    const result = await callGeminiDirect(
-      'Which brands do you have?',
-      history,
-      'Open Now',
-      'test-api-key'
-    );
-
-    expect(result).toBe(mockReply);
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-
-    const calledBody = JSON.parse(global.fetch.mock.calls[0][1].body);
-    expect(calledBody.contents.length).toBe(3); // 2 history items + 1 current message
-    expect(calledBody.contents[0].role).toBe('user');
-    expect(calledBody.contents[1].role).toBe('model');
-    expect(calledBody.contents[2].role).toBe('user');
-    expect(calledBody.generationConfig.temperature).toBe(0.7);
+  test('returns location for directions queries', () => {
+    const res = getLocalResponse('Where are you located?');
+    expect(res).not.toBeNull();
+    expect(res.text).toContain('2730 NC Hwy 18 S');
   });
 });

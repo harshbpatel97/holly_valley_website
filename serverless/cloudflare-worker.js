@@ -198,8 +198,10 @@ export default {
         });
       }
 
-      // 3. Call Google Gemini 1.5 Flash API (Official GA Free Tier Model)
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
+      // 3. Call Google Gemini API (gemini-2.0-flash with automatic fallback)
+      const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-2.5-flash', 'gemini-1.5-flash'];
+      let aiData = null;
+      let lastError = null;
 
       const geminiPayload = {
         system_instruction: {
@@ -212,19 +214,32 @@ export default {
         },
       };
 
-      const aiResponse = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiPayload),
-      });
+      for (const model of candidateModels) {
+        try {
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+          const aiResponse = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(geminiPayload),
+          });
 
-      if (!aiResponse.ok) {
-        const errorDetails = await aiResponse.text();
-        console.error(`Gemini API Error (${aiResponse.status}):`, errorDetails);
-        throw new Error(`Gemini API Error (${aiResponse.status}): ${errorDetails}`);
+          if (aiResponse.ok) {
+            aiData = await aiResponse.json();
+            break;
+          } else {
+            const errorDetails = await aiResponse.text();
+            lastError = `Model ${model} failed (${aiResponse.status}): ${errorDetails}`;
+            console.warn(lastError);
+          }
+        } catch (fetchErr) {
+          lastError = fetchErr.message;
+        }
       }
 
-      const aiData = await aiResponse.json();
+      if (!aiData) {
+        throw new Error(lastError || 'All Gemini model candidates failed');
+      }
+
       const reply =
         aiData.candidates?.[0]?.content?.parts?.[0]?.text ||
         'Feel free to visit us or call (336) 304-0094 for more details!';
@@ -237,11 +252,12 @@ export default {
       console.error('Worker fetch error:', err.message);
       return new Response(
         JSON.stringify({
+          error: true,
           reply: `Thanks for reaching out! Holly Valley is located at 2730 NC Hwy 18 S, Moravian Falls, NC. You can call us directly at (336) 304-0094.`,
           source: 'worker_fallback',
           debug_error: err.message,
         }),
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        { status: 502, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
   },
